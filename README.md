@@ -4,6 +4,19 @@ This repository contains ASP.NET Core application with RESTful API endpoints for
 
 `This is a teamwork assignment where you will work as a team within your group`
 
+## Team members:
+| Name | Role |
+|--------|--------|
+| @Mohkhasa |  `Admin` |
+| @ahadND71 |  `Manager` |
+| @EnasBatarfi | `Member` |
+| @ShahadDraim  |  `Member` |
+
+
+<br/>
+
+![image](https://github.com/Mohkhasa/sda-online-2-csharp-backend_teamwork/assets/83678009/c283ee24-4e22-4a72-b8c0-869866beb294)
+
 ## How to work
 
 1. One team member (admin) should fork the repo and add other members to that admin repo as collaborators.

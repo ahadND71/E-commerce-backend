@@ -6,16 +6,15 @@ public class OrderProduct
   [Key]
   public Guid OrderItemId { get; set; }
 
-  [Key]
-  [Column(Order = 1)]
+  [Required]
   public Guid OrderId { get; set; }
 
-  [Key]
-  [Column(Order = 2)]
+  [Required]
   public Guid ProductId { get; set; }
 
   [Required]
   public int Quantity { get; set; }
+
   [Required]
   public int ProductPrice { get; set; }
 

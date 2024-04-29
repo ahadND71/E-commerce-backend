@@ -1,60 +1,64 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using api.Data;
+
+namespace api.Services;
 
 public class OrderService
 {
-  public static List<Order> _orders = new List<Order>(){
-    new Order{
-        OrderId = Guid.Parse("75424b9b-cbd4-49b9-901b-056dd1c6a020"),
-        TotalAmount = 1300
-    },
-    new Order{
-        OrderId=  Guid.Parse("24508f7e-94ec-4f0b-b8d6-e8e16a999929"),
-        TotalAmount = 200
+  private readonly AppDbContext _dbContext;
 
-    },
-    new Order{
-        OrderId =  Guid.Parse("24508f7e-94ec-4f0b-b8d6-e8e16a9a3339"),
-        TotalAmount = 600
-    }
-  };
-  // SERVICES
-  public IEnumerable<Order> GetAllOrderService()
+  public OrderService(AppDbContext dbContext)
   {
-    return _orders;
+    _dbContext = dbContext;
   }
-  public Order? GetOrderByIdService(Guid id)
+
+
+  public async Task<IEnumerable<Order>> GetAllOrderService()
   {
-    return _orders.Find(Order => Order.OrderId == id);
+    return await _dbContext.Orders.ToListAsync();
   }
-  public Order CreateOrderService(Order newOrder)
+
+
+  public async Task<Order?> GetOrderByIdService(Guid id)
+  {
+    return await _dbContext.Orders.FindAsync(id);
+  }
+
+
+  public async Task<Order> CreateOrderService(Order newOrder)
   {
     newOrder.OrderId = Guid.NewGuid();
     newOrder.CreatedAt = DateTime.Now;
     newOrder.UpdatedAt = DateTime.Now;
-
-    _orders.Add(newOrder);
+    _dbContext.Orders.Add(newOrder);
+    await _dbContext.SaveChangesAsync();
     return newOrder;
   }
-  public Order? UpdateOrderService(Guid id, Order updateOrder)
-  {
 
-    var foundedOrder = _orders.FirstOrDefault(Order => Order.OrderId == id);
+  public async Task<Order?> UpdateOrderService(Guid id, Order updateOrder)
+  {
+    var foundedOrder = await _dbContext.Orders.FindAsync(id);
     if (foundedOrder != null)
     {
       foundedOrder.TotalAmount = updateOrder.TotalAmount;
       foundedOrder.Status = updateOrder.Status;
       foundedOrder.UpdatedAt = DateTime.Now;
+      await _dbContext.SaveChangesAsync();
     }
     return foundedOrder;
   }
-  public bool DeleteOrderService(Guid id)
+
+
+  public async Task<bool> DeleteOrderService(Guid id)
   {
-    var OrderToRemove = _orders.FirstOrDefault(Order => Order.OrderId == id);
-    if (OrderToRemove != null)
+    var orderToRemove = await _dbContext.Orders.FindAsync(id);
+    if (orderToRemove != null)
     {
-      _orders.Remove(OrderToRemove);
+      _dbContext.Orders.Remove(orderToRemove);
+      await _dbContext.SaveChangesAsync();
       return true;
     }
     return false;
   }
+
 }

@@ -1,62 +1,44 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using api.Data;
+
+namespace api.Services;
 
 public class ProductService
 {
-  public static List<Product> _products = new List<Product>(){
-    new Product{
-        ProductId = Guid.Parse("75424b9b-cbd4-49b9-901b-056dd1c6a020"),
-        Name ="Dell XPS 13",
-        Slug = "dell-xps-13",
-        Description ="Ultra-thin laptop with 4K display",
-        Price = 1500.00,
-        SKU ="dellxps13",
-        StockQuantity = 20 ,
-        ImgUrl ="https://example.com/dell_xps_13.jpg"
-    },
-    new Product{
-        ProductId=  Guid.Parse("24508f7e-94ec-4f0b-b8d6-e8e16a999929"),
-        Name ="iPhone 13 Pro",
-        Slug = "iphone-13-pro",
-        Description ="Latest iPhone with A15 Bionic chip",
-        Price = 1200.00,
-        SKU ="iphone13pro",
-        StockQuantity = 30 ,
-        ImgUrl ="https://example.com/iphone_13_pro.jpg"
-    },
-    new Product{
-        ProductId =  Guid.Parse("24508f7e-94ec-4f0b-b8d6-e8e16a9a3339"),
-        Name ="airpods-pro",
-        Slug = "earphones",
-        Description ="Active Noise Cancellation for immersive sound",
-        Price = 250.00,
-        SKU ="airpodspro",
-        StockQuantity = 40 ,
-        ImgUrl ="https://example.com/airpods_pro.jpg"
-    }
-  };
-  // SERVICES
-  public IEnumerable<Product> GetAllProductService()
+  private readonly AppDbContext _dbContext;
+
+  public ProductService(AppDbContext dbContext)
   {
-    return _products;
+    _dbContext = dbContext;
   }
-  public Product? GetProductByIdService(Guid id)
+
+
+  public async Task<IEnumerable<Product>> GetAllProductService()
   {
-    return _products.Find(product => product.ProductId == id);
+    return await _dbContext.Products.ToListAsync();
   }
-  public Product CreateProductService(Product newProduct)
+
+
+  public async Task<Product?> GetProductByIdService(Guid id)
+  {
+    return await _dbContext.Products.FindAsync(id);
+  }
+
+
+  public async Task<Product> CreateProductService(Product newProduct)
   {
     newProduct.ProductId = Guid.NewGuid();
     newProduct.CreatedAt = DateTime.Now;
     newProduct.UpdatedAt = DateTime.Now;
-
-
-    _products.Add(newProduct);
+    _dbContext.Products.Add(newProduct);
+    await _dbContext.SaveChangesAsync();
     return newProduct;
   }
-  public Product? UpdateProductService(Guid id, Product updateProduct)
-  {
 
-    var foundedProduct = _products.FirstOrDefault(product => product.ProductId == id);
+
+  public async Task<Product?> UpdateProductService(Guid id, Product updateProduct)
+  {
+    var foundedProduct = await _dbContext.Products.FindAsync(id);
     if (foundedProduct != null)
     {
       foundedProduct.Name = updateProduct.Name;
@@ -66,17 +48,22 @@ public class ProductService
       foundedProduct.SKU = updateProduct.SKU;
       foundedProduct.ImgUrl = updateProduct.ImgUrl;
       foundedProduct.UpdatedAt = DateTime.Now;
+      await _dbContext.SaveChangesAsync();
     }
     return foundedProduct;
   }
-  public bool DeleteProductService(Guid id)
+
+
+  public async Task<bool> DeleteProductService(Guid id)
   {
-    var ProductToRemove = _products.FirstOrDefault(product => product.ProductId == id);
-    if (ProductToRemove != null)
+    var productToRemove = await _dbContext.Products.FindAsync(id);
+    if (productToRemove != null)
     {
-      _products.Remove(ProductToRemove);
+      _dbContext.Products.Remove(productToRemove);
+      await _dbContext.SaveChangesAsync();
       return true;
     }
     return false;
   }
+
 }

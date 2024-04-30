@@ -12,6 +12,13 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<AddressService>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<OrderProductService>();
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ReviewService>();
+builder.Services.AddScoped<CategoryService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

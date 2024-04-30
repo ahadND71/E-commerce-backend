@@ -9,10 +9,10 @@ namespace api.Controllers;
 [Route("/api/categories")]
 public class CategoryController : ControllerBase
 {
-  private readonly CategoryService _categoryService;
+  private readonly CategoryService _dbContext;
   public CategoryController(CategoryService categoryService)
   {
-    _categoryService = categoryService;
+    _dbContext = categoryService;
   }
 
   [HttpGet]
@@ -20,10 +20,12 @@ public class CategoryController : ControllerBase
   {
     try
     {
-      var categories = await _categoryService.GetAllCategoryService();
+      var categories = await _dbContext.GetAllCategoryService();
 
-      if (categories.ToList().Count < 1){
-        return NotFound(new ErrorMessage{
+      if (categories.ToList().Count < 1)
+      {
+        return NotFound(new ErrorMessage
+        {
           Message = "No Categories To Display"
         });
       }
@@ -31,14 +33,17 @@ public class CategoryController : ControllerBase
 
 
 
-      return Ok(new SuccessMessage <IEnumerable<Category>>{
-         Message = "Categories are returned succeefully" , 
-         Data = categories });
+      return Ok(new SuccessMessage<IEnumerable<Category>>
+      {
+        Message = "Categories are returned succeefully",
+        Data = categories
+      });
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occured , can not return the category list");
-      return StatusCode(500, new ErrorMessage {
+      return StatusCode(500, new ErrorMessage
+      {
         Message = ex.Message
       });
     }
@@ -53,7 +58,7 @@ public class CategoryController : ControllerBase
       {
         return BadRequest("Invalid category ID Format");
       }
-      var category = await _categoryService.GetCategoryById(categoryIdGuid);
+      var category = await _dbContext.GetCategoryById(categoryIdGuid);
       if (category == null)
       {
         return NotFound(new ErrorMessage
@@ -63,10 +68,12 @@ public class CategoryController : ControllerBase
       }
       else
       {
-        return Ok( new SuccessMessage<Category>{ 
-          Success = true, 
-          Message = "Category is returned succeefully" , 
-          Data = category });
+        return Ok(new SuccessMessage<Category>
+        {
+          Success = true,
+          Message = "Category is returned succeefully",
+          Data = category
+        });
       }
 
     }
@@ -88,18 +95,22 @@ public class CategoryController : ControllerBase
     try
     {
 
-      var createdCategory = await _categoryService.CreateCategoryService(newCategory);
-      if (createdCategory != null ){
-      return CreatedAtAction(nameof(GetCategory), new
+      var createdCategory = await _dbContext.CreateCategoryService(newCategory);
+      if (createdCategory != null)
       {
-        categoryId = createdCategory.CategoryId
-      }, createdCategory); }
-
-      return Ok(new SuccessMessage<Category> 
-      { Success = true, 
-        Message = "Category is created succeefully" , 
-        Data = createdCategory });
+        return CreatedAtAction(nameof(GetCategory), new
+        {
+          categoryId = createdCategory.CategoryId
+        }, createdCategory);
       }
+
+      return Ok(new SuccessMessage<Category>
+      {
+        Success = true,
+        Message = "Category is created succeefully",
+        Data = createdCategory
+      });
+    }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occured , can not create new category");
@@ -122,7 +133,7 @@ public class CategoryController : ControllerBase
       {
         return BadRequest("Invalid category ID Format");
       }
-      var category = await _categoryService.UpdateCategoryService(categoryIdGuid, updateCategory);
+      var category = await _dbContext.UpdateCategoryService(categoryIdGuid, updateCategory);
       if (category == null)
       {
         return NotFound(new ErrorMessage
@@ -130,10 +141,12 @@ public class CategoryController : ControllerBase
           Message = "No Category To Founed To Update"
         });
       }
-      return Ok(new SuccessMessage<Category> { 
-        Success = true, 
-        Message = "Category is updated succeefully" , 
-        Data = category });
+      return Ok(new SuccessMessage<Category>
+      {
+        Success = true,
+        Message = "Category is updated succeefully",
+        Data = category
+      });
     }
     catch (Exception ex)
     {
@@ -156,7 +169,7 @@ public class CategoryController : ControllerBase
       {
         return BadRequest("Invalid Category ID Format");
       }
-      var result = await _categoryService.DeleteCategoryService(categoryIdGuid);
+      var result = await _dbContext.DeleteCategoryService(categoryIdGuid);
       if (!result)
       {
         return NotFound(new ErrorMessage

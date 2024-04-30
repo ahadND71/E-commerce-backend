@@ -8,10 +8,10 @@ namespace api.Controllers;
 [Route("/api/orders")]
 public class OrderController : ControllerBase
 {
-  public OrderService _orderService;
+  public OrderService _dbContext;
   public OrderController(OrderService orderService)
   {
-    _orderService = orderService;
+    _dbContext = orderService;
   }
 
   [HttpGet]
@@ -20,7 +20,7 @@ public class OrderController : ControllerBase
     try
     {
 
-      var orders = await _orderService.GetAllOrderService();
+      var orders = await _dbContext.GetAllOrderService();
       if (orders.ToList().Count < 1)
       {
         return NotFound(new ErrorMessage
@@ -54,7 +54,7 @@ public class OrderController : ControllerBase
       {
         return BadRequest("Invalid Order ID Format");
       }
-      var order = await _orderService.GetOrderByIdService(orderIdGuid);
+      var order = await _dbContext.GetOrderByIdService(orderIdGuid);
       if (order == null)
       {
         return NotFound(new ErrorMessage
@@ -89,7 +89,7 @@ public class OrderController : ControllerBase
     try
     {
 
-      var createdOrder = await _orderService.CreateOrderService(newOrder);
+      var createdOrder = await _dbContext.CreateOrderService(newOrder);
       if (createdOrder != null)
       {
         return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
@@ -119,7 +119,7 @@ public class OrderController : ControllerBase
       {
         return BadRequest("Invalid Order ID Format");
       }
-      var order = await _orderService.UpdateOrderService(orderIdGuid, updateOrder);
+      var order = await _dbContext.UpdateOrderService(orderIdGuid, updateOrder);
       if (order == null)
 
 
@@ -151,29 +151,29 @@ public class OrderController : ControllerBase
     try
     {
       if (!Guid.TryParse(orderId, out Guid OrderId_Guid))
-    {
-      return BadRequest("Invalid Order ID Format");
-    }
-    var result = await _orderService.DeleteOrderService(OrderId_Guid);
-    if (!result)
-
-
-        {
-          return NotFound(new ErrorMessage
-          {
-            Message = "The Order is not found to be deleted"
-          });
-        }
-        return Ok(new { success = true, message = " Order is deleted succeefully" });
-      }
-
-      catch (Exception ex)
       {
-        Console.WriteLine($"An error occured , the Order can not deleted");
-        return StatusCode(500, new ErrorMessage
+        return BadRequest("Invalid Order ID Format");
+      }
+      var result = await _dbContext.DeleteOrderService(OrderId_Guid);
+      if (!result)
+
+
+      {
+        return NotFound(new ErrorMessage
         {
-          Message = ex.Message
+          Message = "The Order is not found to be deleted"
         });
       }
+      return Ok(new { success = true, message = " Order is deleted succeefully" });
+    }
+
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occured , the Order can not deleted");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
   }
 }

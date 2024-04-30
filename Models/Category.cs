@@ -9,13 +9,10 @@ public class Category
   [MaxLength(100), MinLength(30)]
   public string Name { get; set; }
 
-
   public string Slug { get; set; }
-
-
 
   [MaxLength(300)]
   public string Description { get; set; } = string.Empty;
-  public DateTime CreatedAt { get; set; }
 
+  public DateTime CreatedAt { get; set; }
 }

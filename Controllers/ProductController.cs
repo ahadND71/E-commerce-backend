@@ -8,10 +8,10 @@ namespace api.Controllers;
 [Route("/api/products")]
 public class ProductController : ControllerBase
 {
-  public ProductService _productService;
+  public ProductService _dbContext;
   public ProductController(ProductService productService)
   {
-    _productService = productService;
+    _dbContext = productService;
   }
 
   [HttpGet]
@@ -20,7 +20,7 @@ public class ProductController : ControllerBase
     try
     {
 
-      var products = await _productService.GetAllProductService();
+      var products = await _dbContext.GetAllProductService();
       if (products.ToList().Count < 1)
       {
         return NotFound(new ErrorMessage
@@ -54,7 +54,7 @@ public class ProductController : ControllerBase
       {
         return BadRequest("Invalid product ID Format");
       }
-      var product = await _productService.GetProductByIdService(productIdGuid);
+      var product = await _dbContext.GetProductByIdService(productIdGuid);
       if (product == null)
 
       {
@@ -93,7 +93,7 @@ public class ProductController : ControllerBase
     try
     {
 
-      var createdProduct = await _productService.CreateProductService(newProduct);
+      var createdProduct = await _dbContext.CreateProductService(newProduct);
       if (createdProduct != null)
       {
         return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductId }, createdProduct);
@@ -123,7 +123,7 @@ public class ProductController : ControllerBase
       {
         return BadRequest("Invalid product ID Format");
       }
-      var product = await _productService.UpdateProductService(productIdGuid, updateProduct);
+      var product = await _dbContext.UpdateProductService(productIdGuid, updateProduct);
       if (product == null)
 
       {
@@ -155,29 +155,29 @@ public class ProductController : ControllerBase
     {
 
       if (!Guid.TryParse(productId, out Guid productIdGuid))
-    {
-      return BadRequest("Invalid product ID Format");
-    }
-    var result = await _productService.DeleteProductService(productIdGuid);
-    if (!result)
-
-
-        {
-          return NotFound(new ErrorMessage
-          {
-            Message = "The Product is not found to be deleted"
-          });
-        }
-        return Ok(new { success = true, message = " Product is deleted succeefully" });
-      }
-
-      catch (Exception ex)
       {
-        Console.WriteLine($"An error occured , the Product can not deleted");
-        return StatusCode(500, new ErrorMessage
+        return BadRequest("Invalid product ID Format");
+      }
+      var result = await _dbContext.DeleteProductService(productIdGuid);
+      if (!result)
+
+
+      {
+        return NotFound(new ErrorMessage
         {
-          Message = ex.Message
+          Message = "The Product is not found to be deleted"
         });
       }
+      return Ok(new { success = true, message = " Product is deleted succeefully" });
+    }
+
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occured , the Product can not deleted");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
   }
 }

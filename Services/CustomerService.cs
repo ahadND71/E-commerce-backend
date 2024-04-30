@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
-using Microsoft.Net.Http.Headers;
 
 namespace api.Services;
 
@@ -12,6 +11,7 @@ public class CustomerService
   {
     _dbContext = dbContext;
   }
+
 
   public async Task<IEnumerable<Customer>> GetAllCustomersService()
   {
@@ -44,7 +44,6 @@ public class CustomerService
       existingCustomer.LastName = updateCustomer.LastName ?? existingCustomer.LastName;
       existingCustomer.Email = updateCustomer.Email ?? existingCustomer.Email;
       existingCustomer.Password = updateCustomer.Password ?? existingCustomer.Password;
-      existingCustomer.Address = updateCustomer.Address ?? existingCustomer.Address;
       existingCustomer.Image = updateCustomer.Image ?? existingCustomer.Image;
       existingCustomer.IsBanned = updateCustomer.IsBanned;
       await _dbContext.SaveChangesAsync();

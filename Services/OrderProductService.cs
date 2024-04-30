@@ -39,7 +39,7 @@ public class OrderProductService
     var existingOrderProduct = await _dbContext.OrderProducts.FindAsync(orderItemId);
     if (existingOrderProduct != null)
     {
-      existingOrderProduct.Quantity = updateOrderProduct.Quantity ;
+      existingOrderProduct.Quantity = updateOrderProduct.Quantity ?? existingOrderProduct.Quantity;
       existingOrderProduct.ProductPrice = updateOrderProduct.ProductPrice;
       await _dbContext.SaveChangesAsync();
     }

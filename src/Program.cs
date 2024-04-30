@@ -1,20 +1,31 @@
-// WIP
+using api.Data;
+using api.Services;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
+
+// TODO test this ---- vvvvvv
+builder.Services.AddScoped<AdminService>();
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(
+        builder.Configuration.GetConnectionString("LegendsConnection")
+    )); // -------------------------------------- ^^^^^^^^^^^^^^^^^^ this is the database connection, check appsettings.json
+// TODO ---------- ^^^^^^ ----------------------- 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 
+app.UseHttpsRedirection();
+app.MapControllers().WithParameterValidation();
 app.Run();

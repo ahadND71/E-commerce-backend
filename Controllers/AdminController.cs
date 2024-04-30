@@ -7,7 +7,7 @@ namespace api.Controllers;
 [Route("/api/admins")]
 public class AdminController : ControllerBase
 {
-    private readonly AdminService _adminService;
+    private readonly AdminService _adminService; // TODO change to _dbContext
     public AdminController(AdminService adminService)
     {
         _adminService = adminService;

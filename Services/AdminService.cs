@@ -40,11 +40,11 @@ public class AdminService
     var existingAdmin = await _dbContext.Admins.FindAsync(adminId);
     if (existingAdmin != null)
     {
-      existingAdmin.FirstName = updateAdmin.FirstName;
-      existingAdmin.LastName = updateAdmin.LastName;
-      existingAdmin.Email = updateAdmin.Email;
-      existingAdmin.Password = updateAdmin.Password;
-      existingAdmin.Image = updateAdmin.Image;
+      existingAdmin.FirstName = updateAdmin.FirstName ?? existingAdmin.FirstName;
+      existingAdmin.LastName = updateAdmin.LastName ?? existingAdmin.LastName;
+      existingAdmin.Email = updateAdmin.Email ?? existingAdmin.Email;
+      existingAdmin.Password = updateAdmin.Password ?? existingAdmin.Password;
+      existingAdmin.Image = updateAdmin.Image ?? existingAdmin.Image;
       await _dbContext.SaveChangesAsync();
     }
     return existingAdmin;

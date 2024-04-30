@@ -40,13 +40,13 @@ public class AddressService
 
     if (existingAddress != null)
     {
-      existingAddress.Name = updateAddress.Name;
-      existingAddress.AddressLine1 = updateAddress.AddressLine1;
-      existingAddress.AddressLine2 = updateAddress.AddressLine2;
-      existingAddress.Country = updateAddress.Country;
-      existingAddress.Province = updateAddress.Province;
-      existingAddress.City = updateAddress.City;
-      existingAddress.ZipCode = updateAddress.ZipCode;
+      existingAddress.Name = updateAddress.Name ?? existingAddress.Name;
+      existingAddress.AddressLine1 = updateAddress.AddressLine1 ?? existingAddress.AddressLine1;
+      existingAddress.AddressLine2 = updateAddress.AddressLine2 ?? existingAddress.AddressLine2;
+      existingAddress.Country = updateAddress.Country ?? existingAddress.Country;
+      existingAddress.Province = updateAddress.Province ?? existingAddress.Province;
+      existingAddress.City = updateAddress.City ?? existingAddress.City;
+      existingAddress.ZipCode = updateAddress.ZipCode ?? existingAddress.ZipCode;
       await _dbContext.SaveChangesAsync();
     }
     return existingAddress;

@@ -37,15 +37,15 @@ public class OrderService
 
   public async Task<Order?> UpdateOrderService(Guid orderId, Order updateOrder)
   {
-    var foundedOrder = await _dbContext.Orders.FindAsync(orderId);
-    if (foundedOrder != null)
+    var existingOrder = await _dbContext.Orders.FindAsync(orderId);
+    if (existingOrder != null)
     {
-      foundedOrder.TotalAmount = updateOrder.TotalAmount;
-      foundedOrder.Status = updateOrder.Status;
-      foundedOrder.UpdatedAt = DateTime.Now;
+      existingOrder.TotalAmount = updateOrder.TotalAmount;
+      existingOrder.Status = updateOrder.Status ?? existingOrder.Status;
+      existingOrder.UpdatedAt = DateTime.Now;
       await _dbContext.SaveChangesAsync();
     }
-    return foundedOrder;
+    return existingOrder;
   }
 
 

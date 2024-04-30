@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
+using api.Helpers;
 
 namespace api.Controllers;
 
@@ -14,57 +15,169 @@ public class ProductController : ControllerBase
   }
 
   [HttpGet]
-  public IActionResult GetAllProducts()
+  public async Task<IActionResult> GetAllProducts()
   {
-    var products = _productService.GetAllProductService();
-    return Ok(products);
+    try
+    {
+
+      var products = await _productService.GetAllProductService();
+      if (products.ToList().Count < 1)
+      {
+        return NotFound(new ErrorMessage
+        {
+          Message = "No Products To Display"
+        });
+      }
+      return Ok(new SuccessMessage<IEnumerable<Product>>
+      {
+        Message = "Products are returned succeefully",
+        Data = products
+      });
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occured , can not return the Product list");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
   }
 
-  [HttpGet("{productId}")]
-  public IActionResult GetOneProduct(string productId)
+
+  [HttpGet("{productId:guid}")]
+  public async Task<IActionResult> GetProduct(string productId)
   {
-    if (!Guid.TryParse(productId, out Guid ProductId_Guid))
+    try
     {
-      return BadRequest("Invalid product ID Format");
+      if (!Guid.TryParse(productId, out Guid productIdGuid))
+      {
+        return BadRequest("Invalid product ID Format");
+      }
+      var product = await _productService.GetProductByIdService(productIdGuid);
+      if (product == null)
+
+      {
+        return NotFound(new ErrorMessage
+        {
+          Message = $"No Product Found With ID : ({productIdGuid})"
+        });
+      }
+      else
+      {
+        return Ok(new SuccessMessage<Product>
+        {
+          Success = true,
+          Message = "Product is returned succeefully",
+          Data = product
+        });
+      }
+
     }
-    var product = _productService.GetProductByIdService(ProductId_Guid);
-    return Ok(product);
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occured , can not return the Product");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
+
   }
+
+
 
   [HttpPost]
   public async Task<IActionResult> CreateProduct(Product newProduct)
   {
-    var createdProduct = await _productService.CreateProductService(newProduct);
-    return CreatedAtAction(nameof(GetOneProduct), new { id = createdProduct.ProductId }, createdProduct);
+    try
+    {
+
+      var createdProduct = await _productService.CreateProductService(newProduct);
+      if (createdProduct != null)
+      {
+        return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductId }, createdProduct);
+      }
+      return Ok(new SuccessMessage<Product>
+      {
+        Message = "Product is created succeefully",
+        Data = createdProduct
+      });
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occured , can not create new Product");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
   }
 
-  [HttpPut("{productId}")]
-  public IActionResult UpdateProduct(string productId, Product updateProduct)
+  [HttpPut("{productId:guid}")]
+  public async Task<IActionResult> UpdateProduct(string productId, Product updateProduct)
   {
-    if (!Guid.TryParse(productId, out Guid ProductId_Guid))
+    try
     {
-      return BadRequest("Invalid product ID Format");
+      if (!Guid.TryParse(productId, out Guid productIdGuid))
+      {
+        return BadRequest("Invalid product ID Format");
+      }
+      var product = await _productService.UpdateProductService(productIdGuid, updateProduct);
+      if (product == null)
+
+      {
+        return NotFound(new ErrorMessage
+        {
+          Message = "No Product To Founed To Update"
+        });
+      }
+      return Ok(new SuccessMessage<Product>
+      {
+        Message = "Product Is Updated Succeefully",
+        Data = product
+      });
     }
-    var product = _productService.UpdateProductService(ProductId_Guid, updateProduct);
-    if (product == null)
+    catch (Exception ex)
     {
-      return NotFound();
+      Console.WriteLine($"An error occured , can not update the Product ");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
     }
-    return Ok(product);
   }
 
-  [HttpDelete("{productId}")]
+  [HttpDelete("{productId:guid}")]
   public async Task<IActionResult> DeleteProduct(string productId)
   {
-    if (!Guid.TryParse(productId, out Guid ProductId_Guid))
+    try
+    {
+
+      if (!Guid.TryParse(productId, out Guid productIdGuid))
     {
       return BadRequest("Invalid product ID Format");
     }
-    var result = await _productService.DeleteProductService(ProductId_Guid);
+    var result = await _productService.DeleteProductService(productIdGuid);
     if (!result)
-    {
-      return NotFound();
-    }
-    return NoContent();
+
+
+        {
+          return NotFound(new ErrorMessage
+          {
+            Message = "The Product is not found to be deleted"
+          });
+        }
+        return Ok(new { success = true, message = " Product is deleted succeefully" });
+      }
+
+      catch (Exception ex)
+      {
+        Console.WriteLine($"An error occured , the Product can not deleted");
+        return StatusCode(500, new ErrorMessage
+        {
+          Message = ex.Message
+        });
+      }
   }
 }

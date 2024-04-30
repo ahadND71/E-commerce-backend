@@ -7,7 +7,7 @@ public class Address
 
 
 
-  // public Guid CustomerId { get; set; }
+  public Guid CustomerId { get; set; }
 
 
 

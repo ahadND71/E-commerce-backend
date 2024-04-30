@@ -10,6 +10,9 @@ public class Category
   public string Name { get; set; }
 
 
+  public string Slug { get; set; }
+
+
 
   [MaxLength(300)]
   public string Description { get; set; } = string.Empty;

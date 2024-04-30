@@ -36,14 +36,14 @@ public class OrderProductService
 
   public async Task<OrderProduct?> UpdateOrderProductservice(Guid orderItemId, OrderProduct updateOrderProduct)
   {
-    var foundedOrderProduct = await _dbContext.OrderProducts.FindAsync(orderItemId);
-    if (foundedOrderProduct != null)
+    var existingOrderProduct = await _dbContext.OrderProducts.FindAsync(orderItemId);
+    if (existingOrderProduct != null)
     {
-      foundedOrderProduct.Quantity = updateOrderProduct.Quantity;
-      foundedOrderProduct.ProductPrice = updateOrderProduct.ProductPrice;
+      existingOrderProduct.Quantity = updateOrderProduct.Quantity ;
+      existingOrderProduct.ProductPrice = updateOrderProduct.ProductPrice;
       await _dbContext.SaveChangesAsync();
     }
-    return foundedOrderProduct;
+    return existingOrderProduct;
   }
 
 

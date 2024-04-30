@@ -40,8 +40,8 @@ public class ReviewService
         var existingReview = await _dbContext.Reviews.FindAsync(reviewId);
         if (existingReview != null)
         {
-            existingReview.Comment = updateReview.Comment;
-            existingReview.Status = updateReview.Status;
+            existingReview.Comment = updateReview.Comment ?? existingReview.Comment;
+            existingReview.Status = updateReview.Status ?? existingReview.Status;
             await _dbContext.SaveChangesAsync();
         }
         return existingReview;

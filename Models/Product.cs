@@ -5,19 +5,18 @@ public class Product
   [Key]
   public Guid ProductId { get; set; }
 
-  // [Required]
-  // public Guid CategoryId { get; set; }
+  [Required]
+  public Guid CategoryId { get; set; }
 
-  // [Required]
-  // public Guid AdminId { get; set; }
+  [Required]
+  public Guid AdminId { get; set; }
 
   [Required(ErrorMessage = "Product name is requierd")]
   [MaxLength(100), MinLength(30)]
   public string Name { get; set; }
 
 
-  [MaxLength(100)]
-  public string Slug { get; set; } = string.Empty;
+  public string Slug { get; set; }
 
 
 

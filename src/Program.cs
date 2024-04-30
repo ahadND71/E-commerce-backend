@@ -27,5 +27,5 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
-app.MapControllers();
+app.MapControllers().WithParameterValidation();
 app.Run();

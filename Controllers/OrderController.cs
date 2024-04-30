@@ -20,10 +20,10 @@ public class OrderController : ControllerBase
     return Ok(Orders);
   }
 
-  [HttpGet("{id}")]
-  public IActionResult GetOneOrder(string id)
+  [HttpGet("{orderId}")]
+  public IActionResult GetOneOrder(string orderId)
   {
-    if (!Guid.TryParse(id, out Guid OrderId_Guid))
+    if (!Guid.TryParse(orderId, out Guid OrderId_Guid))
     {
       return BadRequest("Invalid Order ID Format");
     }
@@ -38,10 +38,10 @@ public class OrderController : ControllerBase
     return CreatedAtAction(nameof(GetOneOrder), new { id = createdOrder.OrderId }, createdOrder);
   }
 
-  [HttpPut("{id}")]
-  public IActionResult UpdateOrder(string id, Order updateOrder)
+  [HttpPut("{orderId}")]
+  public IActionResult UpdateOrder(string orderId, Order updateOrder)
   {
-    if (!Guid.TryParse(id, out Guid OrderId_Guid))
+    if (!Guid.TryParse(orderId, out Guid OrderId_Guid))
     {
       return BadRequest("Invalid Order ID Format");
     }
@@ -53,10 +53,10 @@ public class OrderController : ControllerBase
     return Ok(Order);
   }
 
-  [HttpDelete("{id}")]
-  public async Task<IActionResult> DeleteOrder(string id)
+  [HttpDelete("{orderId}")]
+  public async Task<IActionResult> DeleteOrder(string orderId)
   {
-    if (!Guid.TryParse(id, out Guid OrderId_Guid))
+    if (!Guid.TryParse(orderId, out Guid OrderId_Guid))
     {
       return BadRequest("Invalid Order ID Format");
     }

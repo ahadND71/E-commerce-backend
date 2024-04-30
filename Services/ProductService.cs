@@ -19,9 +19,9 @@ public class ProductService
   }
 
 
-  public async Task<Product?> GetProductByIdService(Guid id)
+  public async Task<Product?> GetProductByIdService(Guid productId)
   {
-    return await _dbContext.Products.FindAsync(id);
+    return await _dbContext.Products.FindAsync(productId);
   }
 
 
@@ -36,9 +36,9 @@ public class ProductService
   }
 
 
-  public async Task<Product?> UpdateProductService(Guid id, Product updateProduct)
+  public async Task<Product?> UpdateProductService(Guid productId, Product updateProduct)
   {
-    var foundedProduct = await _dbContext.Products.FindAsync(id);
+    var foundedProduct = await _dbContext.Products.FindAsync(productId);
     if (foundedProduct != null)
     {
       foundedProduct.Name = updateProduct.Name;
@@ -54,9 +54,9 @@ public class ProductService
   }
 
 
-  public async Task<bool> DeleteProductService(Guid id)
+  public async Task<bool> DeleteProductService(Guid productId)
   {
-    var productToRemove = await _dbContext.Products.FindAsync(id);
+    var productToRemove = await _dbContext.Products.FindAsync(productId);
     if (productToRemove != null)
     {
       _dbContext.Products.Remove(productToRemove);

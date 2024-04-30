@@ -20,10 +20,10 @@ public class ProductController : ControllerBase
     return Ok(products);
   }
 
-  [HttpGet("{ProductId}")]
-  public IActionResult GetOneProduct(string id)
+  [HttpGet("{productId}")]
+  public IActionResult GetOneProduct(string productId)
   {
-    if (!Guid.TryParse(id, out Guid ProductId_Guid))
+    if (!Guid.TryParse(productId, out Guid ProductId_Guid))
     {
       return BadRequest("Invalid product ID Format");
     }
@@ -38,10 +38,10 @@ public class ProductController : ControllerBase
     return CreatedAtAction(nameof(GetOneProduct), new { id = createdProduct.ProductId }, createdProduct);
   }
 
-  [HttpPut("{ProductId}")]
-  public IActionResult UpdateProduct(string id, Product updateProduct)
+  [HttpPut("{productId}")]
+  public IActionResult UpdateProduct(string productId, Product updateProduct)
   {
-    if (!Guid.TryParse(id, out Guid ProductId_Guid))
+    if (!Guid.TryParse(productId, out Guid ProductId_Guid))
     {
       return BadRequest("Invalid product ID Format");
     }
@@ -53,10 +53,10 @@ public class ProductController : ControllerBase
     return Ok(product);
   }
 
-  [HttpDelete("{ProductId}")]
-  public async Task<IActionResult> DeleteProduct(string id)
+  [HttpDelete("{productId}")]
+  public async Task<IActionResult> DeleteProduct(string productId)
   {
-    if (!Guid.TryParse(id, out Guid ProductId_Guid))
+    if (!Guid.TryParse(productId, out Guid ProductId_Guid))
     {
       return BadRequest("Invalid product ID Format");
     }

@@ -20,10 +20,10 @@ public class OrderProductController : ControllerBase
     return Ok(OrderProducts);
   }
 
-  [HttpGet("{OrderItemId}")]
-  public IActionResult GetOneOrderProduct(string id)
+  [HttpGet("{orderItemId}")]
+  public IActionResult GetOneOrderProduct(string orderItemId)
   {
-    if (!Guid.TryParse(id, out Guid OrderItemId_Guid))
+    if (!Guid.TryParse(orderItemId, out Guid OrderItemId_Guid))
     {
       return BadRequest("Invalid OrderProduct ID Format");
     }
@@ -38,10 +38,10 @@ public class OrderProductController : ControllerBase
     return CreatedAtAction(nameof(GetOneOrderProduct), new { id = createdOrderProduct.OrderItemId }, createdOrderProduct);
   }
 
-  [HttpPut("{OrderItemId}")]
-  public IActionResult UpdateOrderProduct(string id, OrderProduct updateOrderProduct)
+  [HttpPut("{orderItemId}")]
+  public IActionResult UpdateOrderProduct(string orderItemId, OrderProduct updateOrderProduct)
   {
-    if (!Guid.TryParse(id, out Guid OrderItemId_Guid))
+    if (!Guid.TryParse(orderItemId, out Guid OrderItemId_Guid))
     {
       return BadRequest("Invalid OrderProduct ID Format");
     }
@@ -54,9 +54,9 @@ public class OrderProductController : ControllerBase
   }
 
   [HttpDelete("{OrderItemId}")]
-  public async Task<IActionResult> DeleteOrderProduct(string id)
+  public async Task<IActionResult> DeleteOrderProduct(string orderItemId)
   {
-    if (!Guid.TryParse(id, out Guid OrderItemId_Guid))
+    if (!Guid.TryParse(orderItemId, out Guid OrderItemId_Guid))
     {
       return BadRequest("Invalid OrderProduct ID Format");
     }

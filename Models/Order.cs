@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 public class Order
 {
-  [Key]
   public Guid OrderId { get; set; }
 
   [Required(ErrorMessage = "The total amount of the order can not be Empty")]
@@ -10,9 +9,9 @@ public class Order
 
   public string Status { get; set; } = "Pending...";
 
-  public DateTime CreatedAt { get; set; } = DateTime.Now;
+  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-  public DateTime UpdatedAt { get; set; } = DateTime.Now;
+  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
   //
   public Guid CustomerId { get; set; }

@@ -2,19 +2,18 @@ using System.ComponentModel.DataAnnotations;
 
 public class Customer
 {
-  [Key]
   public Guid CustomerId { get; set; }
 
   [Required(ErrorMessage = "First name is requierd")]
-  [MaxLength(100), MinLength(30)]
+  [MaxLength(100), MinLength(2)]
   public string FirstName { get; set; }
 
   [Required(ErrorMessage = "Last name is requierd")]
-  [MaxLength(100), MinLength(30)]
+  [MaxLength(100), MinLength(2)]
   public string LastName { get; set; }
 
   [Required(ErrorMessage = "Email is requierd")]
-  [MaxLength(100), MinLength(11)]
+  [MaxLength(100), MinLength(6)]
   [EmailAddress(ErrorMessage = "Email address is not valid")]
   public string Email { get; set; }
 

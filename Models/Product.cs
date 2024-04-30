@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 public class Product
 {
-  [Key]
   public Guid ProductId { get; set; }
 
   // [Required]
@@ -12,7 +11,7 @@ public class Product
   // public Guid AdminId { get; set; }
 
   [Required(ErrorMessage = "Product name is requierd")]
-  [MaxLength(100), MinLength(30)]
+  [MaxLength(100), MinLength(2)]
   public string Name { get; set; }
 
   public string Slug { get; set; }
@@ -36,9 +35,9 @@ public class Product
   [MaxLength(250)]
   public string ImgUrl { get; set; }
 
-  public DateTime CreatedAt { get; set; } = DateTime.Now;
+  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-  public DateTime UpdatedAt { get; set; } = DateTime.Now;
+  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
   //
   // public Category Category { get; set; }

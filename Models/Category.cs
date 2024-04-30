@@ -2,11 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 public class Category
 {
-  [Key]
   public Guid CategoryId { get; set; }
 
   [Required(ErrorMessage = "Category name is requierd")]
-  [MaxLength(100), MinLength(30)]
+  [MaxLength(100), MinLength(2)]
   public string Name { get; set; }
 
   public string Slug { get; set; }

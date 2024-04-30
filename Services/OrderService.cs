@@ -28,8 +28,8 @@ public class OrderService
   public async Task<Order> CreateOrderService(Order newOrder)
   {
     newOrder.OrderId = Guid.NewGuid();
-    newOrder.CreatedAt = DateTime.Now;
-    newOrder.UpdatedAt = DateTime.Now;
+    newOrder.CreatedAt = DateTime.UtcNow;
+    newOrder.UpdatedAt = DateTime.UtcNow;
     _dbContext.Orders.Add(newOrder);
     await _dbContext.SaveChangesAsync();
     return newOrder;
@@ -42,7 +42,7 @@ public class OrderService
     {
       existingOrder.TotalAmount = updateOrder.TotalAmount;
       existingOrder.Status = updateOrder.Status ?? existingOrder.Status;
-      existingOrder.UpdatedAt = DateTime.Now;
+      existingOrder.UpdatedAt = DateTime.UtcNow;
       await _dbContext.SaveChangesAsync();
     }
     return existingOrder;

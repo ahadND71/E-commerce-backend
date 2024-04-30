@@ -28,7 +28,7 @@ public class AdminService
   public async Task<Admin> CreateAdminService(Admin newAdmin)
   {
     newAdmin.AdminId = Guid.NewGuid();
-    newAdmin.CreatedAt = DateTime.Now;
+    newAdmin.CreatedAt = DateTime.UtcNow;
     _dbContext.Admins.Add(newAdmin);
     await _dbContext.SaveChangesAsync();
     return newAdmin;

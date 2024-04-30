@@ -28,7 +28,7 @@ public class CategoryService
   {
     newCategory.CategoryId = Guid.NewGuid();
     newCategory.Slug = SlugGenerator.GenerateSlug(newCategory.Name);
-    newCategory.CreatedAt = DateTime.Now;
+    newCategory.CreatedAt = DateTime.UtcNow;
     _dbContext.Categories.Add(newCategory);
     await _dbContext.SaveChangesAsync();
     return newCategory;

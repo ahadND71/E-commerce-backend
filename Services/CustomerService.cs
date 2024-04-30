@@ -28,7 +28,7 @@ public class CustomerService
   public async Task<Customer> CreateCustomerService(Customer newCustomer)
   {
     newCustomer.CustomerId = Guid.NewGuid();
-    newCustomer.CreatedAt = DateTime.Now;
+    newCustomer.CreatedAt = DateTime.UtcNow;
     _dbContext.Customers.Add(newCustomer);
     await _dbContext.SaveChangesAsync();
     return newCustomer;

@@ -73,7 +73,6 @@ public class AdminController : ControllerBase
                     Data = admin
                 });
             }
-
         }
         catch (Exception ex)
         {
@@ -82,7 +81,6 @@ public class AdminController : ControllerBase
             {
                 Message = ex.Message
             });
-
         }
     }
 
@@ -113,7 +111,6 @@ public class AdminController : ControllerBase
                 Message = ex.Message
             });
         }
-
     }
 
 

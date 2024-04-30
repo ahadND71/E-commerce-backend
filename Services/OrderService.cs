@@ -19,9 +19,9 @@ public class OrderService
   }
 
 
-  public async Task<Order?> GetOrderByIdService(Guid id)
+  public async Task<Order?> GetOrderByIdService(Guid orderId)
   {
-    return await _dbContext.Orders.FindAsync(id);
+    return await _dbContext.Orders.FindAsync(orderId);
   }
 
 
@@ -35,23 +35,23 @@ public class OrderService
     return newOrder;
   }
 
-  public async Task<Order?> UpdateOrderService(Guid id, Order updateOrder)
+  public async Task<Order?> UpdateOrderService(Guid orderId, Order updateOrder)
   {
-    var foundedOrder = await _dbContext.Orders.FindAsync(id);
-    if (foundedOrder != null)
+    var existingOrder = await _dbContext.Orders.FindAsync(orderId);
+    if (existingOrder != null)
     {
-      foundedOrder.TotalAmount = updateOrder.TotalAmount;
-      foundedOrder.Status = updateOrder.Status;
-      foundedOrder.UpdatedAt = DateTime.Now;
+      existingOrder.TotalAmount = updateOrder.TotalAmount;
+      existingOrder.Status = updateOrder.Status ?? existingOrder.Status;
+      existingOrder.UpdatedAt = DateTime.Now;
       await _dbContext.SaveChangesAsync();
     }
-    return foundedOrder;
+    return existingOrder;
   }
 
 
-  public async Task<bool> DeleteOrderService(Guid id)
+  public async Task<bool> DeleteOrderService(Guid orderId)
   {
-    var orderToRemove = await _dbContext.Orders.FindAsync(id);
+    var orderToRemove = await _dbContext.Orders.FindAsync(orderId);
     if (orderToRemove != null)
     {
       _dbContext.Orders.Remove(orderToRemove);

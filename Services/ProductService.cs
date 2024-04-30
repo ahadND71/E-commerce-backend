@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
+using api.Helpers;
 
 namespace api.Services;
 
@@ -19,15 +20,16 @@ public class ProductService
   }
 
 
-  public async Task<Product?> GetProductByIdService(Guid id)
+  public async Task<Product?> GetProductByIdService(Guid productId)
   {
-    return await _dbContext.Products.FindAsync(id);
+    return await _dbContext.Products.FindAsync(productId);
   }
 
 
   public async Task<Product> CreateProductService(Product newProduct)
   {
     newProduct.ProductId = Guid.NewGuid();
+    newProduct.Slug = SlugGenerator.GenerateSlug(newProduct.Name);
     newProduct.CreatedAt = DateTime.Now;
     newProduct.UpdatedAt = DateTime.Now;
     _dbContext.Products.Add(newProduct);
@@ -36,27 +38,27 @@ public class ProductService
   }
 
 
-  public async Task<Product?> UpdateProductService(Guid id, Product updateProduct)
+  public async Task<Product?> UpdateProductService(Guid productId, Product updateProduct)
   {
-    var foundedProduct = await _dbContext.Products.FindAsync(id);
-    if (foundedProduct != null)
+    var existingProduct = await _dbContext.Products.FindAsync(productId);
+    if (existingProduct != null)
     {
-      foundedProduct.Name = updateProduct.Name;
-      foundedProduct.Slug = updateProduct.Slug;
-      foundedProduct.Description = updateProduct.Description;
-      foundedProduct.Price = updateProduct.Price;
-      foundedProduct.SKU = updateProduct.SKU;
-      foundedProduct.ImgUrl = updateProduct.ImgUrl;
-      foundedProduct.UpdatedAt = DateTime.Now;
+      existingProduct.Name = updateProduct.Name ?? existingProduct.Name;
+      existingProduct.Slug = updateProduct.Slug ?? existingProduct.Slug;
+      existingProduct.Description = updateProduct.Description ?? existingProduct.Description;
+      existingProduct.Price = updateProduct.Price;
+      existingProduct.SKU = updateProduct.SKU ?? existingProduct.SKU;
+      existingProduct.ImgUrl = updateProduct.ImgUrl ?? existingProduct.ImgUrl;
+      existingProduct.UpdatedAt = DateTime.Now;
       await _dbContext.SaveChangesAsync();
     }
-    return foundedProduct;
+    return existingProduct;
   }
 
 
-  public async Task<bool> DeleteProductService(Guid id)
+  public async Task<bool> DeleteProductService(Guid productId)
   {
-    var productToRemove = await _dbContext.Products.FindAsync(id);
+    var productToRemove = await _dbContext.Products.FindAsync(productId);
     if (productToRemove != null)
     {
       _dbContext.Products.Remove(productToRemove);

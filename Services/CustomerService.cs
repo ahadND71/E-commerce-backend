@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
+using Microsoft.Net.Http.Headers;
 
 namespace api.Services;
 
@@ -39,12 +40,12 @@ public class CustomerService
     var existingCustomer = await _dbContext.Customers.FindAsync(customerId);
     if (existingCustomer != null)
     {
-      existingCustomer.FirstName = updateCustomer.FirstName;
-      existingCustomer.LastName = updateCustomer.LastName;
-      existingCustomer.Email = updateCustomer.Email;
-      existingCustomer.Password = updateCustomer.Password;
-      existingCustomer.Address = updateCustomer.Address;
-      existingCustomer.Image = updateCustomer.Image;
+      existingCustomer.FirstName = updateCustomer.FirstName ?? existingCustomer.FirstName;
+      existingCustomer.LastName = updateCustomer.LastName ?? existingCustomer.LastName;
+      existingCustomer.Email = updateCustomer.Email ?? existingCustomer.Email;
+      existingCustomer.Password = updateCustomer.Password ?? existingCustomer.Password;
+      existingCustomer.Address = updateCustomer.Address ?? existingCustomer.Address;
+      existingCustomer.Image = updateCustomer.Image ?? existingCustomer.Image;
       existingCustomer.IsBanned = updateCustomer.IsBanned;
       await _dbContext.SaveChangesAsync();
     }

@@ -19,9 +19,9 @@ public class OrderProductService
   }
 
 
-  public async Task<OrderProduct?> GetOrderProductByIdService(Guid id)
+  public async Task<OrderProduct?> GetOrderProductByIdService(Guid orderItemId)
   {
-    return await _dbContext.OrderProducts.FindAsync(id);
+    return await _dbContext.OrderProducts.FindAsync(orderItemId);
   }
 
 
@@ -34,22 +34,22 @@ public class OrderProductService
   }
 
 
-  public async Task<OrderProduct?> UpdateOrderProductservice(Guid id, OrderProduct updateOrderProduct)
+  public async Task<OrderProduct?> UpdateOrderProductservice(Guid orderItemId, OrderProduct updateOrderProduct)
   {
-    var foundedOrderProduct = await _dbContext.OrderProducts.FindAsync(id);
-    if (foundedOrderProduct != null)
+    var existingOrderProduct = await _dbContext.OrderProducts.FindAsync(orderItemId);
+    if (existingOrderProduct != null)
     {
-      foundedOrderProduct.Quantity = updateOrderProduct.Quantity;
-      foundedOrderProduct.ProductPrice = updateOrderProduct.ProductPrice;
+      existingOrderProduct.Quantity = updateOrderProduct.Quantity ;
+      existingOrderProduct.ProductPrice = updateOrderProduct.ProductPrice;
       await _dbContext.SaveChangesAsync();
     }
-    return foundedOrderProduct;
+    return existingOrderProduct;
   }
 
 
-  public async Task<bool> DeleteOrderProductservice(Guid id)
+  public async Task<bool> DeleteOrderProductservice(Guid orderItemId)
   {
-    var orderProductToRemove = await _dbContext.OrderProducts.FindAsync(id);
+    var orderProductToRemove = await _dbContext.OrderProducts.FindAsync(orderItemId);
     if (orderProductToRemove != null)
     {
       _dbContext.OrderProducts.Remove(orderProductToRemove);

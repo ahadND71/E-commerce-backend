@@ -11,27 +11,42 @@ public class Product
   [Required]
   public Guid AdminId { get; set; }
 
-  [Required]
+  [Required(ErrorMessage = "Product name is requierd")]
+  [MaxLength(100), MinLength(30)]
   public string Name { get; set; }
 
-  public string Slug { get; set; } = string.Empty;
 
-  [Required]
+  public string Slug { get; set; }
+
+
+
+  [MaxLength(300)]
   public string Description { get; set; }
 
-  [Required]
+
+
+  [Required(ErrorMessage = "The price is required")]
+  [MaxLength(10), MinLength(1)]
   public double Price { get; set; }
 
-  [Required]
+
+
+  [Required(ErrorMessage = "SKU is requierd")]
+  [MaxLength(100)]
   public string SKU { get; set; }
 
-  [Required]
+  [Required(ErrorMessage = "Stock quantity is requierd")]
+  [MaxLength(100)]
   public int StockQuantity { get; set; }
 
-  [Required]
+
+
+  [Required(ErrorMessage = "Product image is requierd")]
+  [MaxLength(250)]
   public string ImgUrl { get; set; }
 
   public DateTime CreatedAt { get; set; } = DateTime.Now;
+  
   public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
   //

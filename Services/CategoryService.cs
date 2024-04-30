@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
+using api.Helpers;
 
 namespace api.Services;
 
@@ -17,7 +18,6 @@ public class CategoryService
     return await _dbContext.Categories.ToListAsync();
   }
 
-
   public async Task<Category?> GetCategoryById(Guid categoryId)
   {
     return await _dbContext.Categories.FindAsync(categoryId);
@@ -27,6 +27,7 @@ public class CategoryService
   public async Task<Category> CreateCategoryService(Category newCategory)
   {
     newCategory.CategoryId = Guid.NewGuid();
+    newCategory.Slug = SlugGenerator.GenerateSlug(newCategory.Name);
     newCategory.CreatedAt = DateTime.Now;
     _dbContext.Categories.Add(newCategory);
     await _dbContext.SaveChangesAsync();
@@ -39,8 +40,8 @@ public class CategoryService
     var existingCategory = await _dbContext.Categories.FindAsync(categoryId);
     if (existingCategory != null)
     {
-      existingCategory.Name = updateCategory.Name;
-      existingCategory.Description = updateCategory.Description;
+      existingCategory.Name = updateCategory.Name ?? existingCategory.Name;
+      existingCategory.Description = updateCategory.Description ?? existingCategory.Name;
       await _dbContext.SaveChangesAsync();
     }
     return existingCategory;

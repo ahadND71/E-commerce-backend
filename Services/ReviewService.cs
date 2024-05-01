@@ -6,7 +6,6 @@ namespace api.Services;
 public class ReviewService
 {
     private readonly AppDbContext _dbContext;
-
     public ReviewService(AppDbContext dbContext)
     {
         _dbContext = dbContext;

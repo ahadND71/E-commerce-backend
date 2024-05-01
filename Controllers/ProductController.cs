@@ -14,6 +14,7 @@ public class ProductController : ControllerBase
     _dbContext = productService;
   }
 
+
   [HttpGet]
   public async Task<IActionResult> GetAllProducts()
   {
@@ -86,7 +87,6 @@ public class ProductController : ControllerBase
   }
 
 
-
   [HttpPost]
   public async Task<IActionResult> CreateProduct(Product newProduct)
   {
@@ -113,6 +113,7 @@ public class ProductController : ControllerBase
       });
     }
   }
+
 
   [HttpPut("{productId:guid}")]
   public async Task<IActionResult> UpdateProduct(string productId, Product updateProduct)
@@ -147,6 +148,7 @@ public class ProductController : ControllerBase
       });
     }
   }
+
 
   [HttpDelete("{productId:guid}")]
   public async Task<IActionResult> DeleteProduct(string productId)

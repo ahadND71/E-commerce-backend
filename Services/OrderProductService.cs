@@ -6,7 +6,6 @@ namespace api.Services;
 public class OrderProductService
 {
   private readonly AppDbContext _dbContext;
-
   public OrderProductService(AppDbContext dbContext)
   {
     _dbContext = dbContext;
@@ -58,6 +57,5 @@ public class OrderProductService
     }
     return false;
   }
-
 
 }

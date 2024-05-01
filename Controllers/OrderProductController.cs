@@ -14,6 +14,7 @@ public class OrderProductController : ControllerBase
     _dbContext = orderProductService;
   }
 
+
   [HttpGet]
   public async Task<IActionResult> GetAllOrderProducts()
   {
@@ -112,6 +113,7 @@ public class OrderProductController : ControllerBase
     }
   }
 
+
   [HttpPut("{orderItemId:guid}")]
   public async Task<IActionResult> UpdateOrderProduct(string orderItemId, OrderProduct updateOrderProduct)
   {
@@ -146,7 +148,6 @@ public class OrderProductController : ControllerBase
       });
     }
   }
-
 
 
   [HttpDelete("{OrderItemId:guid}")]

@@ -14,6 +14,7 @@ public class AdminController : ControllerBase
         _dbContext = adminService;
     }
 
+
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins()
     {
@@ -83,7 +84,6 @@ public class AdminController : ControllerBase
             });
         }
     }
-
 
 
     [HttpPost]
@@ -182,5 +182,4 @@ public class AdminController : ControllerBase
             });
         }
     }
-
 }

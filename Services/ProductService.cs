@@ -7,7 +7,6 @@ namespace api.Services;
 public class ProductService
 {
   private readonly AppDbContext _dbContext;
-
   public ProductService(AppDbContext dbContext)
   {
     _dbContext = dbContext;

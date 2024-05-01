@@ -14,6 +14,7 @@ public class CustomerController : ControllerBase
         _dbContext = customerService;
     }
 
+
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers()
     {
@@ -182,5 +183,4 @@ public class CustomerController : ControllerBase
             });
         }
     }
-
 }

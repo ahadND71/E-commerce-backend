@@ -14,6 +14,7 @@ public class ReviewController : ControllerBase
         _dbContext = reviewService;
     }
 
+
     [HttpGet]
     public async Task<IActionResult> GetAllReviews()
     {
@@ -147,6 +148,7 @@ public class ReviewController : ControllerBase
             });
         }
     }
+
 
     [HttpDelete("{reviewId:guid}")]
     public async Task<IActionResult> DeleteReview(string reviewId)

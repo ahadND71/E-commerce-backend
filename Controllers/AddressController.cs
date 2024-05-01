@@ -14,6 +14,7 @@ public class AddressController : ControllerBase
         _dbContext = addressService;
     }
 
+
     [HttpGet]
     public async Task<IActionResult> GetAllAddress()
     {
@@ -81,7 +82,6 @@ public class AddressController : ControllerBase
 
         }
     }
-
 
 
     [HttpPost]
@@ -181,5 +181,4 @@ public class AddressController : ControllerBase
             });
         }
     }
-
 }

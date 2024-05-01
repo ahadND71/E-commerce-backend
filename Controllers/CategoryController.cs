@@ -9,11 +9,13 @@ namespace api.Controllers;
 [Route("/api/categories")]
 public class CategoryController : ControllerBase
 {
+
   private readonly CategoryService _dbContext;
   public CategoryController(CategoryService categoryService)
   {
     _dbContext = categoryService;
   }
+
 
   [HttpGet]
   public async Task<IActionResult> GetAllCategories()
@@ -29,10 +31,6 @@ public class CategoryController : ControllerBase
           Message = "No Categories To Display"
         });
       }
-
-
-
-
       return Ok(new SuccessMessage<IEnumerable<Category>>
       {
         Message = "Categories are returned succeefully",
@@ -48,12 +46,13 @@ public class CategoryController : ControllerBase
       });
     }
   }
+
+
   [HttpGet("{categoryId:guid}")]
   public async Task<IActionResult> GetCategory(string categoryId)
   {
     try
     {
-
       if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
       {
         return BadRequest("Invalid category ID Format");
@@ -88,13 +87,11 @@ public class CategoryController : ControllerBase
   }
 
 
-
   [HttpPost]
   public async Task<IActionResult> CreateCategory(Category newCategory)
   {
     try
     {
-
       var createdCategory = await _dbContext.CreateCategoryService(newCategory);
       if (createdCategory != null)
       {
@@ -120,8 +117,6 @@ public class CategoryController : ControllerBase
       });
     }
   }
-
-
 
 
   [HttpPut("{categoryId:guid}")]
@@ -157,7 +152,6 @@ public class CategoryController : ControllerBase
       });
     }
   }
-
 
 
   [HttpDelete("{categoryId:guid}")]

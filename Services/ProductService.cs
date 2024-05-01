@@ -7,7 +7,6 @@ namespace api.Services;
 public class ProductService
 {
   private readonly AppDbContext _dbContext;
-
   public ProductService(AppDbContext dbContext)
   {
     _dbContext = dbContext;
@@ -30,8 +29,8 @@ public class ProductService
   {
     newProduct.ProductId = Guid.NewGuid();
     newProduct.Slug = SlugGenerator.GenerateSlug(newProduct.Name);
-    newProduct.CreatedAt = DateTime.Now;
-    newProduct.UpdatedAt = DateTime.Now;
+    newProduct.CreatedAt = DateTime.UtcNow;
+    newProduct.UpdatedAt = DateTime.UtcNow;
     _dbContext.Products.Add(newProduct);
     await _dbContext.SaveChangesAsync();
     return newProduct;
@@ -49,7 +48,7 @@ public class ProductService
       existingProduct.Price = updateProduct.Price;
       existingProduct.SKU = updateProduct.SKU ?? existingProduct.SKU;
       existingProduct.ImgUrl = updateProduct.ImgUrl ?? existingProduct.ImgUrl;
-      existingProduct.UpdatedAt = DateTime.Now;
+      existingProduct.UpdatedAt = DateTime.UtcNow;
       await _dbContext.SaveChangesAsync();
     }
     return existingProduct;

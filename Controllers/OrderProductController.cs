@@ -8,11 +8,12 @@ namespace api.Controllers;
 [Route("/api/OrderProducts")]
 public class OrderProductController : ControllerBase
 {
-  public OrderProductService _orderProductService;
+  public OrderProductService _dbContext;
   public OrderProductController(OrderProductService orderProductService)
   {
-    _orderProductService = orderProductService;
+    _dbContext = orderProductService;
   }
+
 
   [HttpGet]
   public async Task<IActionResult> GetAllOrderProducts()
@@ -20,7 +21,7 @@ public class OrderProductController : ControllerBase
     try
     {
 
-      var orderProducts = await _orderProductService.GetAllOrderProductservice();
+      var orderProducts = await _dbContext.GetAllOrderProductservice();
       if (orderProducts.ToList().Count < 1)
       {
         return NotFound(new ErrorMessage
@@ -54,7 +55,7 @@ public class OrderProductController : ControllerBase
       {
         return BadRequest("Invalid OrderProduct ID Format");
       }
-      var orderProduct = await _orderProductService.GetOrderProductByIdService(orderItemIdGuid);
+      var orderProduct = await _dbContext.GetOrderProductByIdService(orderItemIdGuid);
       if (orderProduct == null)
 
       {
@@ -91,7 +92,7 @@ public class OrderProductController : ControllerBase
     try
     {
 
-      var createdOrderProduct = await _orderProductService.CreateOrderProductservice(newOrderProduct);
+      var createdOrderProduct = await _dbContext.CreateOrderProductservice(newOrderProduct);
       if (createdOrderProduct != null)
       {
         return CreatedAtAction(nameof(GetOrderProduct), new { id = createdOrderProduct.OrderItemId }, createdOrderProduct);
@@ -112,6 +113,7 @@ public class OrderProductController : ControllerBase
     }
   }
 
+
   [HttpPut("{orderItemId:guid}")]
   public async Task<IActionResult> UpdateOrderProduct(string orderItemId, OrderProduct updateOrderProduct)
   {
@@ -122,7 +124,7 @@ public class OrderProductController : ControllerBase
       {
         return BadRequest("Invalid OrderProduct ID Format");
       }
-      var orderProduct = await _orderProductService.UpdateOrderProductservice(orderItemIdGuid, updateOrderProduct);
+      var orderProduct = await _dbContext.UpdateOrderProductservice(orderItemIdGuid, updateOrderProduct);
       if (orderProduct == null)
 
       {
@@ -148,36 +150,35 @@ public class OrderProductController : ControllerBase
   }
 
 
-
   [HttpDelete("{OrderItemId:guid}")]
   public async Task<IActionResult> DeleteOrderProduct(string orderItemId)
   {
     try
     {
       if (!Guid.TryParse(orderItemId, out Guid OrderItemId_Guid))
-    {
-      return BadRequest("Invalid OrderProduct ID Format");
-    }
-    var result = await _orderProductService.DeleteOrderProductservice(OrderItemId_Guid);
-    if (!result)
-
-
-        {
-          return NotFound(new ErrorMessage
-          {
-            Message = "The Order Details is not found to be deleted"
-          });
-        }
-        return Ok(new { success = true, message = " Order Details is deleted succeefully" });
-      }
-
-      catch (Exception ex)
       {
-        Console.WriteLine($"An error occured , the Order Details can not deleted");
-        return StatusCode(500, new ErrorMessage
+        return BadRequest("Invalid OrderProduct ID Format");
+      }
+      var result = await _dbContext.DeleteOrderProductservice(OrderItemId_Guid);
+      if (!result)
+
+
+      {
+        return NotFound(new ErrorMessage
         {
-          Message = ex.Message
+          Message = "The Order Details is not found to be deleted"
         });
       }
+      return Ok(new { success = true, message = " Order Details is deleted succeefully" });
+    }
+
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occured , the Order Details can not deleted");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
   }
 }

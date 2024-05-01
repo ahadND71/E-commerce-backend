@@ -8,11 +8,12 @@ namespace api.Controllers;
 [Route("/api/reviews")]
 public class ReviewController : ControllerBase
 {
-    private readonly ReviewService _reviewService;
+    private readonly ReviewService _dbContext;
     public ReviewController(ReviewService reviewService)
     {
-        _reviewService = reviewService;
+        _dbContext = reviewService;
     }
+
 
     [HttpGet]
     public async Task<IActionResult> GetAllReviews()
@@ -20,7 +21,7 @@ public class ReviewController : ControllerBase
         try
         {
 
-            var reviews = await _reviewService.GetAllReviewService();
+            var reviews = await _dbContext.GetAllReviewService();
             if (reviews.ToList().Count < 1)
             {
                 return NotFound(new ErrorMessage
@@ -54,7 +55,7 @@ public class ReviewController : ControllerBase
             {
                 return BadRequest("Invalid review ID Format");
             }
-            var review = await _reviewService.GetReviewById(reviewIdGuid);
+            var review = await _dbContext.GetReviewById(reviewIdGuid);
             if (review == null)
 
             {
@@ -92,7 +93,7 @@ public class ReviewController : ControllerBase
         try
         {
 
-            var createdReview = await _reviewService.CreateReviewService(newReview);
+            var createdReview = await _dbContext.CreateReviewService(newReview);
             if (createdReview != null)
             {
                 return CreatedAtAction(nameof(GetReview), new { reviewId = createdReview.ReviewId }, createdReview);
@@ -123,7 +124,7 @@ public class ReviewController : ControllerBase
             {
                 return BadRequest("Invalid review ID Format");
             }
-            var review = await _reviewService.UpdateReviewService(reviewIdGuid, updateReview);
+            var review = await _dbContext.UpdateReviewService(reviewIdGuid, updateReview);
             if (review == null)
 
             {
@@ -148,6 +149,7 @@ public class ReviewController : ControllerBase
         }
     }
 
+
     [HttpDelete("{reviewId:guid}")]
     public async Task<IActionResult> DeleteReview(string reviewId)
     {
@@ -155,29 +157,29 @@ public class ReviewController : ControllerBase
         {
 
             if (!Guid.TryParse(reviewId, out Guid reviewIdGuid))
-        {
-            return BadRequest("Invalid review ID Format");
-        }
-        var result = await _reviewService.DeleteReviewService(reviewIdGuid);
-        if (!result)
-
-                {
-                    return NotFound(new ErrorMessage
-                    {
-                        Message = "The Review is not found to be deleted"
-                    });
-                }
-                return Ok(new { success = true, message = " Review is deleted succeefully" });
-            }
-
-            catch (Exception ex)
             {
-                Console.WriteLine($"An error occured , the Review can not deleted");
-                return StatusCode(500, new ErrorMessage
+                return BadRequest("Invalid review ID Format");
+            }
+            var result = await _dbContext.DeleteReviewService(reviewIdGuid);
+            if (!result)
+
+            {
+                return NotFound(new ErrorMessage
                 {
-                    Message = ex.Message
+                    Message = "The Review is not found to be deleted"
                 });
             }
+            return Ok(new { success = true, message = " Review is deleted succeefully" });
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occured , the Review can not deleted");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
+        }
     }
 
 }

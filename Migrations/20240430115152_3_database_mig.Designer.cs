@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using api.Data;
@@ -11,9 +12,11 @@ using api.Data;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240430115152_3_database_mig")]
+    partial class _3_database_mig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,8 +63,8 @@ namespace Backend.Migrations
 
                     b.Property<string>("ZipCode")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)");
 
                     b.HasKey("AddressId");
 
@@ -97,6 +100,7 @@ namespace Backend.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<int>("Mobile")
+                        .HasMaxLength(13)
                         .HasColumnType("integer");
 
                     b.Property<string>("Password")
@@ -225,8 +229,7 @@ namespace Backend.Migrations
                     b.Property<int>("ProductPrice")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Quantity")
-                        .IsRequired()
+                    b.Property<int>("Quantity")
                         .HasMaxLength(10)
                         .HasColumnType("integer");
 
@@ -263,8 +266,9 @@ namespace Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
+                    b.Property<double>("Price")
+                        .HasMaxLength(10)
+                        .HasColumnType("double precision");
 
                     b.Property<string>("SKU")
                         .IsRequired()
@@ -276,6 +280,7 @@ namespace Backend.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("StockQuantity")
+                        .HasMaxLength(100)
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")

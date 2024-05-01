@@ -8,18 +8,19 @@ namespace api.Controllers;
 [Route("/api/address")]
 public class AddressController : ControllerBase
 {
-    private readonly AddressService _addressService;
+    private readonly AddressService _dbContext;
     public AddressController(AddressService addressService)
     {
-        _addressService = addressService;
+        _dbContext = addressService;
     }
+
 
     [HttpGet]
     public async Task<IActionResult> GetAllAddress()
     {
         try
         {
-            var addresses = await _addressService.GetAllAddressService();
+            var addresses = await _dbContext.GetAllAddressService();
             if (addresses.ToList().Count < 1)
             {
                 return NotFound(new ErrorMessage
@@ -53,7 +54,7 @@ public class AddressController : ControllerBase
             {
                 return BadRequest("Invalid address ID Format");
             }
-            var address = await _addressService.GetAddressById(addressIdGuid);
+            var address = await _dbContext.GetAddressById(addressIdGuid);
             if (address == null)
 
             {
@@ -83,13 +84,12 @@ public class AddressController : ControllerBase
     }
 
 
-
     [HttpPost]
     public async Task<IActionResult> CreateAddress(Address newAddress)
     {
         try
         {
-            var createdAddress = await _addressService.CreateAddressService(newAddress);
+            var createdAddress = await _dbContext.CreateAddressService(newAddress);
 
             if (createdAddress != null)
             {
@@ -125,7 +125,7 @@ public class AddressController : ControllerBase
             {
                 return BadRequest("Invalid Address ID Format");
             }
-            var address = await _addressService.UpdateAddressService(addressIdGuid, updateAddress);
+            var address = await _dbContext.UpdateAddressService(addressIdGuid, updateAddress);
             if (address == null)
             {
                 return NotFound(new ErrorMessage
@@ -159,7 +159,7 @@ public class AddressController : ControllerBase
             {
                 return BadRequest("Invalid address ID Format");
             }
-            var result = await _addressService.DeleteAddressService(addressIdGuid);
+            var result = await _dbContext.DeleteAddressService(addressIdGuid);
             if (!result)
 
 
@@ -181,5 +181,4 @@ public class AddressController : ControllerBase
             });
         }
     }
-
 }

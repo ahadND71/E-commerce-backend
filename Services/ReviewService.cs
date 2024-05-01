@@ -6,7 +6,6 @@ namespace api.Services;
 public class ReviewService
 {
     private readonly AppDbContext _dbContext;
-
     public ReviewService(AppDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -28,7 +27,7 @@ public class ReviewService
     public async Task<Review> CreateReviewService(Review newReview)
     {
         newReview.ReviewId = Guid.NewGuid();
-        newReview.ReviewDate = DateTime.Now;
+        newReview.ReviewDate = DateTime.UtcNow;
         _dbContext.Reviews.Add(newReview);
         await _dbContext.SaveChangesAsync();
         return newReview;

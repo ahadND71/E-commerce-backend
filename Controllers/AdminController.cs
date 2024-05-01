@@ -8,11 +8,12 @@ namespace api.Controllers;
 [Route("/api/admins")]
 public class AdminController : ControllerBase
 {
-    private readonly AdminService _adminService;
+    private readonly AdminService _dbContext;
     public AdminController(AdminService adminService)
     {
-        _adminService = adminService;
+        _dbContext = adminService;
     }
+
 
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins()
@@ -20,7 +21,7 @@ public class AdminController : ControllerBase
         try
         {
 
-            var admins = await _adminService.GetAllAdminsService();
+            var admins = await _dbContext.GetAllAdminsService();
             if (admins.ToList().Count < 1)
             {
                 return NotFound(new ErrorMessage
@@ -55,7 +56,7 @@ public class AdminController : ControllerBase
             {
                 return BadRequest("Invalid admin ID Format");
             }
-            var admin = await _adminService.GetAdminById(adminIdGuid);
+            var admin = await _dbContext.GetAdminById(adminIdGuid);
             if (admin == null)
 
             {
@@ -73,7 +74,6 @@ public class AdminController : ControllerBase
                     Data = admin
                 });
             }
-
         }
         catch (Exception ex)
         {
@@ -82,10 +82,8 @@ public class AdminController : ControllerBase
             {
                 Message = ex.Message
             });
-
         }
     }
-
 
 
     [HttpPost]
@@ -94,7 +92,7 @@ public class AdminController : ControllerBase
         try
         {
 
-            var createdAdmin = await _adminService.CreateAdminService(newAdmin);
+            var createdAdmin = await _dbContext.CreateAdminService(newAdmin);
             if (createdAdmin != null)
             {
                 return CreatedAtAction(nameof(GetAdmin), new { adminId = createdAdmin.AdminId }, createdAdmin);
@@ -113,7 +111,6 @@ public class AdminController : ControllerBase
                 Message = ex.Message
             });
         }
-
     }
 
 
@@ -123,32 +120,32 @@ public class AdminController : ControllerBase
         try
         {
             if (!Guid.TryParse(adminId, out Guid adminIdGuid))
-        {
-            return BadRequest("Invalid admin ID Format");
-        }
-        var admin = await _adminService.UpdateAdminService(adminIdGuid, updateAdmin);
-        if (admin == null)
-
-                {
-                    return NotFound(new ErrorMessage
-                    {
-                        Message = "No Admin To Founed To Update"
-                    });
-                }
-                return Ok(new SuccessMessage<Admin>
-                {
-                    Message = "Admin Is Updated Succeefully",
-                    Data = admin
-                });
-            }
-            catch (Exception ex)
             {
-                Console.WriteLine($"An error occured , can not update the Admin ");
-                return StatusCode(500, new ErrorMessage
+                return BadRequest("Invalid admin ID Format");
+            }
+            var admin = await _dbContext.UpdateAdminService(adminIdGuid, updateAdmin);
+            if (admin == null)
+
+            {
+                return NotFound(new ErrorMessage
                 {
-                    Message = ex.Message
+                    Message = "No Admin To Founed To Update"
                 });
             }
+            return Ok(new SuccessMessage<Admin>
+            {
+                Message = "Admin Is Updated Succeefully",
+                Data = admin
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occured , can not update the Admin ");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
+        }
 
     }
 
@@ -160,29 +157,29 @@ public class AdminController : ControllerBase
         {
 
             if (!Guid.TryParse(adminId, out Guid adminIdGuid))
-        {
-            return BadRequest("Invalid admin ID Format");
-        }
-        var result = await _adminService.DeleteAdminService(adminIdGuid);
-        if (!result)
-
-                {
-                    return NotFound(new ErrorMessage
-                    {
-                        Message = "The Admin is not found to be deleted"
-                    });
-                }
-                return Ok(new { success = true, message = " Admin is deleted succeefully" });
-            }
-
-            catch (Exception ex)
             {
-                Console.WriteLine($"An error occured , the Admin can not deleted");
-                return StatusCode(500, new ErrorMessage
+                return BadRequest("Invalid admin ID Format");
+            }
+            var result = await _dbContext.DeleteAdminService(adminIdGuid);
+            if (!result)
+
+            {
+                return NotFound(new ErrorMessage
                 {
-                    Message = ex.Message
+                    Message = "The Admin is not found to be deleted"
                 });
             }
-    }
+            //new SuccessMessage<Admin>
+            return Ok(new { success = true, message = " Admin is deleted succeefully" });
+        }
 
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occured , the Admin can not deleted");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
+        }
+    }
 }

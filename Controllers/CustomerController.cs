@@ -8,11 +8,12 @@ namespace api.Controllers;
 [Route("/api/customers")]
 public class CustomerController : ControllerBase
 {
-    private readonly CustomerService _customerService;
+    private readonly CustomerService _dbContext;
     public CustomerController(CustomerService customerService)
     {
-        _customerService = customerService;
+        _dbContext = customerService;
     }
+
 
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers()
@@ -20,7 +21,7 @@ public class CustomerController : ControllerBase
         try
         {
 
-            var customers = await _customerService.GetAllCustomersService();
+            var customers = await _dbContext.GetAllCustomersService();
             if (customers.ToList().Count < 1)
             {
                 return NotFound(new ErrorMessage
@@ -55,7 +56,7 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest("Invalid customer ID Format");
             }
-            var customer = await _customerService.GetCustomerById(customerIdGuid);
+            var customer = await _dbContext.GetCustomerById(customerIdGuid);
             if (customer == null)
 
             {
@@ -93,7 +94,7 @@ public class CustomerController : ControllerBase
         try
         {
 
-            var createdCustomer = await _customerService.CreateCustomerService(newCustomer);
+            var createdCustomer = await _dbContext.CreateCustomerService(newCustomer);
             if (createdCustomer != null)
             {
                 return CreatedAtAction(nameof(GetCustomer), new { customerId = createdCustomer.CustomerId }, createdCustomer);
@@ -121,32 +122,32 @@ public class CustomerController : ControllerBase
         try
         {
             if (!Guid.TryParse(customerId, out Guid customerIdGuid))
-        {
-            return BadRequest("Invalid customer ID Format");
-        }
-        var customer = await _customerService.UpdateCustomerService(customerIdGuid, updateCustomer);
-        if (customer == null)
-
-                {
-                    return NotFound(new ErrorMessage
-                    {
-                        Message = "No Customer To Founed To Update"
-                    });
-                }
-                return Ok(new SuccessMessage<Customer>
-                {
-                    Message = "Customer Is Updated Succeefully",
-                    Data = customer
-                });
-            }
-            catch (Exception ex)
             {
-                Console.WriteLine($"An error occured , can not update the Customer ");
-                return StatusCode(500, new ErrorMessage
+                return BadRequest("Invalid customer ID Format");
+            }
+            var customer = await _dbContext.UpdateCustomerService(customerIdGuid, updateCustomer);
+            if (customer == null)
+
+            {
+                return NotFound(new ErrorMessage
                 {
-                    Message = ex.Message
+                    Message = "No Customer To Founed To Update"
                 });
             }
+            return Ok(new SuccessMessage<Customer>
+            {
+                Message = "Customer Is Updated Succeefully",
+                Data = customer
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occured , can not update the Customer ");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
+        }
 
     }
 
@@ -157,30 +158,29 @@ public class CustomerController : ControllerBase
         try
         {
             if (!Guid.TryParse(customerId, out Guid customerIdGuid))
-        {
-            return BadRequest("Invalid customer ID Format");
-        }
-        var result = await _customerService.DeleteCustomerService(customerIdGuid);
-        if (!result)
-
-
-                {
-                    return NotFound(new ErrorMessage
-                    {
-                        Message = "The Customer is not found to be deleted"
-                    });
-                }
-                return Ok(new { success = true, message = " Customer is deleted succeefully" });
-            }
-
-            catch (Exception ex)
             {
-                Console.WriteLine($"An error occured , the Customer can not deleted");
-                return StatusCode(500, new ErrorMessage
+                return BadRequest("Invalid customer ID Format");
+            }
+            var result = await _dbContext.DeleteCustomerService(customerIdGuid);
+            if (!result)
+
+
+            {
+                return NotFound(new ErrorMessage
                 {
-                    Message = ex.Message
+                    Message = "The Customer is not found to be deleted"
                 });
             }
-    }
+            return Ok(new { success = true, message = " Customer is deleted succeefully" });
+        }
 
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occured , the Customer can not deleted");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
+        }
+    }
 }

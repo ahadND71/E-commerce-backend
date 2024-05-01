@@ -16,16 +16,6 @@ public class CategoryService
 
   public async Task<IEnumerable<Category>> GetAllCategoryService()
   {
-    // List<Category> categories = new List<Category>();
-    // var dataList = await _dbContext.Categories.ToListAsync();
-    // dataList.ForEach(row => categories.Add(new Category{
-    //   CategoryId = row.CategoryId,
-    //   Name = row.Name,
-    //   Slug = row.Slug,
-    //   Description = row.Description,
-    //   CreatedAt = row.CreatedAt
-    // }));
-    // return categories;
     return await _dbContext.Categories.ToListAsync();
   }
 
@@ -38,16 +28,6 @@ public class CategoryService
 
   public async Task<Category> CreateCategoryService(Category newCategory)
   {
-    // var category = new Category{
-    //   CategoryId = newCategory.CategoryId = Guid.NewGuid(),
-    //   Name = newCategory.Name,
-    //   Slug = newCategory.Slug = SlugGenerator.GenerateSlug(newCategory.Name),
-    //   Description = newCategory.Description,
-    //   CreatedAt = DateTime.UtcNow
-    // };
-    // _dbContext.Categories.Add(newCategory);
-    // await _dbContext.SaveChangesAsync();
-
     newCategory.CategoryId = Guid.NewGuid();
     newCategory.Slug = SlugGenerator.GenerateSlug(newCategory.Name);
     newCategory.CreatedAt = DateTime.UtcNow;

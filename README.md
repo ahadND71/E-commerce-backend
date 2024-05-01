@@ -1,17 +1,24 @@
 # E-commerce Application API
 
+<details>
+   <summary>Intro</summary>
+
 This repository contains ASP.NET Core application with RESTful API endpoints for e-commerce application. The API allows you to interact with products in the store.
 
 `This is a teamwork assignment where you will work as a team within your group`
 
+</details>
+
 ## Team members:
+
+### Team 3: The Legends
 
 | Name         | Role      |
 | ------------ | --------- |
 | @Mohkhasa    | `Admin`   |
 | @ahadND71    | `Manager` |
 | @EnasBatarfi | `Member`  |
-| @ShahadDraim | `Member`  |
+| @ShahadDraim | 😴        |
 
 <br/>
 
@@ -19,18 +26,18 @@ This repository contains ASP.NET Core application with RESTful API endpoints for
 
 <details>
    <summary>How to work</summary>
-<p>
+
 1. One team member (admin) should fork the repo and add other members to that admin repo as collaborators.
 2. The other team members should fork then clone the forked repo (the admin repo).
 3. Any change/update made should be submitted to admin repo as pull request.
 4. Each change should be done in a separate pull request.
 5. Pull request must be reviewed by all members before merged to admin repo.
 6. Admin should open a PR to the original (Integrify) repo.
-</p>
-</details> 
+
+</details>
+
 <details>
    <summary>Database Requirements</summary>
-<p>
 
 ### Level 1: Basic Requirements
 
@@ -40,7 +47,6 @@ For the upcoming database assignment, please design an Entity-Relationship Diagr
 
 Create the necessary tables, define their respective columns, and provide seed data within pgAdmin.
 
-</p>
 </details>
 
 <br/>
@@ -66,6 +72,8 @@ In this level, the application includes the following features:
 
 - [ ] 7. Use authentication and role-based authorization
 
+<br/>
+
 ### Level 2: Additional Requirements
 
 In addition to the basic requirements, the application enhances its functionality with the following features:
@@ -75,6 +83,8 @@ In addition to the basic requirements, the application enhances its functionalit
 - [ ] 2. Implement search functionality to allow users to search for specific products based on keywords or specific fields (e.g., by title).
 
 - [ ] 3. Add validation checks to ensure the data meets certain criteria before executing the actions.
+
+<br/>
 
 ### Level 3: Advanced Requirements
 
@@ -91,8 +101,13 @@ If you have a higher skill level and finish the previous requirements before the
 
 `Please note that the bonus requirements and reviews are optional and can be completed if you have additional time and advanced skills.`
 
-Happy coding!
+<br/>
 
-## Deadline
+<details>
+   <summary>Deadline</summary>
 
 The deadline for the backend project is May 8th End of day (Before the presentation day)
+
+Happy coding!
+
+</details>

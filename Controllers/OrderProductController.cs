@@ -46,7 +46,7 @@ public class OrderProductController : ControllerBase
   }
 
 
-  [HttpGet("{orderItemId:guid}")]
+  [HttpGet("{orderItemId}")]
   public async Task<IActionResult> GetOrderProduct(string orderItemId)
   {
     try
@@ -95,7 +95,7 @@ public class OrderProductController : ControllerBase
       var createdOrderProduct = await _dbContext.CreateOrderProductservice(newOrderProduct);
       if (createdOrderProduct != null)
       {
-        return CreatedAtAction(nameof(GetOrderProduct), new { id = createdOrderProduct.OrderItemId }, createdOrderProduct);
+        return CreatedAtAction(nameof(GetOrderProduct), new { orderItemId = createdOrderProduct.OrderItemId }, createdOrderProduct);
       }
       return Ok(new SuccessMessage<OrderProduct>
       {
@@ -114,7 +114,7 @@ public class OrderProductController : ControllerBase
   }
 
 
-  [HttpPut("{orderItemId:guid}")]
+  [HttpPut("{orderItemId}")]
   public async Task<IActionResult> UpdateOrderProduct(string orderItemId, OrderProduct updateOrderProduct)
   {
     try
@@ -150,7 +150,7 @@ public class OrderProductController : ControllerBase
   }
 
 
-  [HttpDelete("{OrderItemId:guid}")]
+  [HttpDelete("{OrderItemId}")]
   public async Task<IActionResult> DeleteOrderProduct(string orderItemId)
   {
     try

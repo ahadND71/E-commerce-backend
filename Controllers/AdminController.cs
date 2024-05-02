@@ -47,7 +47,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [HttpGet("{adminId:guid}")]
+    [HttpGet("{adminId}")]
     public async Task<IActionResult> GetAdmin(string adminId)
     {
         try
@@ -91,7 +91,6 @@ public class AdminController : ControllerBase
     {
         try
         {
-
             var createdAdmin = await _dbContext.CreateAdminService(newAdmin);
             if (createdAdmin != null)
             {
@@ -114,7 +113,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [HttpPut("{adminId:guid}")]
+    [HttpPut("{adminId}")]
     public async Task<IActionResult> UpdateAdmin(string adminId, Admin updateAdmin)
     {
         try
@@ -146,16 +145,14 @@ public class AdminController : ControllerBase
                 Message = ex.Message
             });
         }
-
     }
 
 
-    [HttpDelete("{adminId:guid}")]
+    [HttpDelete("{adminId}")]
     public async Task<IActionResult> DeleteAdmin(string adminId)
     {
         try
         {
-
             if (!Guid.TryParse(adminId, out Guid adminIdGuid))
             {
                 return BadRequest("Invalid admin ID Format");

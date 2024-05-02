@@ -49,20 +49,20 @@ public class CategoryController : ControllerBase
 
 
   [HttpGet("{categoryId:guid}")]
-  public async Task<IActionResult> GetCategory(string categoryId)
+  public async Task<IActionResult> GetCategory(Guid categoryId)
   {
     try
     {
-      if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
-      {
-        return BadRequest("Invalid category ID Format");
-      }
-      var category = await _dbContext.GetCategoryById(categoryIdGuid);
+      // if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
+      // {
+      //   return BadRequest("Invalid category ID Format");
+      // }
+      var category = await _dbContext.GetCategoryById(categoryId);
       if (category == null)
       {
         return NotFound(new ErrorMessage
         {
-          Message = $"No Category Found With ID : ({categoryIdGuid})"
+          Message = $"No Category Found With ID : ({categoryId})"
         });
       }
       else
@@ -74,7 +74,6 @@ public class CategoryController : ControllerBase
           Data = category
         });
       }
-
     }
     catch (Exception ex)
     {
@@ -119,7 +118,7 @@ public class CategoryController : ControllerBase
   }
 
 
-  [HttpPut("{categoryId:guid}")]
+  [HttpPut("{categoryId}")]
   public async Task<IActionResult> UpdateCategory(string categoryId, Category updateCategory)
   {
     try
@@ -154,7 +153,7 @@ public class CategoryController : ControllerBase
   }
 
 
-  [HttpDelete("{categoryId:guid}")]
+  [HttpDelete("{categoryId}")]
   public async Task<IActionResult> DeleteCategory(string categoryId)
   {
     try

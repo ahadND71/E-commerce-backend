@@ -45,7 +45,7 @@ public class AddressController : ControllerBase
     }
 
 
-    [HttpGet("{addressId:guid}")]
+    [HttpGet("{addressId}")]
     public async Task<IActionResult> GetAddress(string addressId)
     {
         try
@@ -114,7 +114,7 @@ public class AddressController : ControllerBase
     }
 
 
-    [HttpPut("{addressId:guid}")]
+    [HttpPut("{addressId}")]
     public async Task<IActionResult> UpdateAddress(string addressId, Address updateAddress)
     {
         try
@@ -150,7 +150,7 @@ public class AddressController : ControllerBase
     }
 
 
-    [HttpDelete("{addressId:guid}")]
+    [HttpDelete("{addressId}")]
     public async Task<IActionResult> DeleteAddress(string addressId)
     {
         try

@@ -20,7 +20,6 @@ public class ProductController : ControllerBase
   {
     try
     {
-
       var products = await _dbContext.GetAllProductService();
       if (products.ToList().Count < 1)
       {
@@ -47,21 +46,16 @@ public class ProductController : ControllerBase
 
 
   [HttpGet("{productId:guid}")]
-  public async Task<IActionResult> GetProduct(string productId)
+  public async Task<IActionResult> GetProduct(Guid productId)
   {
     try
     {
-      if (!Guid.TryParse(productId, out Guid productIdGuid))
-      {
-        return BadRequest("Invalid product ID Format");
-      }
-      var product = await _dbContext.GetProductByIdService(productIdGuid);
+      var product = await _dbContext.GetProductByIdService(productId);
       if (product == null)
-
       {
         return NotFound(new ErrorMessage
         {
-          Message = $"No Product Found With ID : ({productIdGuid})"
+          Message = $"No Product Found With ID : ({productId})"
         });
       }
       else
@@ -73,7 +67,6 @@ public class ProductController : ControllerBase
           Data = product
         });
       }
-
     }
     catch (Exception ex)
     {
@@ -92,11 +85,10 @@ public class ProductController : ControllerBase
   {
     try
     {
-
       var createdProduct = await _dbContext.CreateProductService(newProduct);
       if (createdProduct != null)
       {
-        return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductId }, createdProduct);
+        return CreatedAtAction(nameof(GetProduct), new { productId = createdProduct.ProductId }, createdProduct);
       }
       return Ok(new SuccessMessage<Product>
       {
@@ -115,7 +107,7 @@ public class ProductController : ControllerBase
   }
 
 
-  [HttpPut("{productId:guid}")]
+  [HttpPut("{productId}")]
   public async Task<IActionResult> UpdateProduct(string productId, Product updateProduct)
   {
     try
@@ -126,7 +118,6 @@ public class ProductController : ControllerBase
       }
       var product = await _dbContext.UpdateProductService(productIdGuid, updateProduct);
       if (product == null)
-
       {
         return NotFound(new ErrorMessage
         {
@@ -150,20 +141,17 @@ public class ProductController : ControllerBase
   }
 
 
-  [HttpDelete("{productId:guid}")]
+  [HttpDelete("{productId}")]
   public async Task<IActionResult> DeleteProduct(string productId)
   {
     try
     {
-
       if (!Guid.TryParse(productId, out Guid productIdGuid))
       {
         return BadRequest("Invalid product ID Format");
       }
       var result = await _dbContext.DeleteProductService(productIdGuid);
       if (!result)
-
-
       {
         return NotFound(new ErrorMessage
         {

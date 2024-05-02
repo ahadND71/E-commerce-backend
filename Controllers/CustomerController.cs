@@ -47,7 +47,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    [HttpGet("{customerId:guid}")]
+    [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {
         try
@@ -116,7 +116,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    [HttpPut("{customerId:guid}")]
+    [HttpPut("{customerId}")]
     public async Task<IActionResult> UpdateCustomer(string customerId, Customer updateCustomer)
     {
         try
@@ -152,7 +152,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    [HttpDelete("{customerId:guid}")]
+    [HttpDelete("{customerId}")]
     public async Task<IActionResult> DeleteCustomer(string customerId)
     {
         try

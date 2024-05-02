@@ -13,10 +13,9 @@ public class Order
 
   public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-  //
+  // Relations
   public Guid CustomerId { get; set; }
   public Guid AddressId { get; set; }
-  public Customer Customer { get; set; }
-  // public ICollection<OrderProduct> OrderProducts { get; set; }
+  public ICollection<OrderProduct> OrderProducts { get; } = new List<OrderProduct>();
 
 }

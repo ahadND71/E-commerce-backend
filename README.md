@@ -9,6 +9,8 @@ This repository contains ASP.NET Core application with RESTful API endpoints for
 
 </details>
 
+<br/>
+
 ## Team members:
 
 ### Team 3: The Legends

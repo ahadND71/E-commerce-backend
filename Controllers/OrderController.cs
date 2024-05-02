@@ -46,7 +46,7 @@ public class OrderController : ControllerBase
   }
 
 
-  [HttpGet("{orderId:guid}")]
+  [HttpGet("{orderId}")]
   public async Task<IActionResult> GetOrder(string orderId)
   {
     try
@@ -94,7 +94,7 @@ public class OrderController : ControllerBase
       var createdOrder = await _dbContext.CreateOrderService(newOrder);
       if (createdOrder != null)
       {
-        return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
+        return CreatedAtAction(nameof(GetOrder), new { orderId = createdOrder.OrderId }, createdOrder);
       }
       return Ok(new SuccessMessage<Order>
       {
@@ -113,7 +113,7 @@ public class OrderController : ControllerBase
   }
 
 
-  [HttpPut("{orderId:guid}")]
+  [HttpPut("{orderId}")]
   public async Task<IActionResult> UpdateOrder(string orderId, Order updateOrder)
   {
     try
@@ -149,7 +149,7 @@ public class OrderController : ControllerBase
   }
 
 
-  [HttpDelete("{orderId:guid}")]
+  [HttpDelete("{orderId}")]
   public async Task<IActionResult> DeleteOrder(string orderId)
   {
     try

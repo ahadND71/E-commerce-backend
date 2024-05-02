@@ -4,12 +4,6 @@ public class Product
 {
   public Guid ProductId { get; set; }
 
-  // [Required]
-  // public Guid CategoryId { get; set; }
-
-  // [Required]
-  // public Guid AdminId { get; set; }
-
   [Required(ErrorMessage = "Product name is requierd")]
   [MaxLength(100), MinLength(2)]
   public string Name { get; set; }
@@ -39,9 +33,11 @@ public class Product
 
   public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-  //
-  // public Category Category { get; set; }
-  // public Admin Admin { get; set; }
-  // public ICollection<Review> Reviews { get; set; }
-  // public ICollection<OrderProduct> OrderProducts { get; set; }
+  // Relations
+  public Guid? CategoryId { get; set; }
+  public Guid? AdminId { get; set; }
+
+  public ICollection<Review> Reviews { get; } = new List<Review>();
+
+  public ICollection<OrderProduct> OrderProducts { get; } = new List<OrderProduct>();
 }

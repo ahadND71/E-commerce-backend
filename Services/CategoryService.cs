@@ -16,7 +16,10 @@ public class CategoryService
 
   public async Task<IEnumerable<Category>> GetAllCategoryService()
   {
-    return await _dbContext.Categories.ToListAsync();
+    return await _dbContext.Categories
+    .Include(c => c.Products)
+    .ThenInclude(r => r.Reviews)
+    .ToListAsync();
   }
 
 

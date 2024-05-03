@@ -21,7 +21,6 @@ public class Customer
   [MaxLength(25), MinLength(8)]
   public string Password { get; set; }
 
-
   public string Image { get; set; } = string.Empty;
 
   public bool IsBanned { get; set; } = false;
@@ -30,7 +29,7 @@ public class Customer
 
   //
   // public string AddressId { get; set; } = string.Empty;
-  // public ICollection<Address> Addresses { get; set; }
-  // public ICollection<Order> Orders { get; set; }
-  // public ICollection<Review> Reviews { get; set; }
+  public ICollection<Address> Addresses { get; } = new List<Address>();
+  public ICollection<Order> Orders { get; } = new List<Order>();
+  public ICollection<Review> Reviews { get; } = new List<Review>();
 }

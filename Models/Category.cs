@@ -14,4 +14,9 @@ public class Category
   public string Description { get; set; } = string.Empty;
 
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+  // Relationship: Collection navigation containing dependents
+  public Guid AdminId { get; set; }
+  public ICollection<Product> Products { get; } = new List<Product>();
 }
+

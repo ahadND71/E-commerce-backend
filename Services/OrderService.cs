@@ -5,7 +5,7 @@ namespace api.Services;
 
 public class OrderService
 {
-  
+
   private readonly AppDbContext _dbContext;
 
   public OrderService(AppDbContext dbContext)
@@ -16,7 +16,7 @@ public class OrderService
 
   public async Task<IEnumerable<Order>> GetAllOrderService()
   {
-    return await _dbContext.Orders.ToListAsync();
+    return await _dbContext.Orders.Include(op => op.OrderProducts).ToListAsync();
   }
 
 

@@ -4,15 +4,13 @@ public class Address
 {
   public Guid AddressId { get; set; }
 
-  // public Guid CustomerId { get; set; }
-
   [Required(ErrorMessage = "Address name is required")]
   [MaxLength(100)]
   public string Name { get; set; }
 
   [Required(ErrorMessage = "At least one address line should be added")]
   [MaxLength(100)]
-  public string AddressLine1 { get; set; }
+  public string AddressLine1 { get; set; } = string.Empty;
 
   [MaxLength(100)]
   public string AddressLine2 { get; set; } = string.Empty;
@@ -31,4 +29,8 @@ public class Address
 
   [MaxLength(10)]
   public string ZipCode { get; set; } = string.Empty;
+
+  // Relations
+  public Guid CustomerId { get; set; }
+
 }

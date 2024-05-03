@@ -15,7 +15,12 @@ public class CustomerService
 
   public async Task<IEnumerable<Customer>> GetAllCustomersService()
   {
-    return await _dbContext.Customers.ToListAsync();
+    return await _dbContext.Customers
+    .Include(a => a.Addresses)
+    .Include(o => o.Orders)
+      .ThenInclude(op => op.OrderProducts)
+    .Include(r => r.Reviews)
+    .ToListAsync();
   }
 
 

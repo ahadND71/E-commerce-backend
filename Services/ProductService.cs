@@ -15,7 +15,10 @@ public class ProductService
 
   public async Task<IEnumerable<Product>> GetAllProductService()
   {
-    return await _dbContext.Products.ToListAsync();
+    return await _dbContext.Products
+    .Include(r => r.Reviews)
+    .Include(op => op.OrderProducts)
+    .ToListAsync();
   }
 
 
@@ -31,8 +34,28 @@ public class ProductService
     newProduct.Slug = SlugGenerator.GenerateSlug(newProduct.Name);
     newProduct.CreatedAt = DateTime.UtcNow;
     newProduct.UpdatedAt = DateTime.UtcNow;
+
+    if (newProduct.CategoryId != Guid.Empty)
+    {
+      var category = await _dbContext.Categories.FindAsync(newProduct.CategoryId);
+      if (category != null)
+      {
+        newProduct.CategoryId = category.CategoryId;
+      }
+      else
+      {
+        // Handle invalid CategoryId here if needed
+      }
+    }
+    else
+    {
+      newProduct.CategoryId = null; // Set CategoryId to null if not provided
+    }
+
     _dbContext.Products.Add(newProduct);
     await _dbContext.SaveChangesAsync();
+
+    Console.WriteLine($"ProductId of the new product: {newProduct.ProductId}"); // Debug log
     return newProduct;
   }
 

@@ -4,7 +4,7 @@ public class Review
 {
   public Guid ReviewId { get; set; }
 
-  [Required(ErrorMessage = "Product rate is requierd")]
+  [Required(ErrorMessage = "Product rate is required")]
   [Range(1, 5)]
   public int Rating { get; set; }
 

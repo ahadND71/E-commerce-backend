@@ -6,7 +6,7 @@ public class Address
 
   [Required(ErrorMessage = "Address name is required")]
   [MaxLength(100)]
-  public string Name { get; set; }
+  public string Name { get; set; } = string.Empty;
 
   [Required(ErrorMessage = "At least one address line should be added")]
   [MaxLength(100)]
@@ -17,15 +17,15 @@ public class Address
 
   [Required(ErrorMessage = "Country name is required")]
   [MaxLength(100)]
-  public string Country { get; set; }
+  public string Country { get; set; } = string.Empty;
 
   [Required(ErrorMessage = "Province name is required")]
   [MaxLength(100)]
-  public string Province { get; set; }
+  public string Province { get; set; } = string.Empty;
 
   [Required(ErrorMessage = "City name is required")]
   [MaxLength(100)]
-  public string City { get; set; }
+  public string City { get; set; } = string.Empty;
 
   [MaxLength(10)]
   public string ZipCode { get; set; } = string.Empty;

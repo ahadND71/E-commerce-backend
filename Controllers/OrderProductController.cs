@@ -21,7 +21,7 @@ public class OrderProductController : ControllerBase
     try
     {
 
-      var orderProducts = await _dbContext.GetAllOrderProductservice();
+      var orderProducts = await _dbContext.GetAllOrderProductService();
       if (orderProducts.ToList().Count < 1)
       {
         return NotFound(new ErrorMessage
@@ -31,13 +31,13 @@ public class OrderProductController : ControllerBase
       }
       return Ok(new SuccessMessage<IEnumerable<OrderProduct>>
       {
-        Message = "Oreders Details are returned succeefully",
+        Message = "Orders Details are returned succeSSfully",
         Data = orderProducts
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not return the Oreder Detail list");
+      Console.WriteLine($"An error occurred, cannot return the Order Detail list");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -69,7 +69,7 @@ public class OrderProductController : ControllerBase
         return Ok(new SuccessMessage<OrderProduct>
         {
           Success = true,
-          Message = "Order Details is returned succeefully",
+          Message = "Order Details is returned succeSSfully",
           Data = orderProduct
         });
       }
@@ -77,7 +77,7 @@ public class OrderProductController : ControllerBase
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not return the Order Details");
+      Console.WriteLine($"An error occurred, cannot return the Order Details");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -92,20 +92,20 @@ public class OrderProductController : ControllerBase
     try
     {
 
-      var createdOrderProduct = await _dbContext.CreateOrderProductservice(newOrderProduct);
+      var createdOrderProduct = await _dbContext.CreateOrderProductService(newOrderProduct);
       if (createdOrderProduct != null)
       {
         return CreatedAtAction(nameof(GetOrderProduct), new { orderItemId = createdOrderProduct.OrderItemId }, createdOrderProduct);
       }
       return Ok(new SuccessMessage<OrderProduct>
       {
-        Message = "Order Details is created succeefully",
+        Message = "Order Details is created successfully",
         Data = createdOrderProduct
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not create new Order Details");
+      Console.WriteLine($"An error occurred, cannot create new Order Details");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -124,24 +124,24 @@ public class OrderProductController : ControllerBase
       {
         return BadRequest("Invalid OrderProduct ID Format");
       }
-      var orderProduct = await _dbContext.UpdateOrderProductservice(orderItemIdGuid, updateOrderProduct);
+      var orderProduct = await _dbContext.UpdateOrderProductService(orderItemIdGuid, updateOrderProduct);
       if (orderProduct == null)
 
       {
         return NotFound(new ErrorMessage
         {
-          Message = "No Order Details To Founed To Update"
+          Message = "No Order Details To Founded To Update"
         });
       }
       return Ok(new SuccessMessage<OrderProduct>
       {
-        Message = "Order Details Is Updated Succeefully",
+        Message = "Order Details Is Updated Successfully",
         Data = orderProduct
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not update the Order Details ");
+      Console.WriteLine($"An error occurred, cannot update the Order Details ");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -159,7 +159,7 @@ public class OrderProductController : ControllerBase
       {
         return BadRequest("Invalid OrderProduct ID Format");
       }
-      var result = await _dbContext.DeleteOrderProductservice(OrderItemId_Guid);
+      var result = await _dbContext.DeleteOrderProductService(OrderItemId_Guid);
       if (!result)
 
 
@@ -169,12 +169,12 @@ public class OrderProductController : ControllerBase
           Message = "The Order Details is not found to be deleted"
         });
       }
-      return Ok(new { success = true, message = " Order Details is deleted succeefully" });
+      return Ok(new { success = true, message = " Order Details is deleted successfully" });
     }
 
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , the Order Details can not deleted");
+      Console.WriteLine($"An error occurred, the Order Details can not deleted");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message

@@ -4,7 +4,7 @@ public class Order
 {
   public Guid OrderId { get; set; }
 
-  [Required(ErrorMessage = "The total amount of the order can not be Empty")]
+  [Required(ErrorMessage = "The total amount of the order can not be empty")]
   public int TotalAmount { get; set; }
 
   public string Status { get; set; } = "Pending...";

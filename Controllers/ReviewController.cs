@@ -30,13 +30,13 @@ public class ReviewController : ControllerBase
             }
             return Ok(new SuccessMessage<IEnumerable<Review>>
             {
-                Message = "Reviews are returned succeefully",
+                Message = "Reviews are returned successfully",
                 Data = reviews
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not return the Review list");
+            Console.WriteLine($"An error occurred, cannot return the Review list");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -67,14 +67,14 @@ public class ReviewController : ControllerBase
                 return Ok(new SuccessMessage<Review>
                 {
                     Success = true,
-                    Message = "Review is returned succeefully",
+                    Message = "Review is returned successfully",
                     Data = review
                 });
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not return the Review");
+            Console.WriteLine($"An error occurred, cannot return the Review");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -96,13 +96,13 @@ public class ReviewController : ControllerBase
             }
             return Ok(new SuccessMessage<Review>
             {
-                Message = "Review is created succeefully",
+                Message = "Review is created successfully",
                 Data = createdReview
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not create new Review");
+            Console.WriteLine($"An error occurred, cannot create new Review");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -125,18 +125,18 @@ public class ReviewController : ControllerBase
             {
                 return NotFound(new ErrorMessage
                 {
-                    Message = "No Review To Founed To Update"
+                    Message = "No Review To Founded To Update"
                 });
             }
             return Ok(new SuccessMessage<Review>
             {
-                Message = "Review Is Updated Succeefully",
+                Message = "Review Is Updated Successfully",
                 Data = review
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not update the Review ");
+            Console.WriteLine($"An error occurred, cannot update the Review ");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -162,12 +162,12 @@ public class ReviewController : ControllerBase
                     Message = "The Review is not found to be deleted"
                 });
             }
-            return Ok(new { success = true, message = " Review is deleted succeefully" });
+            return Ok(new { success = true, message = " Review is deleted successfully" });
         }
 
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , the Review can not deleted");
+            Console.WriteLine($"An error occurred, the Review can not deleted");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message

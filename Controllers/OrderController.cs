@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -14,7 +16,7 @@ public class OrderController : ControllerBase
     _dbContext = orderService;
   }
 
-
+  [AllowAnonymous]
   [HttpGet]
   public async Task<IActionResult> GetAllOrders()
   {
@@ -30,13 +32,13 @@ public class OrderController : ControllerBase
       }
       return Ok(new SuccessMessage<IEnumerable<Order>>
       {
-        Message = "Orders are returned succeefully",
+        Message = "Orders are returned successfully",
         Data = orders
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not return the Order list");
+      Console.WriteLine($"An error occurred, cannot return the Order list");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -44,7 +46,7 @@ public class OrderController : ControllerBase
     }
   }
 
-
+  [AllowAnonymous]
   [HttpGet("{orderId}")]
   public async Task<IActionResult> GetOrder(string orderId)
   {
@@ -67,7 +69,7 @@ public class OrderController : ControllerBase
         return Ok(new SuccessMessage<Order>
         {
           Success = true,
-          Message = "Order is returned succeefully",
+          Message = "Order is returned successfully",
           Data = order
         });
       }
@@ -75,7 +77,7 @@ public class OrderController : ControllerBase
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not return the Order");
+      Console.WriteLine($"An error occurred, cannot return the Order");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -83,7 +85,8 @@ public class OrderController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
   public async Task<IActionResult> CreateOrder(Order newOrder)
   {
@@ -97,13 +100,13 @@ public class OrderController : ControllerBase
       }
       return Ok(new SuccessMessage<Order>
       {
-        Message = "Order is created succeefully",
+        Message = "Order is created successfully",
         Data = createdOrder
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not create new Order");
+      Console.WriteLine($"An error occurred, cannot create new Order");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -111,7 +114,8 @@ public class OrderController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPut("{orderId}")]
   public async Task<IActionResult> UpdateOrder(string orderId, Order updateOrder)
   {
@@ -128,18 +132,18 @@ public class OrderController : ControllerBase
       {
         return NotFound(new ErrorMessage
         {
-          Message = "No Order To Founed To Update"
+          Message = "No Order To Founded To Update"
         });
       }
       return Ok(new SuccessMessage<Order>
       {
-        Message = "Order Is Updated Succeefully",
+        Message = "Order Is Updated Successfully",
         Data = order
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not update the Order ");
+      Console.WriteLine($"An error occurred, cannot update the Order ");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -147,7 +151,8 @@ public class OrderController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpDelete("{orderId}")]
   public async Task<IActionResult> DeleteOrder(string orderId)
   {
@@ -167,12 +172,12 @@ public class OrderController : ControllerBase
           Message = "The Order is not found to be deleted"
         });
       }
-      return Ok(new { success = true, message = " Order is deleted succeefully" });
+      return Ok(new { success = true, message = " Order is deleted successfully" });
     }
 
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , the Order can not deleted");
+      Console.WriteLine($"An error occurred, the Order can not deleted");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message

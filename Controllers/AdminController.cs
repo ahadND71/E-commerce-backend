@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -14,7 +16,7 @@ public class AdminController : ControllerBase
         _dbContext = adminService;
     }
 
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins()
     {
@@ -32,13 +34,13 @@ public class AdminController : ControllerBase
 
             return Ok(new SuccessMessage<IEnumerable<Admin>>
             {
-                Message = "Admins are returned succeefully",
+                Message = "Admins are returned successfully",
                 Data = admins
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not return the Admin list");
+            Console.WriteLine($"An error occurred, cannot return the Admin list");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -46,7 +48,7 @@ public class AdminController : ControllerBase
         }
     }
 
-
+    [AllowAnonymous]
     [HttpGet("{adminId}")]
     public async Task<IActionResult> GetAdmin(string adminId)
     {
@@ -70,14 +72,14 @@ public class AdminController : ControllerBase
                 return Ok(new SuccessMessage<Admin>
                 {
                     Success = true,
-                    Message = "Admin is returned succeefully",
+                    Message = "Admin is returned successfully",
                     Data = admin
                 });
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not return the Admin");
+            Console.WriteLine($"An error occurred, cannot return the Admin");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -85,7 +87,8 @@ public class AdminController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {
@@ -98,13 +101,13 @@ public class AdminController : ControllerBase
             }
             return Ok(new SuccessMessage<Admin>
             {
-                Message = "Admin is created succeefully",
+                Message = "Admin is created successfully",
                 Data = createdAdmin
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not create new Admin");
+            Console.WriteLine($"An error occurred, cannot create new Admin");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -112,7 +115,8 @@ public class AdminController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{adminId}")]
     public async Task<IActionResult> UpdateAdmin(string adminId, Admin updateAdmin)
     {
@@ -128,18 +132,18 @@ public class AdminController : ControllerBase
             {
                 return NotFound(new ErrorMessage
                 {
-                    Message = "No Admin To Founed To Update"
+                    Message = "No Admin To Founded To Update"
                 });
             }
             return Ok(new SuccessMessage<Admin>
             {
-                Message = "Admin Is Updated Succeefully",
+                Message = "Admin Is Updated Successfully",
                 Data = admin
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not update the Admin ");
+            Console.WriteLine($"An error occurred, cannot update the Admin ");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -147,7 +151,8 @@ public class AdminController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{adminId}")]
     public async Task<IActionResult> DeleteAdmin(string adminId)
     {
@@ -167,12 +172,12 @@ public class AdminController : ControllerBase
                 });
             }
             //new SuccessMessage<Admin>
-            return Ok(new { success = true, message = " Admin is deleted succeefully" });
+            return Ok(new { success = true, message = " Admin is deleted successfully" });
         }
 
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , the Admin can not deleted");
+            Console.WriteLine($"An error occurred, the Admin can not deleted");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message

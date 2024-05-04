@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
-
 [ApiController]
 [Route("/api/categories")]
 public class CategoryController : ControllerBase
@@ -16,7 +17,7 @@ public class CategoryController : ControllerBase
     _dbContext = categoryService;
   }
 
-
+  [AllowAnonymous]
   [HttpGet]
   public async Task<IActionResult> GetAllCategories()
   {
@@ -33,13 +34,13 @@ public class CategoryController : ControllerBase
       }
       return Ok(new SuccessMessage<IEnumerable<Category>>
       {
-        Message = "Categories are returned succeefully",
+        Message = "Categories are returned successfully",
         Data = categories
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not return the category list");
+      Console.WriteLine($"An error occurred, cannot return the category list");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -47,7 +48,7 @@ public class CategoryController : ControllerBase
     }
   }
 
-
+  [AllowAnonymous]
   [HttpGet("{categoryId:guid}")]
   public async Task<IActionResult> GetCategory(Guid categoryId)
   {
@@ -70,14 +71,14 @@ public class CategoryController : ControllerBase
         return Ok(new SuccessMessage<Category>
         {
           Success = true,
-          Message = "Category is returned succeefully",
+          Message = "Category is returned successfully",
           Data = category
         });
       }
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not return the category");
+      Console.WriteLine($"An error occurred, cannot return the category");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -85,7 +86,8 @@ public class CategoryController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
   public async Task<IActionResult> CreateCategory(Category newCategory)
   {
@@ -103,13 +105,13 @@ public class CategoryController : ControllerBase
       return Ok(new SuccessMessage<Category>
       {
         Success = true,
-        Message = "Category is created succeefully",
+        Message = "Category is created successfully",
         Data = createdCategory
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not create new category");
+      Console.WriteLine($"An error occurred, cannot create new category");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -117,7 +119,8 @@ public class CategoryController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPut("{categoryId}")]
   public async Task<IActionResult> UpdateCategory(string categoryId, Category updateCategory)
   {
@@ -132,19 +135,19 @@ public class CategoryController : ControllerBase
       {
         return NotFound(new ErrorMessage
         {
-          Message = "No Category To Founed To Update"
+          Message = "No Category To Founded To Update"
         });
       }
       return Ok(new SuccessMessage<Category>
       {
         Success = true,
-        Message = "Category is updated succeefully",
+        Message = "Category is updated successfully",
         Data = category
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not update the category");
+      Console.WriteLine($"An error occurred, cannot update the category");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -152,7 +155,8 @@ public class CategoryController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpDelete("{categoryId}")]
   public async Task<IActionResult> DeleteCategory(string categoryId)
   {
@@ -170,11 +174,11 @@ public class CategoryController : ControllerBase
           Message = "The category is not found to be deleted"
         });
       }
-      return Ok(new { success = true, message = "Category is deleted succeefully" });
+      return Ok(new { success = true, message = "Category is deleted successfully" });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , the category can not deleted");
+      Console.WriteLine($"An error occurred, the category can not deleted");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message

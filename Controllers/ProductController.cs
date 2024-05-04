@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
-
 [ApiController]
 [Route("/api/products")]
 public class ProductController : ControllerBase
@@ -14,7 +15,7 @@ public class ProductController : ControllerBase
     _dbContext = productService;
   }
 
-
+  [AllowAnonymous]
   [HttpGet]
   public async Task<IActionResult> GetAllProducts()
   {
@@ -30,13 +31,13 @@ public class ProductController : ControllerBase
       }
       return Ok(new SuccessMessage<IEnumerable<Product>>
       {
-        Message = "Products are returned succeefully",
+        Message = "Products are returned successfully",
         Data = products
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not return the Product list");
+      Console.WriteLine($"An error occurred, cannot return the Product list");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -44,7 +45,7 @@ public class ProductController : ControllerBase
     }
   }
 
-
+  [AllowAnonymous]
   [HttpGet("{productId:guid}")]
   public async Task<IActionResult> GetProduct(Guid productId)
   {
@@ -63,14 +64,14 @@ public class ProductController : ControllerBase
         return Ok(new SuccessMessage<Product>
         {
           Success = true,
-          Message = "Product is returned succeefully",
+          Message = "Product is returned successfully",
           Data = product
         });
       }
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not return the Product");
+      Console.WriteLine($"An error occurred, cannot return the Product");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -79,7 +80,8 @@ public class ProductController : ControllerBase
 
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
   public async Task<IActionResult> CreateProduct(Product newProduct)
   {
@@ -92,13 +94,13 @@ public class ProductController : ControllerBase
       }
       return Ok(new SuccessMessage<Product>
       {
-        Message = "Product is created succeefully",
+        Message = "Product is created successfully",
         Data = createdProduct
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not create new Product");
+      Console.WriteLine($"An error occurred, cannot create new Product");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -106,7 +108,8 @@ public class ProductController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPut("{productId}")]
   public async Task<IActionResult> UpdateProduct(string productId, Product updateProduct)
   {
@@ -121,18 +124,18 @@ public class ProductController : ControllerBase
       {
         return NotFound(new ErrorMessage
         {
-          Message = "No Product To Founed To Update"
+          Message = "No Product To Founded To Update"
         });
       }
       return Ok(new SuccessMessage<Product>
       {
-        Message = "Product Is Updated Succeefully",
+        Message = "Product Is Updated Successfully",
         Data = product
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not update the Product ");
+      Console.WriteLine($"An error occurred , can not update the Product ");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -140,7 +143,8 @@ public class ProductController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpDelete("{productId}")]
   public async Task<IActionResult> DeleteProduct(string productId)
   {
@@ -158,12 +162,12 @@ public class ProductController : ControllerBase
           Message = "The Product is not found to be deleted"
         });
       }
-      return Ok(new { success = true, message = " Product is deleted succeefully" });
+      return Ok(new { success = true, message = " Product is deleted successfully" });
     }
 
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , the Product can not deleted");
+      Console.WriteLine($"An error occurred, the Product can not deleted");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message

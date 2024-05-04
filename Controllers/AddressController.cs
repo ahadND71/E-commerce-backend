@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -14,7 +16,7 @@ public class AddressController : ControllerBase
         _dbContext = addressService;
     }
 
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllAddress()
     {
@@ -30,13 +32,13 @@ public class AddressController : ControllerBase
             }
             return Ok(new SuccessMessage<IEnumerable<Address>>
             {
-                Message = "Addresses are returned succeefully",
+                Message = "Addresses are returned successfully",
                 Data = addresses
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not return the Address list");
+            Console.WriteLine($"An error occurred, cannot return the Address list");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -44,7 +46,7 @@ public class AddressController : ControllerBase
         }
     }
 
-
+    [AllowAnonymous]
     [HttpGet("{addressId}")]
     public async Task<IActionResult> GetAddress(string addressId)
     {
@@ -67,14 +69,14 @@ public class AddressController : ControllerBase
             {
                 return Ok(new SuccessMessage<Address>
                 {
-                    Message = "Address is returned succeefully",
+                    Message = "Address is returned successfully",
                     Data = address
                 });
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not return the Address");
+            Console.WriteLine($"An error occurred, cannot return the Address");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -83,7 +85,8 @@ public class AddressController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPost]
     public async Task<IActionResult> CreateAddress(Address newAddress)
     {
@@ -97,13 +100,13 @@ public class AddressController : ControllerBase
             }
             return Ok(new SuccessMessage<Address>
             {
-                Message = "Address is created succeefully",
+                Message = "Address is created successfully",
                 Data = createdAddress
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not create new Address");
+            Console.WriteLine($"An error occurred, cannot create new Address");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -113,7 +116,8 @@ public class AddressController : ControllerBase
 
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{addressId}")]
     public async Task<IActionResult> UpdateAddress(string addressId, Address updateAddress)
     {
@@ -130,18 +134,18 @@ public class AddressController : ControllerBase
             {
                 return NotFound(new ErrorMessage
                 {
-                    Message = "No Address To Founed To Update"
+                    Message = "No Address To Founded To Update"
                 });
             }
             return Ok(new SuccessMessage<Address>
             {
-                Message = "Address Is Updated Succeefully",
+                Message = "Address Is Updated Successfully",
                 Data = address
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , can not create new Address");
+            Console.WriteLine($"An error occurred, cannot create new Address");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message
@@ -149,7 +153,8 @@ public class AddressController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{addressId}")]
     public async Task<IActionResult> DeleteAddress(string addressId)
     {
@@ -169,12 +174,12 @@ public class AddressController : ControllerBase
                     Message = "The Address is not found to be deleted"
                 });
             }
-            return Ok(new { success = true, message = " Address is deleted succeefully" });
+            return Ok(new { success = true, message = " Address is deleted successfully" });
         }
 
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occured , the Address can not deleted");
+            Console.WriteLine($"An error occurred, the Address cannot deleted");
             return StatusCode(500, new ErrorMessage
             {
                 Message = ex.Message

@@ -12,7 +12,7 @@ public class OrderProductService
   }
 
 
-  public async Task<IEnumerable<OrderProduct>> GetAllOrderProductservice()
+  public async Task<IEnumerable<OrderProduct>> GetAllOrderProductService()
   {
     return await _dbContext.OrderProducts.ToListAsync();
   }
@@ -24,7 +24,7 @@ public class OrderProductService
   }
 
 
-  public async Task<OrderProduct> CreateOrderProductservice(OrderProduct newOrderProduct)
+  public async Task<OrderProduct> CreateOrderProductService(OrderProduct newOrderProduct)
   {
     newOrderProduct.OrderItemId = Guid.NewGuid();
     _dbContext.OrderProducts.Add(newOrderProduct);
@@ -33,7 +33,7 @@ public class OrderProductService
   }
 
 
-  public async Task<OrderProduct?> UpdateOrderProductservice(Guid orderItemId, OrderProduct updateOrderProduct)
+  public async Task<OrderProduct?> UpdateOrderProductService(Guid orderItemId, OrderProduct updateOrderProduct)
   {
     var existingOrderProduct = await _dbContext.OrderProducts.FindAsync(orderItemId);
     if (existingOrderProduct != null)
@@ -46,7 +46,7 @@ public class OrderProductService
   }
 
 
-  public async Task<bool> DeleteOrderProductservice(Guid orderItemId)
+  public async Task<bool> DeleteOrderProductService(Guid orderItemId)
   {
     var orderProductToRemove = await _dbContext.OrderProducts.FindAsync(orderItemId);
     if (orderProductToRemove != null)

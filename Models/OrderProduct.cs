@@ -6,11 +6,11 @@ public class OrderProduct
   [Key]
   public Guid OrderItemId { get; set; }
 
-  [Required(ErrorMessage = "Number of quantity of the item ordered can not be Empty")]
+  [Required(ErrorMessage = "Number of quantity of the item ordered can not be empty")]
   // [MaxLength(10), MinLength(1)]
   public int? Quantity { get; set; }
 
-  [Required(ErrorMessage = "The price of unit can not be Empty")]
+  [Required(ErrorMessage = "The price of unit can not be empty")]
   public int ProductPrice { get; set; }
 
   // Relations

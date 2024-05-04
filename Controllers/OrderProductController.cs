@@ -16,7 +16,7 @@ public class OrderProductController : ControllerBase
     _dbContext = orderProductService;
   }
 
-  [AllowAnonymous]
+  [Authorize]
   [HttpGet]
   public async Task<IActionResult> GetAllOrderProducts()
   {
@@ -47,7 +47,7 @@ public class OrderProductController : ControllerBase
     }
   }
 
-  [AllowAnonymous]
+  [Authorize]
   [HttpGet("{orderItemId}")]
   public async Task<IActionResult> GetOrderProduct(string orderItemId)
   {

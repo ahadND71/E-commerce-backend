@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using api.Services;
 using api.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using api.Authentication.Identity;
 
 namespace api.Controllers;
+
+
 [ApiController]
 [Route("/api/products")]
 public class ProductController : ControllerBase
@@ -14,6 +17,7 @@ public class ProductController : ControllerBase
   {
     _dbContext = productService;
   }
+
 
   [AllowAnonymous]
   [HttpGet]
@@ -54,6 +58,7 @@ public class ProductController : ControllerBase
       });
     }
   }
+
 
   [AllowAnonymous]
   [HttpGet("{productId:guid}")]
@@ -125,6 +130,7 @@ public class ProductController : ControllerBase
     }
   }
 
+
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
@@ -152,6 +158,7 @@ public class ProductController : ControllerBase
       });
     }
   }
+
 
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -188,6 +195,7 @@ public class ProductController : ControllerBase
     }
   }
 
+
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpDelete("{productId}")]
@@ -209,7 +217,6 @@ public class ProductController : ControllerBase
       }
       return Ok(new { success = true, message = " Product is deleted successfully" });
     }
-
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, the Product can not deleted");

@@ -31,6 +31,7 @@ public class Customer
 
   public DateTime CreatedAt { get; set; }
 
+  // Relations
   // public string AddressId { get; set; } = string.Empty;
   public ICollection<Address> Addresses { get; } = new List<Address>();
   public ICollection<Order> Orders { get; } = new List<Order>();

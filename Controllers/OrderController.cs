@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using api.Services;
 using api.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using api.Authentication.Identity;
 
 namespace api.Controllers;
+
 
 [ApiController]
 [Route("/api/orders")]
@@ -15,6 +17,7 @@ public class OrderController : ControllerBase
   {
     _dbContext = orderService;
   }
+
 
   [AllowAnonymous]
   [HttpGet]
@@ -46,6 +49,7 @@ public class OrderController : ControllerBase
     }
   }
 
+
   [AllowAnonymous]
   [HttpGet("{orderId}")]
   public async Task<IActionResult> GetOrder(string orderId)
@@ -73,7 +77,6 @@ public class OrderController : ControllerBase
           Data = order
         });
       }
-
     }
     catch (Exception ex)
     {
@@ -85,6 +88,7 @@ public class OrderController : ControllerBase
     }
   }
 
+
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
@@ -92,7 +96,6 @@ public class OrderController : ControllerBase
   {
     try
     {
-
       var createdOrder = await _dbContext.CreateOrderService(newOrder);
       if (createdOrder != null)
       {
@@ -114,6 +117,7 @@ public class OrderController : ControllerBase
     }
   }
 
+
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPut("{orderId}")]
@@ -127,8 +131,6 @@ public class OrderController : ControllerBase
       }
       var order = await _dbContext.UpdateOrderService(orderIdGuid, updateOrder);
       if (order == null)
-
-
       {
         return NotFound(new ErrorMessage
         {
@@ -151,6 +153,7 @@ public class OrderController : ControllerBase
     }
   }
 
+
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpDelete("{orderId}")]
@@ -164,8 +167,6 @@ public class OrderController : ControllerBase
       }
       var result = await _dbContext.DeleteOrderService(OrderId_Guid);
       if (!result)
-
-
       {
         return NotFound(new ErrorMessage
         {
@@ -174,7 +175,6 @@ public class OrderController : ControllerBase
       }
       return Ok(new { success = true, message = " Order is deleted successfully" });
     }
-
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, the Order can not deleted");

@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using api.Services;
-using Microsoft.AspNetCore.Http.HttpResults;
-using api.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+using api.Services;
+using api.Helpers;
 using api.Authentication.Identity;
 
 namespace api.Controllers;
@@ -16,6 +16,7 @@ public class CategoryController : ControllerBase
   {
     _dbContext = categoryService;
   }
+
 
   [AllowAnonymous]
   [HttpGet]
@@ -48,16 +49,13 @@ public class CategoryController : ControllerBase
     }
   }
 
+
   [AllowAnonymous]
   [HttpGet("{categoryId:guid}")]
   public async Task<IActionResult> GetCategory(Guid categoryId)
   {
     try
     {
-      // if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
-      // {
-      //   return BadRequest("Invalid category ID Format");
-      // }
       var category = await _dbContext.GetCategoryById(categoryId);
       if (category == null)
       {
@@ -85,6 +83,7 @@ public class CategoryController : ControllerBase
       });
     }
   }
+
 
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]

@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using api.Services;
 using api.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using api.Authentication.Identity;
 
 namespace api.Controllers;
+
+
 [Authorize]
 [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
 [ApiController]
@@ -16,6 +19,7 @@ public class CustomerController : ControllerBase
     {
         _dbContext = customerService;
     }
+
 
     [AllowAnonymous]
     [HttpGet]
@@ -47,6 +51,7 @@ public class CustomerController : ControllerBase
             });
         }
     }
+
 
     [AllowAnonymous]
     [HttpGet("{customerId}")]
@@ -84,8 +89,8 @@ public class CustomerController : ControllerBase
                 Message = ex.Message
             });
         }
-
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -114,6 +119,7 @@ public class CustomerController : ControllerBase
             });
         }
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -148,8 +154,8 @@ public class CustomerController : ControllerBase
                 Message = ex.Message
             });
         }
-
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]

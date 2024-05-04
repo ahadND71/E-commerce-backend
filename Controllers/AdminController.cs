@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using api.Services;
 using api.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using api.Authentication.Identity;
 
 namespace api.Controllers;
+
 
 [ApiController]
 [Route("/api/admins")]
@@ -16,13 +18,13 @@ public class AdminController : ControllerBase
         _dbContext = adminService;
     }
 
+
     [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins()
     {
         try
         {
-
             var admins = await _dbContext.GetAllAdminsService();
             if (admins.ToList().Count < 1)
             {
@@ -48,6 +50,7 @@ public class AdminController : ControllerBase
         }
     }
 
+
     [AllowAnonymous]
     [HttpGet("{adminId}")]
     public async Task<IActionResult> GetAdmin(string adminId)
@@ -60,7 +63,6 @@ public class AdminController : ControllerBase
             }
             var admin = await _dbContext.GetAdminById(adminIdGuid);
             if (admin == null)
-
             {
                 return NotFound(new ErrorMessage
                 {
@@ -86,6 +88,7 @@ public class AdminController : ControllerBase
             });
         }
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -115,6 +118,7 @@ public class AdminController : ControllerBase
         }
     }
 
+
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{adminId}")]
@@ -128,7 +132,6 @@ public class AdminController : ControllerBase
             }
             var admin = await _dbContext.UpdateAdminService(adminIdGuid, updateAdmin);
             if (admin == null)
-
             {
                 return NotFound(new ErrorMessage
                 {
@@ -150,6 +153,7 @@ public class AdminController : ControllerBase
             });
         }
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -174,7 +178,6 @@ public class AdminController : ControllerBase
             //new SuccessMessage<Admin>
             return Ok(new { success = true, message = " Admin is deleted successfully" });
         }
-
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, the Admin can not deleted");

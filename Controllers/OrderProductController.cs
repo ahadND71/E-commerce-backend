@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using api.Services;
 using api.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using api.Authentication.Identity;
 
 namespace api.Controllers;
+
 
 [ApiController]
 [Route("/api/OrderProducts")]
@@ -16,13 +18,13 @@ public class OrderProductController : ControllerBase
     _dbContext = orderProductService;
   }
 
+
   [AllowAnonymous]
   [HttpGet]
   public async Task<IActionResult> GetAllOrderProducts()
   {
     try
     {
-
       var orderProducts = await _dbContext.GetAllOrderProductService();
       if (orderProducts.ToList().Count < 1)
       {
@@ -46,6 +48,7 @@ public class OrderProductController : ControllerBase
       });
     }
   }
+
 
   [AllowAnonymous]
   [HttpGet("{orderItemId}")]
@@ -75,7 +78,6 @@ public class OrderProductController : ControllerBase
           Data = orderProduct
         });
       }
-
     }
     catch (Exception ex)
     {
@@ -87,6 +89,7 @@ public class OrderProductController : ControllerBase
     }
   }
 
+
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
@@ -94,7 +97,6 @@ public class OrderProductController : ControllerBase
   {
     try
     {
-
       var createdOrderProduct = await _dbContext.CreateOrderProductService(newOrderProduct);
       if (createdOrderProduct != null)
       {
@@ -116,6 +118,7 @@ public class OrderProductController : ControllerBase
     }
   }
 
+
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPut("{orderItemId}")]
@@ -123,7 +126,6 @@ public class OrderProductController : ControllerBase
   {
     try
     {
-
       if (!Guid.TryParse(orderItemId, out Guid orderItemIdGuid))
       {
         return BadRequest("Invalid OrderProduct ID Format");
@@ -153,6 +155,7 @@ public class OrderProductController : ControllerBase
     }
   }
 
+
   [Authorize]
   [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpDelete("{OrderItemId}")]
@@ -166,8 +169,6 @@ public class OrderProductController : ControllerBase
       }
       var result = await _dbContext.DeleteOrderProductService(OrderItemId_Guid);
       if (!result)
-
-
       {
         return NotFound(new ErrorMessage
         {
@@ -176,7 +177,6 @@ public class OrderProductController : ControllerBase
       }
       return Ok(new { success = true, message = " Order Details is deleted successfully" });
     }
-
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, the Order Details can not deleted");

@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using api.Services;
 using api.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using api.Authentication.Identity;
 
 namespace api.Controllers;
+
+
 [ApiController]
 [Route("/api/reviews")]
 public class ReviewController : ControllerBase
@@ -14,6 +17,7 @@ public class ReviewController : ControllerBase
     {
         _dbContext = reviewService;
     }
+
 
     [AllowAnonymous]
     [HttpGet]
@@ -44,6 +48,7 @@ public class ReviewController : ControllerBase
             });
         }
     }
+
 
     [AllowAnonymous]
     [HttpGet("{reviewId}")]
@@ -81,8 +86,8 @@ public class ReviewController : ControllerBase
                 Message = ex.Message
             });
         }
-
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -111,6 +116,7 @@ public class ReviewController : ControllerBase
             });
         }
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -147,6 +153,7 @@ public class ReviewController : ControllerBase
         }
     }
 
+
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{reviewId}")]
@@ -168,7 +175,6 @@ public class ReviewController : ControllerBase
             }
             return Ok(new { success = true, message = " Review is deleted successfully" });
         }
-
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, the Review can not deleted");
@@ -178,5 +184,4 @@ public class ReviewController : ControllerBase
             });
         }
     }
-
 }

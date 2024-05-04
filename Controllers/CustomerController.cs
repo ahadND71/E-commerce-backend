@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
-
+[Authorize]
+[RequiresClaim(IdentityData.AdminUserClaimName, "true")]
 [ApiController]
 [Route("/api/customers")]
 public class CustomerController : ControllerBase
@@ -14,7 +17,7 @@ public class CustomerController : ControllerBase
         _dbContext = customerService;
     }
 
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers()
     {
@@ -46,7 +49,7 @@ public class CustomerController : ControllerBase
         }
     }
 
-
+    [AllowAnonymous]
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {
@@ -87,7 +90,8 @@ public class CustomerController : ControllerBase
 
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPost]
     public async Task<IActionResult> CreateCustomer(Customer newCustomer)
     {
@@ -115,7 +119,8 @@ public class CustomerController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{customerId}")]
     public async Task<IActionResult> UpdateCustomer(string customerId, Customer updateCustomer)
     {
@@ -151,7 +156,8 @@ public class CustomerController : ControllerBase
 
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{customerId}")]
     public async Task<IActionResult> DeleteCustomer(string customerId)
     {

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -14,7 +16,7 @@ public class OrderProductController : ControllerBase
     _dbContext = orderProductService;
   }
 
-
+  [AllowAnonymous]
   [HttpGet]
   public async Task<IActionResult> GetAllOrderProducts()
   {
@@ -45,7 +47,7 @@ public class OrderProductController : ControllerBase
     }
   }
 
-
+  [AllowAnonymous]
   [HttpGet("{orderItemId}")]
   public async Task<IActionResult> GetOrderProduct(string orderItemId)
   {
@@ -85,7 +87,8 @@ public class OrderProductController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
   public async Task<IActionResult> CreateOrderProduct(OrderProduct newOrderProduct)
   {
@@ -113,7 +116,8 @@ public class OrderProductController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPut("{orderItemId}")]
   public async Task<IActionResult> UpdateOrderProduct(string orderItemId, OrderProduct updateOrderProduct)
   {
@@ -149,7 +153,8 @@ public class OrderProductController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpDelete("{OrderItemId}")]
   public async Task<IActionResult> DeleteOrderProduct(string orderItemId)
   {

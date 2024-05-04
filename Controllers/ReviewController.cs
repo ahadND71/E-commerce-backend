@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
-
 [ApiController]
 [Route("/api/reviews")]
 public class ReviewController : ControllerBase
@@ -14,7 +15,7 @@ public class ReviewController : ControllerBase
         _dbContext = reviewService;
     }
 
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllReviews()
     {
@@ -44,7 +45,7 @@ public class ReviewController : ControllerBase
         }
     }
 
-
+    [AllowAnonymous]
     [HttpGet("{reviewId}")]
     public async Task<IActionResult> GetReview(string reviewId)
     {
@@ -83,7 +84,8 @@ public class ReviewController : ControllerBase
 
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPost]
     public async Task<IActionResult> CreateReview(Review newReview)
     {
@@ -110,7 +112,8 @@ public class ReviewController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{reviewId}")]
     public async Task<IActionResult> UpdateReview(string reviewId, Review updateReview)
     {
@@ -144,7 +147,8 @@ public class ReviewController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{reviewId}")]
     public async Task<IActionResult> DeleteReview(string reviewId)
     {

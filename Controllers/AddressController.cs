@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -14,7 +16,7 @@ public class AddressController : ControllerBase
         _dbContext = addressService;
     }
 
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllAddress()
     {
@@ -44,7 +46,7 @@ public class AddressController : ControllerBase
         }
     }
 
-
+    [AllowAnonymous]
     [HttpGet("{addressId}")]
     public async Task<IActionResult> GetAddress(string addressId)
     {
@@ -83,7 +85,8 @@ public class AddressController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPost]
     public async Task<IActionResult> CreateAddress(Address newAddress)
     {
@@ -113,7 +116,8 @@ public class AddressController : ControllerBase
 
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{addressId}")]
     public async Task<IActionResult> UpdateAddress(string addressId, Address updateAddress)
     {
@@ -149,7 +153,8 @@ public class AddressController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{addressId}")]
     public async Task<IActionResult> DeleteAddress(string addressId)
     {

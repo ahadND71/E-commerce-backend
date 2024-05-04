@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
-
 [ApiController]
 [Route("/api/products")]
 public class ProductController : ControllerBase
@@ -14,7 +15,7 @@ public class ProductController : ControllerBase
     _dbContext = productService;
   }
 
-
+  [AllowAnonymous]
   [HttpGet]
   public async Task<IActionResult> GetAllProducts()
   {
@@ -44,7 +45,7 @@ public class ProductController : ControllerBase
     }
   }
 
-
+  [AllowAnonymous]
   [HttpGet("{productId:guid}")]
   public async Task<IActionResult> GetProduct(Guid productId)
   {
@@ -79,7 +80,8 @@ public class ProductController : ControllerBase
 
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
   public async Task<IActionResult> CreateProduct(Product newProduct)
   {
@@ -106,7 +108,8 @@ public class ProductController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPut("{productId}")]
   public async Task<IActionResult> UpdateProduct(string productId, Product updateProduct)
   {
@@ -140,7 +143,8 @@ public class ProductController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpDelete("{productId}")]
   public async Task<IActionResult> DeleteProduct(string productId)
   {

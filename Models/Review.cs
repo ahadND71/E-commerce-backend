@@ -19,6 +19,6 @@ public class Review
   // Relations
   public Guid ProductId { get; set; }
   public Guid CustomerId { get; set; }
-  public Guid? OrderId { get; set; }
+  public Guid OrderId { get; set; }
 
 }

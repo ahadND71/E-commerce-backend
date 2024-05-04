@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -14,7 +16,7 @@ public class AdminController : ControllerBase
         _dbContext = adminService;
     }
 
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins()
     {
@@ -46,7 +48,7 @@ public class AdminController : ControllerBase
         }
     }
 
-
+    [AllowAnonymous]
     [HttpGet("{adminId}")]
     public async Task<IActionResult> GetAdmin(string adminId)
     {
@@ -85,7 +87,8 @@ public class AdminController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {
@@ -112,7 +115,8 @@ public class AdminController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{adminId}")]
     public async Task<IActionResult> UpdateAdmin(string adminId, Admin updateAdmin)
     {
@@ -147,7 +151,8 @@ public class AdminController : ControllerBase
         }
     }
 
-
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{adminId}")]
     public async Task<IActionResult> DeleteAdmin(string adminId)
     {

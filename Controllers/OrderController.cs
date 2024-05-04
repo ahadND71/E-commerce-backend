@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 using api.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -14,7 +16,7 @@ public class OrderController : ControllerBase
     _dbContext = orderService;
   }
 
-
+  [AllowAnonymous]
   [HttpGet]
   public async Task<IActionResult> GetAllOrders()
   {
@@ -45,7 +47,7 @@ public class OrderController : ControllerBase
     }
   }
 
-
+  [AllowAnonymous]
   [HttpGet("{orderId}")]
   public async Task<IActionResult> GetOrder(string orderId)
   {
@@ -84,7 +86,8 @@ public class OrderController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
   public async Task<IActionResult> CreateOrder(Order newOrder)
   {
@@ -112,7 +115,8 @@ public class OrderController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPut("{orderId}")]
   public async Task<IActionResult> UpdateOrder(string orderId, Order updateOrder)
   {
@@ -148,7 +152,8 @@ public class OrderController : ControllerBase
     }
   }
 
-
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpDelete("{orderId}")]
   public async Task<IActionResult> DeleteOrder(string orderId)
   {

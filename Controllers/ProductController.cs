@@ -16,27 +16,37 @@ public class ProductController : ControllerBase
 
 
   [HttpGet]
-  public async Task<IActionResult> GetAllProducts()
+  public async Task<IActionResult> GetAllProducts(
+     int pageNumber = 1,
+     int pageSize = 10,
+     string? searchTerm = null,
+     string? sortBy = null,
+     string? sortOrder = null,
+     decimal? minPrice = null,
+     decimal? maxPrice = null
+  )
   {
     try
     {
-      var products = await _dbContext.GetAllProductService();
-      if (products.ToList().Count < 1)
-      {
-        return NotFound(new ErrorMessage
-        {
-          Message = "No Products To Display"
-        });
-      }
+      var products = await _dbContext.GetAllProductService(pageNumber, pageSize, searchTerm, sortBy, sortOrder, minPrice, maxPrice);
+
+      int totalProductCount = await _dbContext.GetTotalProductCount();
+
       return Ok(new SuccessMessage<IEnumerable<Product>>
       {
-        Message = "Products are returned succeefully",
-        Data = products
+        Message = "Products are returned successfully",
+        Data = products,
+        Meta = new PaginationMeta
+        {
+          CurrentPage = pageNumber,
+          PageSize = pageSize,
+          TotalCount = totalProductCount
+        }
       });
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not return the Product list");
+      Console.WriteLine($"An error occurred, can not return the Product list");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -76,7 +86,42 @@ public class ProductController : ControllerBase
         Message = ex.Message
       });
     }
+  }
 
+
+  [HttpGet("search")]
+  public async Task<IActionResult> SearchProducts(
+    int pageNumber = 1,
+    int pageSize = 10,
+    string? searchTerm = null
+  )
+  {
+    try
+    {
+      var products = await _dbContext.SearchProductsService(pageNumber, pageSize, searchTerm);
+
+      int totalProductCount = await _dbContext.GetProductCountBySearchTerm(searchTerm);
+
+      return Ok(new SuccessMessage<IEnumerable<Product>>
+      {
+        Message = "Products are returned successfully",
+        Data = products,
+        Meta = new PaginationMeta
+        {
+          CurrentPage = pageNumber,
+          PageSize = pageSize,
+          TotalCount = totalProductCount
+        }
+      });
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occurred, can't search for products");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
   }
 
 
@@ -98,7 +143,7 @@ public class ProductController : ControllerBase
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not create new Product");
+      Console.WriteLine($"An error occured, can not create new Product");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message
@@ -132,7 +177,7 @@ public class ProductController : ControllerBase
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occured , can not update the Product ");
+      Console.WriteLine($"An error occured, can not update the Product ");
       return StatusCode(500, new ErrorMessage
       {
         Message = ex.Message

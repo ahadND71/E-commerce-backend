@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+
 using api.Data;
 using api.Helpers;
+using System.Linq.Expressions;
 
 namespace api.Services;
 
@@ -13,21 +15,123 @@ public class ProductService
   }
 
 
-  public async Task<IEnumerable<Product>> GetAllProductService()
+  // Get all products with pagination.
+  public async Task<IEnumerable<Product>> GetAllProductService(
+    int pageNumber,
+    int pageSize,
+    string? searchTerm,
+    string? sortBy,
+    string? sortOrder,
+    decimal? minPrice,
+    decimal? maxPrice
+  )
   {
-    return await _dbContext.Products
-    .Include(r => r.Reviews)
-    .Include(op => op.OrderProducts)
-    .ToListAsync();
+    var query = _dbContext.Products.AsQueryable(); // Start with a queryable
+
+    // Apply filtering
+    if (!string.IsNullOrEmpty(searchTerm))
+    {
+      query = query.Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm));
+    }
+
+    if (minPrice.HasValue)
+    {
+      query = query.Where(p => p.Price >= minPrice.Value);
+    }
+
+    if (maxPrice.HasValue)
+    {
+      query = query.Where(p => p.Price <= maxPrice.Value);
+    }
+
+    // Apply Sorting
+    if (!string.IsNullOrEmpty(sortBy))
+    {
+      if (sortOrder == "asc")
+      {
+        query = query.OrderBy(GetSortExpression(sortBy));
+      }
+      else // 'desc' as default if not provided
+      {
+        query = query.OrderByDescending(GetSortExpression(sortBy));
+      }
+    }
+    else
+    {
+      // Default sorting (by name)
+      query = query.OrderBy(x => x.Name);
+    }
+
+    // Pagination (remains the same)
+    return await query
+            .Include(r => r.Reviews)  // Include relations
+            .Include(op => op.OrderProducts)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
   }
 
 
+  // Helper method for dynamic sorting
+  private Expression<Func<Product, object>> GetSortExpression(string sortBy)
+  {
+    return sortBy.ToLowerInvariant() switch
+    {
+      "price" => p => p.Price,
+      "createdat" or "date" => p => p.CreatedAt,
+      "updatedat" or "latest" => p => p.UpdatedAt,
+      "stock" or "stockquantity" => p => p.StockQuantity,
+      "sku" => p => p.SKU,
+      "category" => p => p.CategoryId,
+      _ => p => p.Name, // Default sort field
+    };
+  }
+
+
+  // Get a single product by its Id
   public async Task<Product?> GetProductByIdService(Guid productId)
   {
     return await _dbContext.Products.FindAsync(productId);
   }
 
 
+  // Search for products by name or description with pagination
+  public async Task<IEnumerable<Product>> SearchProductsService(int pageNumber, int pageSize, string? searchTerm)
+  {
+    var query = _dbContext.Products
+                .Where(p => !string.IsNullOrEmpty(searchTerm) &&
+                            (p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm)))
+                .Include(r => r.Reviews)  // should we include the relations?
+                .Include(op => op.OrderProducts)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+    return await query.ToListAsync();
+  }
+
+
+  // Get the count of products matching the search term (helper method for SearchProducts in ProductController.cs)
+  public async Task<int> GetProductCountBySearchTerm(string? searchTerm)
+  {
+    var query = _dbContext.Products.AsQueryable();
+
+    if (!string.IsNullOrEmpty(searchTerm))
+    {
+      query = query.Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm));
+    }
+
+    return await query.CountAsync();
+  }
+
+
+  // Helper function to get total product count
+  public async Task<int> GetTotalProductCount()
+  {
+    return await _dbContext.Products.CountAsync();
+  }
+
+
+  // Creates a new product -- with default values like Guid/slug/date
   public async Task<Product> CreateProductService(Product newProduct)
   {
     newProduct.ProductId = Guid.NewGuid();
@@ -44,7 +148,7 @@ public class ProductService
       }
       else
       {
-        // Handle invalid CategoryId here if needed
+        // Handle invalid CategoryId here
       }
     }
     else
@@ -55,11 +159,11 @@ public class ProductService
     _dbContext.Products.Add(newProduct);
     await _dbContext.SaveChangesAsync();
 
-    Console.WriteLine($"ProductId of the new product: {newProduct.ProductId}"); // Debug log
     return newProduct;
   }
 
 
+  // Update a product
   public async Task<Product?> UpdateProductService(Guid productId, Product updateProduct)
   {
     var existingProduct = await _dbContext.Products.FindAsync(productId);
@@ -78,6 +182,7 @@ public class ProductService
   }
 
 
+  // Delete a product
   public async Task<bool> DeleteProductService(Guid productId)
   {
     var productToRemove = await _dbContext.Products.FindAsync(productId);

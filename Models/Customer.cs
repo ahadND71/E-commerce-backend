@@ -1,5 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
+
+[Index(nameof(Email), IsUnique = true)]
 public class Customer
 {
   public Guid CustomerId { get; set; }

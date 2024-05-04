@@ -20,7 +20,6 @@ public class OrderController : ControllerBase
   {
     try
     {
-
       var orders = await _dbContext.GetAllOrderService();
       if (orders.ToList().Count < 1)
       {

@@ -20,7 +20,6 @@ public class CustomerController : ControllerBase
     {
         try
         {
-
             var customers = await _dbContext.GetAllCustomersService();
             if (customers.ToList().Count < 1)
             {
@@ -58,7 +57,6 @@ public class CustomerController : ControllerBase
             }
             var customer = await _dbContext.GetCustomerById(customerIdGuid);
             if (customer == null)
-
             {
                 return NotFound(new ErrorMessage
                 {
@@ -74,7 +72,6 @@ public class CustomerController : ControllerBase
                     Data = customer
                 });
             }
-
         }
         catch (Exception ex)
         {
@@ -93,7 +90,6 @@ public class CustomerController : ControllerBase
     {
         try
         {
-
             var createdCustomer = await _dbContext.CreateCustomerService(newCustomer);
             if (createdCustomer != null)
             {
@@ -127,7 +123,6 @@ public class CustomerController : ControllerBase
             }
             var customer = await _dbContext.UpdateCustomerService(customerIdGuid, updateCustomer);
             if (customer == null)
-
             {
                 return NotFound(new ErrorMessage
                 {
@@ -163,8 +158,6 @@ public class CustomerController : ControllerBase
             }
             var result = await _dbContext.DeleteCustomerService(customerIdGuid);
             if (!result)
-
-
             {
                 return NotFound(new ErrorMessage
                 {
@@ -173,7 +166,6 @@ public class CustomerController : ControllerBase
             }
             return Ok(new { success = true, message = " Customer is deleted succeefully" });
         }
-
         catch (Exception ex)
         {
             Console.WriteLine($"An error occured , the Customer can not deleted");

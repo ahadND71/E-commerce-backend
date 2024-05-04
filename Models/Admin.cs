@@ -29,6 +29,6 @@ public class Admin
 
   public DateTime CreatedAt { get; set; }
 
-  //
+  // Relations
   // public ICollection<Product> Products { get; set; }
 }

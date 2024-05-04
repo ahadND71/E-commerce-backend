@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using api.Services;
 using api.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using api.Authentication.Identity;
 
 namespace api.Controllers;
+
 
 [ApiController]
 [Route("/api/address")]
@@ -15,6 +17,7 @@ public class AddressController : ControllerBase
     {
         _dbContext = addressService;
     }
+
 
     [Authorize]
     [HttpGet]
@@ -45,6 +48,8 @@ public class AddressController : ControllerBase
             });
         }
     }
+
+
 
     [Authorize]
     [HttpGet("{addressId}")]
@@ -81,9 +86,9 @@ public class AddressController : ControllerBase
             {
                 Message = ex.Message
             });
-
         }
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -112,9 +117,8 @@ public class AddressController : ControllerBase
                 Message = ex.Message
             });
         }
-
-
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -123,8 +127,6 @@ public class AddressController : ControllerBase
     {
         try
         {
-
-
             if (!Guid.TryParse(addressId, out Guid addressIdGuid))
             {
                 return BadRequest("Invalid Address ID Format");
@@ -153,6 +155,7 @@ public class AddressController : ControllerBase
         }
     }
 
+
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{addressId}")]
@@ -166,8 +169,6 @@ public class AddressController : ControllerBase
             }
             var result = await _dbContext.DeleteAddressService(addressIdGuid);
             if (!result)
-
-
             {
                 return NotFound(new ErrorMessage
                 {
@@ -176,7 +177,6 @@ public class AddressController : ControllerBase
             }
             return Ok(new { success = true, message = " Address is deleted successfully" });
         }
-
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, the Address cannot deleted");

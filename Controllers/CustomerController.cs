@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using api.Services;
 using api.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using api.Authentication.Identity;
 
 namespace api.Controllers;
+
+
 [Authorize]
 [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
 [ApiController]
@@ -17,13 +20,13 @@ public class CustomerController : ControllerBase
         _dbContext = customerService;
     }
 
+
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers()
     {
         try
         {
-
             var customers = await _dbContext.GetAllCustomersService();
             if (customers.ToList().Count < 1)
             {
@@ -49,6 +52,7 @@ public class CustomerController : ControllerBase
         }
     }
 
+
     [Authorize]
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
@@ -61,7 +65,6 @@ public class CustomerController : ControllerBase
             }
             var customer = await _dbContext.GetCustomerById(customerIdGuid);
             if (customer == null)
-
             {
                 return NotFound(new ErrorMessage
                 {
@@ -77,7 +80,6 @@ public class CustomerController : ControllerBase
                     Data = customer
                 });
             }
-
         }
         catch (Exception ex)
         {
@@ -87,8 +89,8 @@ public class CustomerController : ControllerBase
                 Message = ex.Message
             });
         }
-
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -97,7 +99,6 @@ public class CustomerController : ControllerBase
     {
         try
         {
-
             var createdCustomer = await _dbContext.CreateCustomerService(newCustomer);
             if (createdCustomer != null)
             {
@@ -119,6 +120,7 @@ public class CustomerController : ControllerBase
         }
     }
 
+
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{customerId}")]
@@ -132,7 +134,6 @@ public class CustomerController : ControllerBase
             }
             var customer = await _dbContext.UpdateCustomerService(customerIdGuid, updateCustomer);
             if (customer == null)
-
             {
                 return NotFound(new ErrorMessage
                 {
@@ -153,8 +154,8 @@ public class CustomerController : ControllerBase
                 Message = ex.Message
             });
         }
-
     }
+
 
     [Authorize]
     [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
@@ -169,8 +170,6 @@ public class CustomerController : ControllerBase
             }
             var result = await _dbContext.DeleteCustomerService(customerIdGuid);
             if (!result)
-
-
             {
                 return NotFound(new ErrorMessage
                 {
@@ -179,7 +178,6 @@ public class CustomerController : ControllerBase
             }
             return Ok(new { success = true, message = " Customer is deleted successfully" });
         }
-
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, the Customer can not deleted");

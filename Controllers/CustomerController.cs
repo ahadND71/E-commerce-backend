@@ -8,8 +8,6 @@ using api.Authentication.Identity;
 namespace api.Controllers;
 
 
-[Authorize]
-[RequiresClaim(IdentityData.AdminUserClaimName, "true")]
 [ApiController]
 [Route("/api/customers")]
 public class CustomerController : ControllerBase

@@ -19,7 +19,7 @@ public class AddressController : ControllerBase
     }
 
 
-    [AllowAnonymous]
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllAddress()
     {
@@ -50,7 +50,8 @@ public class AddressController : ControllerBase
     }
 
 
-    [AllowAnonymous]
+
+    [Authorize]
     [HttpGet("{addressId}")]
     public async Task<IActionResult> GetAddress(string addressId)
     {

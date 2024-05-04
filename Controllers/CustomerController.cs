@@ -21,7 +21,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    [AllowAnonymous]
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers()
     {
@@ -53,7 +53,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    [AllowAnonymous]
+    [Authorize]
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {

@@ -1,82 +1,189 @@
-
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api.Controllers
+using api.Services;
+using api.Helpers;
+using api.Authentication.Identity;
+
+namespace api.Controllers;
+
+
+[ApiController]
+[Route("/api/address")]
+public class AddressController : ControllerBase
 {
-    [ApiController]
-    [Route("/api/address")]
-    public class AddressController : ControllerBase
+    private readonly AddressService _dbContext;
+    public AddressController(AddressService addressService)
     {
-        private readonly AddressService _addressService;
-        public AddressController()
-        {
-            _addressService = new AddressService();
-        }
+        _dbContext = addressService;
+    }
 
-        [HttpGet]
-        public IActionResult GetAllUsers()
-        {
-            var address = _addressService.GetAllAddressService();
-            return Ok(address);
-        }
 
-        [HttpGet("{addressId}")]
-        public IActionResult GetAddress(string addressId)
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetAllAddress()
+    {
+        try
+        {
+            var addresses = await _dbContext.GetAllAddressService();
+            if (addresses.ToList().Count < 1)
+            {
+                return NotFound(new ErrorMessage
+                {
+                    Message = "No Addresses To Display"
+                });
+            }
+            return Ok(new SuccessMessage<IEnumerable<Address>>
+            {
+                Message = "Addresses are returned successfully",
+                Data = addresses
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot return the Address list");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
+        }
+    }
+
+
+
+    [Authorize]
+    [HttpGet("{addressId}")]
+    public async Task<IActionResult> GetAddress(string addressId)
+    {
+        try
         {
             if (!Guid.TryParse(addressId, out Guid addressIdGuid))
             {
                 return BadRequest("Invalid address ID Format");
             }
-            var address = _addressService.GetAddressById(addressIdGuid);
+            var address = await _dbContext.GetAddressById(addressIdGuid);
             if (address == null)
+
             {
-                return NotFound();
+                return NotFound(new ErrorMessage
+                {
+                    Message = $"No Address Found With ID : ({addressIdGuid})"
+                });
             }
             else
             {
-                return Ok(address);
+                return Ok(new SuccessMessage<Address>
+                {
+                    Message = "Address is returned successfully",
+                    Data = address
+                });
             }
-
         }
-
-        [HttpPost]
-        public IActionResult CreateAddress(Address newAddress)
+        catch (Exception ex)
         {
-            var createdAddress = _addressService.CreateAddressService(newAddress);
-            return CreatedAtAction(nameof(GetAddress), new { addressId = createdAddress.AddressId }, createdAddress);
+            Console.WriteLine($"An error occurred, cannot return the Address");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
         }
+    }
 
 
-        [HttpPut("{addressId}")]
-        public IActionResult UpdateAddress(string addressId, Address updateAddress)
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+    [HttpPost]
+    public async Task<IActionResult> CreateAddress(Address newAddress)
+    {
+        try
+        {
+            var createdAddress = await _dbContext.CreateAddressService(newAddress);
+
+            if (createdAddress != null)
+            {
+                return CreatedAtAction(nameof(GetAddress), new { addressId = createdAddress.AddressId }, createdAddress);
+            }
+            return Ok(new SuccessMessage<Address>
+            {
+                Message = "Address is created successfully",
+                Data = createdAddress
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot create new Address");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
+        }
+    }
+
+
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+    [HttpPut("{addressId}")]
+    public async Task<IActionResult> UpdateAddress(string addressId, Address updateAddress)
+    {
+        try
         {
             if (!Guid.TryParse(addressId, out Guid addressIdGuid))
             {
-                return BadRequest("Invalid address ID Format");
+                return BadRequest("Invalid Address ID Format");
             }
-            var address = _addressService.UpdateAddressService(addressIdGuid, updateAddress);
+            var address = await _dbContext.UpdateAddressService(addressIdGuid, updateAddress);
             if (address == null)
             {
-                return NotFound();
+                return NotFound(new ErrorMessage
+                {
+                    Message = "No Address To Founded To Update"
+                });
             }
-            return Ok(address);
+            return Ok(new SuccessMessage<Address>
+            {
+                Message = "Address Is Updated Successfully",
+                Data = address
+            });
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot create new Address");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
+        }
+    }
 
 
-        [HttpDelete("{addressId}")]
-        public IActionResult DeleteAddress(string addressId)
+    [Authorize]
+    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+    [HttpDelete("{addressId}")]
+    public async Task<IActionResult> DeleteAddress(string addressId)
+    {
+        try
         {
             if (!Guid.TryParse(addressId, out Guid addressIdGuid))
             {
                 return BadRequest("Invalid address ID Format");
             }
-            var result = _addressService.DeleteAddressService(addressIdGuid);
+            var result = await _dbContext.DeleteAddressService(addressIdGuid);
             if (!result)
             {
-                return NotFound();
+                return NotFound(new ErrorMessage
+                {
+                    Message = "The Address is not found to be deleted"
+                });
             }
-            return NoContent();
+            return Ok(new { success = true, message = " Address is deleted successfully" });
         }
-
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, the Address cannot deleted");
+            return StatusCode(500, new ErrorMessage
+            {
+                Message = ex.Message
+            });
+        }
     }
 }

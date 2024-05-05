@@ -1,82 +1,198 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+
+using api.Data;
+using api.Helpers;
+using System.Linq.Expressions;
+
+namespace api.Services;
 
 public class ProductService
 {
-  public static List<Product> _products = new List<Product>(){
-    new Product{
-        ProductId = Guid.Parse("75424b9b-cbd4-49b9-901b-056dd1c6a020"),
-        Name ="Dell XPS 13",
-        Slug = "dell-xps-13",
-        Description ="Ultra-thin laptop with 4K display",
-        Price = 1500.00,
-        SKU ="dellxps13",
-        StockQuantity = 20 ,
-        ImgUrl ="https://example.com/dell_xps_13.jpg"
-    },
-    new Product{
-        ProductId=  Guid.Parse("24508f7e-94ec-4f0b-b8d6-e8e16a999929"),
-        Name ="iPhone 13 Pro",
-        Slug = "iphone-13-pro",
-        Description ="Latest iPhone with A15 Bionic chip",
-        Price = 1200.00,
-        SKU ="iphone13pro",
-        StockQuantity = 30 ,
-        ImgUrl ="https://example.com/iphone_13_pro.jpg"
-    },
-    new Product{
-        ProductId =  Guid.Parse("24508f7e-94ec-4f0b-b8d6-e8e16a9a3339"),
-        Name ="airpods-pro",
-        Slug = "earphones",
-        Description ="Active Noise Cancellation for immersive sound",
-        Price = 250.00,
-        SKU ="airpodspro",
-        StockQuantity = 40 ,
-        ImgUrl ="https://example.com/airpods_pro.jpg"
+  private readonly AppDbContext _dbContext;
+  public ProductService(AppDbContext dbContext)
+  {
+    _dbContext = dbContext;
+  }
+
+
+  // Get all products with pagination.
+  public async Task<IEnumerable<Product>> GetAllProductService(
+    int pageNumber,
+    int pageSize,
+    string? searchTerm,
+    string? sortBy,
+    string? sortOrder,
+    decimal? minPrice,
+    decimal? maxPrice
+  )
+  {
+    var query = _dbContext.Products.AsQueryable(); // Start with a queryable
+
+    // Apply filtering
+    if (!string.IsNullOrEmpty(searchTerm))
+    {
+      query = query.Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm));
     }
-  };
-  // SERVICES
-  public IEnumerable<Product> GetAllProductService()
-  {
-    return _products;
+
+    if (minPrice.HasValue)
+    {
+      query = query.Where(p => p.Price >= minPrice.Value);
+    }
+
+    if (maxPrice.HasValue)
+    {
+      query = query.Where(p => p.Price <= maxPrice.Value);
+    }
+
+    // Apply Sorting
+    if (!string.IsNullOrEmpty(sortBy))
+    {
+      if (sortOrder == "asc")
+      {
+        query = query.OrderBy(GetSortExpression(sortBy));
+      }
+      else // 'desc' as default if not provided
+      {
+        query = query.OrderByDescending(GetSortExpression(sortBy));
+      }
+    }
+    else
+    {
+      // Default sorting (by name)
+      query = query.OrderBy(x => x.Name);
+    }
+
+    // Pagination (remains the same)
+    return await query
+            .Include(r => r.Reviews)  // Include relations
+            .Include(op => op.OrderProducts)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
   }
-  public Product? GetProductByIdService(Guid id)
+
+
+  // Helper method for dynamic sorting
+  private Expression<Func<Product, object>> GetSortExpression(string sortBy)
   {
-    return _products.Find(product => product.ProductId == id);
+    return sortBy.ToLowerInvariant() switch
+    {
+      "price" => p => p.Price,
+      "createdat" or "date" => p => p.CreatedAt,
+      "updatedat" or "latest" => p => p.UpdatedAt,
+      "stock" or "stockquantity" => p => p.StockQuantity,
+      "sku" => p => p.SKU,
+      "category" => p => p.CategoryId,
+      _ => p => p.Name, // Default sort field
+    };
   }
-  public Product CreateProductService(Product newProduct)
+
+
+  // Get a single product by its Id
+  public async Task<Product?> GetProductByIdService(Guid productId)
+  {
+    return await _dbContext.Products.FindAsync(productId);
+  }
+
+
+  // Search for products by name or description with pagination
+  public async Task<IEnumerable<Product>> SearchProductsService(int pageNumber, int pageSize, string? searchTerm)
+  {
+    var query = _dbContext.Products
+                .Where(p => !string.IsNullOrEmpty(searchTerm) &&
+                            (p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm)))
+                .Include(r => r.Reviews)  // should we include the relations?
+                .Include(op => op.OrderProducts)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+    return await query.ToListAsync();
+  }
+
+
+  // Get the count of products matching the search term (helper method for SearchProducts in ProductController.cs)
+  public async Task<int> GetProductCountBySearchTerm(string? searchTerm)
+  {
+    var query = _dbContext.Products.AsQueryable();
+
+    if (!string.IsNullOrEmpty(searchTerm))
+    {
+      query = query.Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm));
+    }
+
+    return await query.CountAsync();
+  }
+
+
+  // Helper function to get total product count
+  public async Task<int> GetTotalProductCount()
+  {
+    return await _dbContext.Products.CountAsync();
+  }
+
+
+  // Creates a new product -- with default values like Guid/slug/date
+  public async Task<Product> CreateProductService(Product newProduct)
   {
     newProduct.ProductId = Guid.NewGuid();
-    newProduct.CreatedAt = DateTime.Now;
-    newProduct.UpdatedAt = DateTime.Now;
+    newProduct.Slug = SlugGenerator.GenerateSlug(newProduct.Name);
+    newProduct.CreatedAt = DateTime.UtcNow;
+    newProduct.UpdatedAt = DateTime.UtcNow;
 
+    if (newProduct.CategoryId != Guid.Empty)
+    {
+      var category = await _dbContext.Categories.FindAsync(newProduct.CategoryId);
+      if (category != null)
+      {
+        newProduct.CategoryId = category.CategoryId;
+      }
+      else
+      {
+        // Handle invalid CategoryId here
+      }
+    }
+    else
+    {
+      newProduct.CategoryId = null; // Set CategoryId to null if not provided
+    }
 
-    _products.Add(newProduct);
+    _dbContext.Products.Add(newProduct);
+    await _dbContext.SaveChangesAsync();
+
     return newProduct;
   }
-  public Product? UpdateProductService(Guid id, Product updateProduct)
-  {
 
-    var foundedProduct = _products.FirstOrDefault(product => product.ProductId == id);
-    if (foundedProduct != null)
-    {
-      foundedProduct.Name = updateProduct.Name;
-      foundedProduct.Slug = updateProduct.Slug;
-      foundedProduct.Description = updateProduct.Description;
-      foundedProduct.Price = updateProduct.Price;
-      foundedProduct.SKU = updateProduct.SKU;
-      foundedProduct.ImgUrl = updateProduct.ImgUrl;
-      foundedProduct.UpdatedAt = DateTime.Now;
-    }
-    return foundedProduct;
-  }
-  public bool DeleteProductService(Guid id)
+
+  // Update a product
+  public async Task<Product?> UpdateProductService(Guid productId, Product updateProduct)
   {
-    var ProductToRemove = _products.FirstOrDefault(product => product.ProductId == id);
-    if (ProductToRemove != null)
+    var existingProduct = await _dbContext.Products.FindAsync(productId);
+    if (existingProduct != null)
     {
-      _products.Remove(ProductToRemove);
+      existingProduct.Name = updateProduct.Name ?? existingProduct.Name;
+      existingProduct.Slug = updateProduct.Slug ?? existingProduct.Slug;
+      existingProduct.Description = updateProduct.Description ?? existingProduct.Description;
+      existingProduct.Price = updateProduct.Price;
+      existingProduct.SKU = updateProduct.SKU ?? existingProduct.SKU;
+      existingProduct.ImgUrl = updateProduct.ImgUrl ?? existingProduct.ImgUrl;
+      existingProduct.UpdatedAt = DateTime.UtcNow;
+      await _dbContext.SaveChangesAsync();
+    }
+    return existingProduct;
+  }
+
+
+  // Delete a product
+  public async Task<bool> DeleteProductService(Guid productId)
+  {
+    var productToRemove = await _dbContext.Products.FindAsync(productId);
+    if (productToRemove != null)
+    {
+      _dbContext.Products.Remove(productToRemove);
+      await _dbContext.SaveChangesAsync();
       return true;
     }
     return false;
   }
+
 }

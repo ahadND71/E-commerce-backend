@@ -1,67 +1,65 @@
+using Microsoft.EntityFrameworkCore;
+using api.Data;
+using api.Helpers;
+
+namespace api.Services;
+
 public class CategoryService
 {
-  // users api 
-  public static List<Category> _categories = new List<Category>() {
-        new Category{
-            CategoryId = Guid.Parse("75424b9b-cbd4-49b9-901b-056dd1c6a020"),
-            Name = "smart-phone",
-            Description = "hello I am a beautiful phone",
-            CreatedAt = DateTime.Now
-        },
-        new Category{
-            CategoryId = Guid.Parse("24508f7e-94ec-4f0b-b8d6-e8e16a9a3b29"),
-            Name = "cloths",
-            Description = "hello I am a beautiful cloths",
-            CreatedAt = DateTime.Now
-        },
-        new Category{
-            CategoryId = Guid.Parse("87e5c4f3-d3e5-4e16-88b5-809b2b08b773"),
-            Name = "food",
-            Description = "hello I am a beautiful food",
-            CreatedAt = DateTime.Now
-        }
-    };
 
-  public IEnumerable<Category> GetAllCategoryService()
+  private readonly AppDbContext _dbContext;
+  public CategoryService(AppDbContext dbContext)
   {
-    return _categories;
+    _dbContext = dbContext;
   }
 
 
-  public Category? GetCategoryById(Guid categoryId)
+  public async Task<IEnumerable<Category>> GetAllCategoryService()
   {
-    return _categories.Find(category => category.CategoryId == categoryId);
+    return await _dbContext.Categories
+    .Include(c => c.Products)
+    .ThenInclude(r => r.Reviews)
+    .ToListAsync();
   }
 
 
-  public Category CreateCategoryService(Category newCategory)
+  public async Task<Category?> GetCategoryById(Guid categoryId)
+  {
+    return await _dbContext.Categories.FindAsync(categoryId);
+  }
+
+
+  public async Task<Category> CreateCategoryService(Category newCategory)
   {
     newCategory.CategoryId = Guid.NewGuid();
-    newCategory.CreatedAt = DateTime.Now;
-    _categories.Add(newCategory);
+    newCategory.Slug = SlugGenerator.GenerateSlug(newCategory.Name);
+    newCategory.CreatedAt = DateTime.UtcNow;
+    _dbContext.Categories.Add(newCategory);
+    await _dbContext.SaveChangesAsync();
     return newCategory;
   }
 
 
-  public Category? UpdateCategoryService(Guid categoryId, Category updateCategory)
+  public async Task<Category?> UpdateCategoryService(Guid categoryId, Category updateCategory)
   {
-    var existingCategory = _categories.FirstOrDefault(c => c.CategoryId == categoryId);
+    var existingCategory = await _dbContext.Categories.FindAsync(categoryId);
     if (existingCategory != null)
     {
-      existingCategory.Name = updateCategory.Name;
-      existingCategory.Description = updateCategory.Description;
-
+      existingCategory.Name = updateCategory.Name ?? existingCategory.Name;
+      existingCategory.Description = updateCategory.Description ?? existingCategory.Name;
+      await _dbContext.SaveChangesAsync();
     }
     return existingCategory;
   }
 
 
-  public bool DeleteCategoryService(Guid categoryId)
+  public async Task<bool> DeleteCategoryService(Guid categoryId)
   {
-    var categoryToRemove = _categories.FirstOrDefault(c => c.CategoryId == categoryId);
+    var categoryToRemove = await _dbContext.Categories.FindAsync(categoryId);
     if (categoryToRemove != null)
     {
-      _categories.Remove(categoryToRemove);
+      _dbContext.Categories.Remove(categoryToRemove);
+      await _dbContext.SaveChangesAsync();
       return true;
     }
     return false;

@@ -1,81 +1,187 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api.Controllers
+using api.Services;
+using api.Helpers;
+using api.Authentication.Identity;
+
+namespace api.Controllers;
+[ApiController]
+[Route("/api/categories")]
+public class CategoryController : ControllerBase
 {
-  [ApiController]
-  [Route("/api/categories")]
-  public class CategoryController : ControllerBase
+
+  private readonly CategoryService _dbContext;
+  public CategoryController(CategoryService categoryService)
   {
-    private readonly CategoryService _categoryService;
-    public CategoryController()
-    {
-      _categoryService = new CategoryService();
-    }
+    _dbContext = categoryService;
+  }
 
-    [HttpGet]
-    public IActionResult GetAllUsers()
-    {
-      var categories = _categoryService.GetAllCategoryService();
-      return Ok(categories);
-    }
 
-    [HttpGet("{categoryId}")]
-    public IActionResult GetCategory(string categoryId)
+  [AllowAnonymous]
+  [HttpGet]
+  public async Task<IActionResult> GetAllCategories()
+  {
+    try
     {
-      if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
+      var categories = await _dbContext.GetAllCategoryService();
+
+      if (categories.ToList().Count < 1)
       {
-        return BadRequest("Invalid category ID Format");
+        return NotFound(new ErrorMessage
+        {
+          Message = "No Categories To Display"
+        });
       }
-      var category = _categoryService.GetCategoryById(categoryIdGuid);
+      return Ok(new SuccessMessage<IEnumerable<Category>>
+      {
+        Message = "Categories are returned successfully",
+        Data = categories
+      });
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occurred, cannot return the category list");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
+  }
+
+
+  [AllowAnonymous]
+  [HttpGet("{categoryId:guid}")]
+  public async Task<IActionResult> GetCategory(Guid categoryId)
+  {
+    try
+    {
+      var category = await _dbContext.GetCategoryById(categoryId);
       if (category == null)
       {
-        return NotFound();
+        return NotFound(new ErrorMessage
+        {
+          Message = $"No Category Found With ID : ({categoryId})"
+        });
       }
       else
       {
-        return Ok(category);
+        return Ok(new SuccessMessage<Category>
+        {
+          Success = true,
+          Message = "Category is returned successfully",
+          Data = category
+        });
+      }
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occurred, cannot return the category");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
+  }
+
+
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [HttpPost]
+  public async Task<IActionResult> CreateCategory(Category newCategory)
+  {
+    try
+    {
+      var createdCategory = await _dbContext.CreateCategoryService(newCategory);
+      if (createdCategory != null)
+      {
+        return CreatedAtAction(nameof(GetCategory), new
+        {
+          categoryId = createdCategory.CategoryId
+        }, createdCategory);
       }
 
+      return Ok(new SuccessMessage<Category>
+      {
+        Success = true,
+        Message = "Category is created successfully",
+        Data = createdCategory
+      });
     }
-
-    [HttpPost]
-    public IActionResult CreateCategory(Category newCategory)
+    catch (Exception ex)
     {
-      var createdCategory = _categoryService.CreateCategoryService(newCategory);
-      return CreatedAtAction(nameof(GetCategory), new { categoryId = createdCategory.CategoryId }, createdCategory);
+      Console.WriteLine($"An error occurred, cannot create new category");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
     }
+  }
 
-
-    [HttpPut("{categoryId}")]
-    public IActionResult UpdateCategory(string categoryId, Category updateCategory)
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [HttpPut("{categoryId}")]
+  public async Task<IActionResult> UpdateCategory(string categoryId, Category updateCategory)
+  {
+    try
     {
       if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
       {
         return BadRequest("Invalid category ID Format");
       }
-      var category = _categoryService.UpdateCategoryService(categoryIdGuid, updateCategory);
+      var category = await _dbContext.UpdateCategoryService(categoryIdGuid, updateCategory);
       if (category == null)
       {
-        return NotFound();
+        return NotFound(new ErrorMessage
+        {
+          Message = "No Category To Founded To Update"
+        });
       }
-      return Ok(category);
+      return Ok(new SuccessMessage<Category>
+      {
+        Success = true,
+        Message = "Category is updated successfully",
+        Data = category
+      });
     }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occurred, cannot update the category");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
+  }
 
-
-    [HttpDelete("{categoryId}")]
-    public IActionResult DeleteCategory(string categoryId)
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [HttpDelete("{categoryId}")]
+  public async Task<IActionResult> DeleteCategory(string categoryId)
+  {
+    try
     {
       if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
       {
-        return BadRequest("Invalid category ID Format");
+        return BadRequest("Invalid Category ID Format");
       }
-      var result = _categoryService.DeleteCategoryService(categoryIdGuid);
+      var result = await _dbContext.DeleteCategoryService(categoryIdGuid);
       if (!result)
       {
-        return NotFound();
+        return NotFound(new ErrorMessage
+        {
+          Message = "The category is not found to be deleted"
+        });
       }
-      return NoContent();
+      return Ok(new { success = true, message = "Category is deleted successfully" });
     }
-
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occurred, the category can not deleted");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
   }
 }

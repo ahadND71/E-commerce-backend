@@ -1,74 +1,189 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api.Controllers
+using api.Services;
+using api.Helpers;
+using api.Authentication.Identity;
+
+namespace api.Controllers;
+
+
+[ApiController]
+[Route("/api/OrderProducts")]
+public class OrderProductController : ControllerBase
 {
-  [ApiController]
-  [Route("/api/OrderProducts")]
-  public class OrderProductController : ControllerBase
+  public OrderProductService _dbContext;
+  public OrderProductController(OrderProductService orderProductService)
   {
-    public OrderProductService _orderProductService;
-    public OrderProductController()
-    {
-      _orderProductService = new OrderProductService();
-    }
+    _dbContext = orderProductService;
+  }
 
-    [HttpGet]
-    public IActionResult GetAllOrderProducts()
-    {
-      var OrderProducts = _orderProductService.GetAllOrderProductservice();
-      return Ok(OrderProducts);
-    }
 
-    [HttpGet("{OrderItemId}")]
-    public IActionResult GetOneOrderProduct(string id)
+  [Authorize]
+  [HttpGet]
+  public async Task<IActionResult> GetAllOrderProducts()
+  {
+    try
     {
-      if (!Guid.TryParse(id, out Guid OrderItemId_Guid))
+      var orderProducts = await _dbContext.GetAllOrderProductService();
+      if (orderProducts.ToList().Count < 1)
+      {
+        return NotFound(new ErrorMessage
+        {
+          Message = "No Order Details To Display"
+        });
+      }
+      return Ok(new SuccessMessage<IEnumerable<OrderProduct>>
+      {
+        Message = "Orders Details are returned succeSSfully",
+        Data = orderProducts
+      });
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occurred, cannot return the Order Detail list");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
+  }
+
+
+  [Authorize]
+  [HttpGet("{orderItemId}")]
+  public async Task<IActionResult> GetOrderProduct(string orderItemId)
+  {
+    try
+    {
+      if (!Guid.TryParse(orderItemId, out Guid orderItemIdGuid))
       {
         return BadRequest("Invalid OrderProduct ID Format");
       }
-      var OrderProduct = _orderProductService.GetOrderProductByIdService(OrderItemId_Guid);
-      return Ok(OrderProduct);
-    }
+      var orderProduct = await _dbContext.GetOrderProductByIdService(orderItemIdGuid);
+      if (orderProduct == null)
 
-    [HttpPost]
-    public IActionResult CreateOrderProduct(OrderProduct newOrderProduct)
-    {
-      var createdOrderProduct = _orderProductService.CreateOrderProductservice(newOrderProduct);
-      return CreatedAtAction(nameof(GetOneOrderProduct), new { id = createdOrderProduct.OrderItemId }, createdOrderProduct);
+      {
+        return NotFound(new ErrorMessage
+        {
+          Message = $"No Order Details Found With ID : ({orderItemIdGuid})"
+        });
+      }
+      else
+      {
+        return Ok(new SuccessMessage<OrderProduct>
+        {
+          Success = true,
+          Message = "Order Details is returned succeSSfully",
+          Data = orderProduct
+        });
+      }
     }
-
-    [HttpPut("{OrderItemId}")]
-    public IActionResult UpdateOrderProduct(string id, OrderProduct updateOrderProduct)
+    catch (Exception ex)
     {
-      if (!Guid.TryParse(id, out Guid OrderItemId_Guid))
+      Console.WriteLine($"An error occurred, cannot return the Order Details");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
+  }
+
+
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [HttpPost]
+  public async Task<IActionResult> CreateOrderProduct(OrderProduct newOrderProduct)
+  {
+    try
+    {
+      var createdOrderProduct = await _dbContext.CreateOrderProductService(newOrderProduct);
+      if (createdOrderProduct != null)
+      {
+        return CreatedAtAction(nameof(GetOrderProduct), new { orderItemId = createdOrderProduct.OrderItemId }, createdOrderProduct);
+      }
+      return Ok(new SuccessMessage<OrderProduct>
+      {
+        Message = "Order Details is created successfully",
+        Data = createdOrderProduct
+      });
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occurred, cannot create new Order Details");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
+  }
+
+
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [HttpPut("{orderItemId}")]
+  public async Task<IActionResult> UpdateOrderProduct(string orderItemId, OrderProduct updateOrderProduct)
+  {
+    try
+    {
+      if (!Guid.TryParse(orderItemId, out Guid orderItemIdGuid))
       {
         return BadRequest("Invalid OrderProduct ID Format");
       }
-      var OrderProduct = _orderProductService.UpdateOrderProductservice(OrderItemId_Guid, updateOrderProduct);
-      if (OrderProduct == null)
-      {
-        return NotFound();
-      }
-      return Ok(OrderProduct);
-    }
+      var orderProduct = await _dbContext.UpdateOrderProductService(orderItemIdGuid, updateOrderProduct);
+      if (orderProduct == null)
 
-    [HttpDelete("{OrderItemId}")]
-    public IActionResult DeleteOrderProduct(string id)
+      {
+        return NotFound(new ErrorMessage
+        {
+          Message = "No Order Details To Founded To Update"
+        });
+      }
+      return Ok(new SuccessMessage<OrderProduct>
+      {
+        Message = "Order Details Is Updated Successfully",
+        Data = orderProduct
+      });
+    }
+    catch (Exception ex)
     {
-      if (!Guid.TryParse(id, out Guid OrderItemId_Guid))
+      Console.WriteLine($"An error occurred, cannot update the Order Details ");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
+    }
+  }
+
+
+  [Authorize]
+  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [HttpDelete("{OrderItemId}")]
+  public async Task<IActionResult> DeleteOrderProduct(string orderItemId)
+  {
+    try
+    {
+      if (!Guid.TryParse(orderItemId, out Guid OrderItemId_Guid))
       {
         return BadRequest("Invalid OrderProduct ID Format");
       }
-      var result = _orderProductService.DeleteOrderProductservice(OrderItemId_Guid);
+      var result = await _dbContext.DeleteOrderProductService(OrderItemId_Guid);
       if (!result)
       {
-        return NotFound();
+        return NotFound(new ErrorMessage
+        {
+          Message = "The Order Details is not found to be deleted"
+        });
       }
-      return NoContent();
+      return Ok(new { success = true, message = " Order Details is deleted successfully" });
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An error occurred, the Order Details can not deleted");
+      return StatusCode(500, new ErrorMessage
+      {
+        Message = ex.Message
+      });
     }
   }
 }

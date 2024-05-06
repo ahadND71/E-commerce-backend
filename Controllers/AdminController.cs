@@ -28,25 +28,19 @@ public class AdminController : ControllerBase
             var admins = await _dbContext.GetAllAdminsService();
             if (admins.ToList().Count < 1)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Admins To Display"
-                });
+                return ApiResponse.NotFound("No Admins To Display");
+
             }
 
-            return Ok(new SuccessMessage<IEnumerable<Admin>>
-            {
-                Message = "Admins are returned successfully",
-                Data = admins
-            });
+            return ApiResponse.Success<IEnumerable<Admin>>(
+                admins,
+               "Admins are returned successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Admin list");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -64,28 +58,21 @@ public class AdminController : ControllerBase
             var admin = await _dbContext.GetAdminById(adminIdGuid);
             if (admin == null)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = $"No Admin Found With ID : ({adminIdGuid})"
-                });
+                return ApiResponse.NotFound(
+                 $"No Admin Found With ID : ({adminIdGuid})");
             }
             else
             {
-                return Ok(new SuccessMessage<Admin>
-                {
-                    Success = true,
-                    Message = "Admin is returned successfully",
-                    Data = admin
-                });
+                return ApiResponse.Success<Admin>(
+                 admin,
+                 "Admin is returned successfully"
+               );
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Admin");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
         }
     }
 
@@ -100,21 +87,19 @@ public class AdminController : ControllerBase
             var createdAdmin = await _dbContext.CreateAdminService(newAdmin);
             if (createdAdmin != null)
             {
-                return CreatedAtAction(nameof(GetAdmin), new { adminId = createdAdmin.AdminId }, createdAdmin);
+                return ApiResponse.Created<Admin>(createdAdmin, "Admin is created successfully");
             }
-            return Ok(new SuccessMessage<Admin>
+            else
             {
-                Message = "Admin is created successfully",
-                Data = createdAdmin
-            });
+                return ApiResponse.ServerError("Error when creating new Admin");
+
+            }
+
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot create new Admin");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
         }
     }
 
@@ -128,29 +113,24 @@ public class AdminController : ControllerBase
         {
             if (!Guid.TryParse(adminId, out Guid adminIdGuid))
             {
-                return BadRequest("Invalid admin ID Format");
+                return ApiResponse.BadRequest("Invalid Admin ID Format");
             }
             var admin = await _dbContext.UpdateAdminService(adminIdGuid, updateAdmin);
             if (admin == null)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Admin To Founded To Update"
-                });
+                return ApiResponse.NotFound("No Admin Founded To Update");
+
             }
-            return Ok(new SuccessMessage<Admin>
-            {
-                Message = "Admin Is Updated Successfully",
-                Data = admin
-            });
+            return ApiResponse.Success<Admin>(
+                admin,
+                "Admin Is Updated Successfully"
+            );
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot update the Admin ");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -164,27 +144,23 @@ public class AdminController : ControllerBase
         {
             if (!Guid.TryParse(adminId, out Guid adminIdGuid))
             {
-                return BadRequest("Invalid admin ID Format");
+                return ApiResponse.BadRequest("Invalid admin ID Format");
             }
             var result = await _dbContext.DeleteAdminService(adminIdGuid);
             if (!result)
 
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "The Admin is not found to be deleted"
-                });
+                return ApiResponse.NotFound("The Admin is not found to be deleted");
+
             }
             //new SuccessMessage<Admin>
-            return Ok(new { success = true, message = " Admin is deleted successfully" });
+            return ApiResponse.Success(" Admin is deleted successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, the Admin can not deleted");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 }

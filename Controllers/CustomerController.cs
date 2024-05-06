@@ -28,25 +28,18 @@ public class CustomerController : ControllerBase
             var customers = await _dbContext.GetAllCustomersService();
             if (customers.ToList().Count < 1)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Customers To Display"
-                });
+                return ApiResponse.NotFound("No Customers To Display");
+
             }
-            return Ok(new SuccessMessage<IEnumerable<Customer>>
-            {
-                Message = "Customers are returned successfully",
-                Data = customers
-            }
-                );
+            return ApiResponse.Success<IEnumerable<Customer>>(
+                customers,
+               "Customers are returned successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Customer list");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -59,33 +52,27 @@ public class CustomerController : ControllerBase
         {
             if (!Guid.TryParse(customerId, out Guid customerIdGuid))
             {
-                return BadRequest("Invalid customer ID Format");
+                return ApiResponse.BadRequest("Invalid customer ID Format");
             }
             var customer = await _dbContext.GetCustomerById(customerIdGuid);
             if (customer == null)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = $"No Customer Found With ID : ({customerIdGuid})"
-                });
+                return ApiResponse.NotFound(
+                 $"No Customer Found With ID : ({customerIdGuid})");
             }
             else
             {
-                return Ok(new SuccessMessage<Customer>
-                {
-                    Success = true,
-                    Message = "Customer is returned successfully",
-                    Data = customer
-                });
+                return ApiResponse.Success<Customer>(
+                  customer,
+                  "Customer is returned successfully"
+                );
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Customer");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -100,21 +87,19 @@ public class CustomerController : ControllerBase
             var createdCustomer = await _dbContext.CreateCustomerService(newCustomer);
             if (createdCustomer != null)
             {
-                return CreatedAtAction(nameof(GetCustomer), new { customerId = createdCustomer.CustomerId }, createdCustomer);
+                return ApiResponse.Created<Customer>(createdCustomer, "Customer is created successfully");
             }
-            return Ok(new SuccessMessage<Customer>
+            else
             {
-                Message = "Customer is created successfully",
-                Data = createdCustomer
-            });
+                return ApiResponse.ServerError("Error when creating new customer");
+
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot create new Customer");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -128,29 +113,23 @@ public class CustomerController : ControllerBase
         {
             if (!Guid.TryParse(customerId, out Guid customerIdGuid))
             {
-                return BadRequest("Invalid customer ID Format");
+                return ApiResponse.BadRequest("Invalid Customer ID Format");
             }
             var customer = await _dbContext.UpdateCustomerService(customerIdGuid, updateCustomer);
             if (customer == null)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Customer To Founded To Update"
-                });
+                return ApiResponse.NotFound("No Customer Founded To Update");
             }
-            return Ok(new SuccessMessage<Customer>
-            {
-                Message = "Customer Is Updated Successfully",
-                Data = customer
-            });
+            return ApiResponse.Success<Customer>(
+                customer,
+                "Customer Is Updated Successfully"
+            );
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot update the Customer ");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -164,25 +143,22 @@ public class CustomerController : ControllerBase
         {
             if (!Guid.TryParse(customerId, out Guid customerIdGuid))
             {
-                return BadRequest("Invalid customer ID Format");
+                return ApiResponse.BadRequest("Invalid Customer ID Format");
             }
             var result = await _dbContext.DeleteCustomerService(customerIdGuid);
             if (!result)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "The Customer is not found to be deleted"
-                });
+                return ApiResponse.NotFound("The Customer is not found to be deleted");
+
             }
-            return Ok(new { success = true, message = " Customer is deleted successfully" });
+            return ApiResponse.Success(" Customer is deleted successfully");
+
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, the Customer can not deleted");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 }

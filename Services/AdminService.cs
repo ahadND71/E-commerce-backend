@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Services;
 
@@ -7,9 +8,12 @@ public class AdminService
 {
 
   private readonly AppDbContext _dbContext;
-  public AdminService(AppDbContext dbContext)
+  private readonly IPasswordHasher<Admin> _passwordHasher;
+  public AdminService(AppDbContext dbContext, IPasswordHasher<Admin> passwordHasher)
   {
     _dbContext = dbContext;
+    _passwordHasher = passwordHasher;
+
   }
 
 
@@ -29,6 +33,7 @@ public class AdminService
   {
     newAdmin.AdminId = Guid.NewGuid();
     newAdmin.CreatedAt = DateTime.UtcNow;
+    newAdmin.Password = _passwordHasher.HashPassword(newAdmin, newAdmin.Password);
     _dbContext.Admins.Add(newAdmin);
     await _dbContext.SaveChangesAsync();
     return newAdmin;
@@ -43,7 +48,8 @@ public class AdminService
       existingAdmin.FirstName = updateAdmin.FirstName ?? existingAdmin.FirstName;
       existingAdmin.LastName = updateAdmin.LastName ?? existingAdmin.LastName;
       existingAdmin.Email = updateAdmin.Email ?? existingAdmin.Email;
-      existingAdmin.Password = updateAdmin.Password ?? existingAdmin.Password;
+      existingAdmin.Password = updateAdmin.Password != null ? _passwordHasher.HashPassword(updateAdmin, updateAdmin.Password) : existingAdmin.Password;
+      existingAdmin.Mobile = updateAdmin.Mobile ?? existingAdmin.Mobile;
       existingAdmin.Image = updateAdmin.Image ?? existingAdmin.Image;
       await _dbContext.SaveChangesAsync();
     }

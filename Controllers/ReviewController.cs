@@ -28,24 +28,17 @@ public class ReviewController : ControllerBase
             var reviews = await _dbContext.GetAllReviewService();
             if (reviews.ToList().Count < 1)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Reviews To Display"
-                });
+                return ApiResponse.NotFound("No Reviews To Display");
             }
-            return Ok(new SuccessMessage<IEnumerable<Review>>
-            {
-                Message = "Reviews are returned successfully",
-                Data = reviews
-            });
+            return ApiResponse.Success<IEnumerable<Review>>(
+                reviews,
+                "Reviews are returned successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Review list");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -58,33 +51,27 @@ public class ReviewController : ControllerBase
         {
             if (!Guid.TryParse(reviewId, out Guid reviewIdGuid))
             {
-                return BadRequest("Invalid review ID Format");
+                return ApiResponse.BadRequest("Invalid review ID Format");
             }
             var review = await _dbContext.GetReviewById(reviewIdGuid);
             if (review == null)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = $"No Review Found With ID : ({reviewIdGuid})"
-                });
+                return ApiResponse.NotFound(
+                    $"No Review Found With ID : ({reviewIdGuid})");
             }
             else
             {
-                return Ok(new SuccessMessage<Review>
-                {
-                    Success = true,
-                    Message = "Review is returned successfully",
-                    Data = review
-                });
+                return ApiResponse.Success<Review>(
+                  review,
+                  "Review is returned successfully"
+                );
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Review");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -99,21 +86,19 @@ public class ReviewController : ControllerBase
             var createdReview = await _dbContext.CreateReviewService(newReview);
             if (createdReview != null)
             {
-                return CreatedAtAction(nameof(GetReview), new { reviewId = createdReview.ReviewId }, createdReview);
+                return ApiResponse.Created<Review>(createdReview, "Review is created successfully");
             }
-            return Ok(new SuccessMessage<Review>
+            else
             {
-                Message = "Review is created successfully",
-                Data = createdReview
-            });
+                return ApiResponse.ServerError("Error when creating new review");
+
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot create new Review");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -127,29 +112,23 @@ public class ReviewController : ControllerBase
         {
             if (!Guid.TryParse(reviewId, out Guid reviewIdGuid))
             {
-                return BadRequest("Invalid review ID Format");
+                return ApiResponse.BadRequest("Invalid review ID Format");
             }
             var review = await _dbContext.UpdateReviewService(reviewIdGuid, updateReview);
             if (review == null)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Review To Founded To Update"
-                });
+                return ApiResponse.NotFound("No Review Founded To Update");
             }
-            return Ok(new SuccessMessage<Review>
-            {
-                Message = "Review Is Updated Successfully",
-                Data = review
-            });
+            return ApiResponse.Success<Review>(
+                review,
+                "Review Is Updated Successfully"
+            );
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot update the Review ");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
@@ -168,20 +147,16 @@ public class ReviewController : ControllerBase
             var result = await _dbContext.DeleteReviewService(reviewIdGuid);
             if (!result)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "The Review is not found to be deleted"
-                });
+
+                return ApiResponse.NotFound("The Review is not found to be deleted");
             }
-            return Ok(new { success = true, message = " Review is deleted successfully" });
+            return ApiResponse.Success(" Review is deleted successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, the Review can not deleted");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Services;
 
@@ -7,9 +8,13 @@ public class CustomerService
 {
 
   private readonly AppDbContext _dbContext;
-  public CustomerService(AppDbContext dbContext)
+  private readonly IPasswordHasher<Customer> _passwordHasher;
+
+  public CustomerService(AppDbContext dbContext, IPasswordHasher<Customer> passwordHasher)
   {
     _dbContext = dbContext;
+    _passwordHasher = passwordHasher;
+
   }
 
 
@@ -34,6 +39,7 @@ public class CustomerService
   {
     newCustomer.CustomerId = Guid.NewGuid();
     newCustomer.CreatedAt = DateTime.UtcNow;
+    newCustomer.Password = _passwordHasher.HashPassword(newCustomer, newCustomer.Password);
     _dbContext.Customers.Add(newCustomer);
     await _dbContext.SaveChangesAsync();
     return newCustomer;
@@ -48,7 +54,8 @@ public class CustomerService
       existingCustomer.FirstName = updateCustomer.FirstName ?? existingCustomer.FirstName;
       existingCustomer.LastName = updateCustomer.LastName ?? existingCustomer.LastName;
       existingCustomer.Email = updateCustomer.Email ?? existingCustomer.Email;
-      existingCustomer.Password = updateCustomer.Password ?? existingCustomer.Password;
+      existingCustomer.Password = updateCustomer.Password != null ? _passwordHasher.HashPassword(updateCustomer, updateCustomer.Password) : existingCustomer.Password;
+      existingCustomer.Mobile = updateCustomer.Mobile ?? existingCustomer.Mobile;
       existingCustomer.Image = updateCustomer.Image ?? existingCustomer.Image;
       existingCustomer.IsBanned = updateCustomer.IsBanned;
       await _dbContext.SaveChangesAsync();

@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using api.Authentication.Helper;
 using api.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -70,10 +71,15 @@ namespace api.Authentication.Controller
 
         private bool ValidateUser(Guid id, string email, string password)
         {
-            var adminExists = _dbContext.Admins.Any(a => a.AdminId == id && a.Email == email && a.Password == password);
-            var customerExists = _dbContext.Customers.Any(c => c.CustomerId == id && c.Email == email && c.Password == password);
-
-            return adminExists || customerExists;
+            var user = _dbContext.Admins.FirstOrDefault(a => a.AdminId == id && a.Email == email) ??
+            (dynamic?)_dbContext.Customers.FirstOrDefault(c => c.CustomerId == id && c.Email == email);
+            if (user == null)
+            {
+                return false;
+            }
+            var passwordHasher = new PasswordHasher<dynamic>();
+            var result = passwordHasher.VerifyHashedPassword(user, user.Password, password);
+            return result == PasswordVerificationResult.Success;
         }
 
     }

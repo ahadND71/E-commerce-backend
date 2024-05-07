@@ -19,7 +19,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [Authorize]
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins()
     {

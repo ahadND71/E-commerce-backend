@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
+using api.Authentication.Service;
+using api.Authentication.Dtos;
 
 namespace api.Controllers;
 
@@ -13,13 +14,17 @@ namespace api.Controllers;
 public class CustomerController : ControllerBase
 {
     private readonly CustomerService _dbContext;
-    public CustomerController(CustomerService customerService)
+    private readonly AuthService _authService;
+
+    public CustomerController(CustomerService customerService, AuthService authService)
     {
         _dbContext = customerService;
+        _authService = authService;
+
     }
 
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers()
     {
@@ -44,7 +49,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {
@@ -77,9 +82,8 @@ public class CustomerController : ControllerBase
     }
 
 
-    [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
-    [HttpPost]
+    [AllowAnonymous]
+    [HttpPost("register")]
     public async Task<IActionResult> CreateCustomer(Customer newCustomer)
     {
         try
@@ -103,9 +107,31 @@ public class CustomerController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<IActionResult> LoginAdmin([FromBody] LoginUserDto loginUserDto)
+    {
+        try
+        {
+            var LoggedCustomer = await _dbContext.LoginCustomerService(loginUserDto);
+            if (LoggedCustomer == null)
+            {
+                return ApiResponse.UnAuthorized("Invalid Credential");
+            }
+            var token = _authService.GenerateJwtToken(LoggedCustomer);
+            return ApiResponse.Success<LoginUserDto>(LoggedCustomer, "Customer is loggedIn successfully", null, token);
 
-    [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot login");
+            return ApiResponse.ServerError(ex.Message);
+        }
+    }
+
+
+    [Authorize(Roles = "Admin")]
     [HttpPut("{customerId}")]
     public async Task<IActionResult> UpdateCustomer(string customerId, Customer updateCustomer)
     {
@@ -134,8 +160,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{customerId}")]
     public async Task<IActionResult> DeleteCustomer(string customerId)
     {

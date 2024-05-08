@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -28,24 +27,16 @@ public class AddressController : ControllerBase
             var addresses = await _dbContext.GetAllAddressService();
             if (addresses.ToList().Count < 1)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Addresses To Display"
-                });
+                return ApiResponse.NotFound("No Addresses To Display");
             }
-            return Ok(new SuccessMessage<IEnumerable<Address>>
-            {
-                Message = "Addresses are returned successfully",
-                Data = addresses
-            });
+            return ApiResponse.Success<IEnumerable<Address>>(
+                addresses,
+                "Addresses are returned successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Address list");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
         }
     }
 
@@ -59,39 +50,33 @@ public class AddressController : ControllerBase
         {
             if (!Guid.TryParse(addressId, out Guid addressIdGuid))
             {
-                return BadRequest("Invalid address ID Format");
+                return ApiResponse.BadRequest("Invalid address ID Format");
             }
             var address = await _dbContext.GetAddressById(addressIdGuid);
             if (address == null)
 
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = $"No Address Found With ID : ({addressIdGuid})"
-                });
+                return ApiResponse.NotFound(
+                 $"No Address Found With ID : ({addressIdGuid})");
             }
             else
             {
-                return Ok(new SuccessMessage<Address>
-                {
-                    Message = "Address is returned successfully",
-                    Data = address
-                });
+                return ApiResponse.Success<Address>(
+                  address,
+                  "Address is returned successfully"
+                );
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Address");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
 
     [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPost]
     public async Task<IActionResult> CreateAddress(Address newAddress)
     {
@@ -101,27 +86,24 @@ public class AddressController : ControllerBase
 
             if (createdAddress != null)
             {
-                return CreatedAtAction(nameof(GetAddress), new { addressId = createdAddress.AddressId }, createdAddress);
+                return ApiResponse.Created<Address>(createdAddress, "Address is created successfully");
             }
-            return Ok(new SuccessMessage<Address>
+            else
             {
-                Message = "Address is created successfully",
-                Data = createdAddress
-            });
+                return ApiResponse.ServerError("Error when creating new address");
+
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot create new Address");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
 
     [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{addressId}")]
     public async Task<IActionResult> UpdateAddress(string addressId, Address updateAddress)
     {
@@ -129,35 +111,28 @@ public class AddressController : ControllerBase
         {
             if (!Guid.TryParse(addressId, out Guid addressIdGuid))
             {
-                return BadRequest("Invalid Address ID Format");
+                return ApiResponse.BadRequest("Invalid Address ID Format");
             }
             var address = await _dbContext.UpdateAddressService(addressIdGuid, updateAddress);
             if (address == null)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Address To Founded To Update"
-                });
+                return ApiResponse.NotFound("No Address Founded To Update");
             }
-            return Ok(new SuccessMessage<Address>
-            {
-                Message = "Address Is Updated Successfully",
-                Data = address
-            });
+            return ApiResponse.Success<Address>(
+                address,
+                "Address Is Updated Successfully"
+            );
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot create new Address");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
 
     [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{addressId}")]
     public async Task<IActionResult> DeleteAddress(string addressId)
     {
@@ -165,25 +140,20 @@ public class AddressController : ControllerBase
         {
             if (!Guid.TryParse(addressId, out Guid addressIdGuid))
             {
-                return BadRequest("Invalid address ID Format");
+                return ApiResponse.BadRequest("Invalid address ID Format");
             }
             var result = await _dbContext.DeleteAddressService(addressIdGuid);
             if (!result)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "The Address is not found to be deleted"
-                });
+                return ApiResponse.NotFound("The Address is not found to be deleted");
             }
-            return Ok(new { success = true, message = " Address is deleted successfully" });
+            return ApiResponse.Success(" Address is deleted successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, the Address cannot deleted");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 }

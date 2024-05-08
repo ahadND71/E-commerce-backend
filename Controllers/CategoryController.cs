@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 [ApiController]
@@ -28,24 +27,18 @@ public class CategoryController : ControllerBase
 
       if (categories.ToList().Count < 1)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "No Categories To Display"
-        });
+        return ApiResponse.NotFound("No Categories To Display");
+
       }
-      return Ok(new SuccessMessage<IEnumerable<Category>>
-      {
-        Message = "Categories are returned successfully",
-        Data = categories
-      });
+      return ApiResponse.Success<IEnumerable<Category>>(
+                categories,
+               "Categories are returned successfully");
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot return the category list");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
@@ -59,34 +52,27 @@ public class CategoryController : ControllerBase
       var category = await _dbContext.GetCategoryById(categoryId);
       if (category == null)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = $"No Category Found With ID : ({categoryId})"
-        });
+        return ApiResponse.NotFound(
+                 $"No Category Found With ID : ({categoryId})");
       }
       else
       {
-        return Ok(new SuccessMessage<Category>
-        {
-          Success = true,
-          Message = "Category is returned successfully",
-          Data = category
-        });
+        return ApiResponse.Success<Category>(
+                   category,
+                   "Category is returned successfully"
+                 );
       }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot return the category");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPost]
   public async Task<IActionResult> CreateCategory(Category newCategory)
   {
@@ -95,31 +81,23 @@ public class CategoryController : ControllerBase
       var createdCategory = await _dbContext.CreateCategoryService(newCategory);
       if (createdCategory != null)
       {
-        return CreatedAtAction(nameof(GetCategory), new
-        {
-          categoryId = createdCategory.CategoryId
-        }, createdCategory);
+        return ApiResponse.Created<Category>(createdCategory, "Category is created successfully");
       }
-
-      return Ok(new SuccessMessage<Category>
+      else
       {
-        Success = true,
-        Message = "Category is created successfully",
-        Data = createdCategory
-      });
+        return ApiResponse.ServerError("Error when creating new category");
+
+      }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot create new category");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPut("{categoryId}")]
   public async Task<IActionResult> UpdateCategory(string categoryId, Category updateCategory)
   {
@@ -127,35 +105,28 @@ public class CategoryController : ControllerBase
     {
       if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
       {
-        return BadRequest("Invalid category ID Format");
+        return ApiResponse.BadRequest("Invalid Category ID Format");
       }
       var category = await _dbContext.UpdateCategoryService(categoryIdGuid, updateCategory);
       if (category == null)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "No Category To Founded To Update"
-        });
+        return ApiResponse.NotFound("No Category Founded To Update");
+
       }
-      return Ok(new SuccessMessage<Category>
-      {
-        Success = true,
-        Message = "Category is updated successfully",
-        Data = category
-      });
+      return ApiResponse.Success<Category>(
+                category,
+                "Category Is Updated Successfully"
+            );
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot update the category");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpDelete("{categoryId}")]
   public async Task<IActionResult> DeleteCategory(string categoryId)
   {
@@ -163,25 +134,20 @@ public class CategoryController : ControllerBase
     {
       if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
       {
-        return BadRequest("Invalid Category ID Format");
+        return ApiResponse.BadRequest("Invalid category ID Format");
       }
       var result = await _dbContext.DeleteCategoryService(categoryIdGuid);
       if (!result)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "The category is not found to be deleted"
-        });
+        return ApiResponse.NotFound("The Category is not found to be deleted");
       }
-      return Ok(new { success = true, message = "Category is deleted successfully" });
+      return ApiResponse.Success("Category is deleted successfully");
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, the category can not deleted");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 }

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -21,8 +20,12 @@ public class Customer
   [EmailAddress(ErrorMessage = "Email address is not valid")]
   public string Email { get; set; } = string.Empty;
 
+  [Required(ErrorMessage = "Mobile number is required")]
+  public string Mobile { get; set; } = string.Empty;
+
+
   [Required(ErrorMessage = "Password is required")]
-  [MaxLength(25), MinLength(8)]
+  // [MaxLength(25), MinLength(8)]
   public string Password { get; set; } = string.Empty;
 
   public string Image { get; set; } = string.Empty;

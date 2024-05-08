@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -37,25 +36,23 @@ public class ProductController : ControllerBase
 
       int totalProductCount = await _dbContext.GetTotalProductCount();
 
-      return Ok(new SuccessMessage<IEnumerable<Product>>
-      {
-        Message = "Products are returned successfully",
-        Data = products,
-        Meta = new PaginationMeta
+      return ApiResponse.Success<IEnumerable<Product>>
+      (
+        products,
+         "Products are returned successfully",
+        new PaginationMeta
         {
           CurrentPage = pageNumber,
           PageSize = pageSize,
           TotalCount = totalProductCount
         }
-      });
+      );
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot return the Product list");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
@@ -69,38 +66,32 @@ public class ProductController : ControllerBase
       var product = await _dbContext.GetProductByIdService(productId);
       if (product == null)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = $"No Product Found With ID : ({productId})"
-        });
+        return ApiResponse.NotFound(
+                 $"No Product Found With ID : ({productId})");
       }
       else
       {
-        return Ok(new SuccessMessage<Product>
-        {
-          Success = true,
-          Message = "Product is returned successfully",
-          Data = product
-        });
+        return ApiResponse.Success<Product>(
+          product,
+          "Product is returned successfully"
+        );
       }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot return the Product");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
-
+  [AllowAnonymous]
   [HttpGet("search")]
   public async Task<IActionResult> SearchProducts(
-    int pageNumber = 1,
-    int pageSize = 10,
-    string? searchTerm = null
-  )
+      int pageNumber = 1,
+      int pageSize = 10,
+      string? searchTerm = null
+    )
   {
     try
     {
@@ -108,31 +99,28 @@ public class ProductController : ControllerBase
 
       int totalProductCount = await _dbContext.GetProductCountBySearchTerm(searchTerm);
 
-      return Ok(new SuccessMessage<IEnumerable<Product>>
-      {
-        Message = "Products are returned successfully",
-        Data = products,
-        Meta = new PaginationMeta
+      return ApiResponse.Success<IEnumerable<Product>>
+      (
+        products,
+        "Products are returned successfully",
+        new PaginationMeta
         {
           CurrentPage = pageNumber,
           PageSize = pageSize,
           TotalCount = totalProductCount
         }
-      });
+      );
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, can't search for products");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPost]
   public async Task<IActionResult> CreateProduct(Product newProduct)
   {
@@ -141,27 +129,24 @@ public class ProductController : ControllerBase
       var createdProduct = await _dbContext.CreateProductService(newProduct);
       if (createdProduct != null)
       {
-        return CreatedAtAction(nameof(GetProduct), new { productId = createdProduct.ProductId }, createdProduct);
+        return ApiResponse.Created<Product>(createdProduct, "Product is created successfully");
       }
-      return Ok(new SuccessMessage<Product>
+      else
       {
-        Message = "Product is created successfully",
-        Data = createdProduct
-      });
+        return ApiResponse.ServerError("Error when creating new product");
+
+      }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot create new Product");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPut("{productId}")]
   public async Task<IActionResult> UpdateProduct(string productId, Product updateProduct)
   {
@@ -169,35 +154,28 @@ public class ProductController : ControllerBase
     {
       if (!Guid.TryParse(productId, out Guid productIdGuid))
       {
-        return BadRequest("Invalid product ID Format");
+        return ApiResponse.BadRequest("Invalid product ID Format");
       }
       var product = await _dbContext.UpdateProductService(productIdGuid, updateProduct);
       if (product == null)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "No Product To Founded To Update"
-        });
+        return ApiResponse.NotFound("No Product Founded To Update");
       }
-      return Ok(new SuccessMessage<Product>
-      {
-        Message = "Product Is Updated Successfully",
-        Data = product
-      });
+      return ApiResponse.Success<Product>(
+          product,
+          "Product Is Updated Successfully"
+      );
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred , can not update the Product ");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpDelete("{productId}")]
   public async Task<IActionResult> DeleteProduct(string productId)
   {
@@ -205,25 +183,20 @@ public class ProductController : ControllerBase
     {
       if (!Guid.TryParse(productId, out Guid productIdGuid))
       {
-        return BadRequest("Invalid product ID Format");
+        return ApiResponse.BadRequest("Invalid product ID Format");
       }
       var result = await _dbContext.DeleteProductService(productIdGuid);
       if (!result)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "The Product is not found to be deleted"
-        });
+        return ApiResponse.NotFound("The Product is not found to be deleted");
       }
-      return Ok(new { success = true, message = " Product is deleted successfully" });
+      return ApiResponse.Success(" Product is deleted successfully");
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, the Product can not deleted");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 }

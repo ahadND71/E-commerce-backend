@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -28,24 +27,18 @@ public class OrderProductController : ControllerBase
       var orderProducts = await _dbContext.GetAllOrderProductService();
       if (orderProducts.ToList().Count < 1)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "No Order Details To Display"
-        });
+        return ApiResponse.NotFound("No Orders Details To Display");
+
       }
-      return Ok(new SuccessMessage<IEnumerable<OrderProduct>>
-      {
-        Message = "Orders Details are returned succeSSfully",
-        Data = orderProducts
-      });
+      return ApiResponse.Success<IEnumerable<OrderProduct>>(
+                orderProducts,
+               "Orders Details are returned successfully");
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot return the Order Detail list");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
@@ -58,40 +51,34 @@ public class OrderProductController : ControllerBase
     {
       if (!Guid.TryParse(orderItemId, out Guid orderItemIdGuid))
       {
-        return BadRequest("Invalid OrderProduct ID Format");
+        return ApiResponse.BadRequest("Invalid OrderProduct ID Format");
       }
       var orderProduct = await _dbContext.GetOrderProductByIdService(orderItemIdGuid);
       if (orderProduct == null)
 
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = $"No Order Details Found With ID : ({orderItemIdGuid})"
-        });
+        return ApiResponse.NotFound(
+                $"No Order Details Found With ID : ({orderItemIdGuid})");
       }
+
       else
       {
-        return Ok(new SuccessMessage<OrderProduct>
-        {
-          Success = true,
-          Message = "Order Details is returned succeSSfully",
-          Data = orderProduct
-        });
+        return ApiResponse.Success<OrderProduct>(
+                  orderProduct,
+                  "Order Details is returned successfully"
+                );
       }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot return the Order Details");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
   [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
   public async Task<IActionResult> CreateOrderProduct(OrderProduct newOrderProduct)
   {
@@ -100,27 +87,24 @@ public class OrderProductController : ControllerBase
       var createdOrderProduct = await _dbContext.CreateOrderProductService(newOrderProduct);
       if (createdOrderProduct != null)
       {
-        return CreatedAtAction(nameof(GetOrderProduct), new { orderItemId = createdOrderProduct.OrderItemId }, createdOrderProduct);
+        return ApiResponse.Created<OrderProduct>(createdOrderProduct, "Order details is created successfully");
       }
-      return Ok(new SuccessMessage<OrderProduct>
+      else
       {
-        Message = "Order Details is created successfully",
-        Data = createdOrderProduct
-      });
+        return ApiResponse.ServerError("Error when creating new order details");
+
+      }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot create new Order Details");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPut("{orderItemId}")]
   public async Task<IActionResult> UpdateOrderProduct(string orderItemId, OrderProduct updateOrderProduct)
   {
@@ -128,36 +112,29 @@ public class OrderProductController : ControllerBase
     {
       if (!Guid.TryParse(orderItemId, out Guid orderItemIdGuid))
       {
-        return BadRequest("Invalid OrderProduct ID Format");
+        return ApiResponse.BadRequest("Invalid Order Product ID Format");
       }
       var orderProduct = await _dbContext.UpdateOrderProductService(orderItemIdGuid, updateOrderProduct);
       if (orderProduct == null)
+      {
 
-      {
-        return NotFound(new ErrorMessage
-        {
-          Message = "No Order Details To Founded To Update"
-        });
+        return ApiResponse.NotFound("No Order Details Founded To Update");
       }
-      return Ok(new SuccessMessage<OrderProduct>
-      {
-        Message = "Order Details Is Updated Successfully",
-        Data = orderProduct
-      });
+      return ApiResponse.Success<OrderProduct>(
+          orderProduct,
+          "Order Details Is Updated Successfully"
+      );
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot update the Order Details ");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpDelete("{OrderItemId}")]
   public async Task<IActionResult> DeleteOrderProduct(string orderItemId)
   {
@@ -165,25 +142,20 @@ public class OrderProductController : ControllerBase
     {
       if (!Guid.TryParse(orderItemId, out Guid OrderItemId_Guid))
       {
-        return BadRequest("Invalid OrderProduct ID Format");
+        return ApiResponse.BadRequest("Invalid OrderProduct ID Format");
       }
       var result = await _dbContext.DeleteOrderProductService(OrderItemId_Guid);
       if (!result)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "The Order Details is not found to be deleted"
-        });
+        return ApiResponse.NotFound("The Order Details is not found to be deleted");
       }
-      return Ok(new { success = true, message = " Order Details is deleted successfully" });
+      return ApiResponse.Success(" Order Details is deleted successfully");
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, the Order Details can not deleted");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 }

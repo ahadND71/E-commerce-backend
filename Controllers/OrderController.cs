@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -28,24 +27,18 @@ public class OrderController : ControllerBase
       var orders = await _dbContext.GetAllOrderService();
       if (orders.ToList().Count < 1)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "No Orders To Display"
-        });
+        return ApiResponse.NotFound("No Orders To Display");
+
       }
-      return Ok(new SuccessMessage<IEnumerable<Order>>
-      {
-        Message = "Orders are returned successfully",
-        Data = orders
-      });
+      return ApiResponse.Success<IEnumerable<Order>>(
+                orders,
+               "Orders are returned successfully");
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot return the Order list");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
@@ -58,39 +51,32 @@ public class OrderController : ControllerBase
     {
       if (!Guid.TryParse(orderId, out Guid orderIdGuid))
       {
-        return BadRequest("Invalid Order ID Format");
+        return ApiResponse.BadRequest("Invalid Order ID Format");
       }
       var order = await _dbContext.GetOrderByIdService(orderIdGuid);
       if (order == null)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = $"No Order Found With ID : ({orderIdGuid})"
-        });
+        return ApiResponse.NotFound(
+                  $"No Order Found With ID : ({orderIdGuid})");
       }
       else
       {
-        return Ok(new SuccessMessage<Order>
-        {
-          Success = true,
-          Message = "Order is returned successfully",
-          Data = order
-        });
+        return ApiResponse.Success<Order>(
+          order,
+          "Order is returned successfully"
+        );
       }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot return the Order");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
   [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
   public async Task<IActionResult> CreateOrder(Order newOrder)
   {
@@ -99,27 +85,24 @@ public class OrderController : ControllerBase
       var createdOrder = await _dbContext.CreateOrderService(newOrder);
       if (createdOrder != null)
       {
-        return CreatedAtAction(nameof(GetOrder), new { orderId = createdOrder.OrderId }, createdOrder);
+        return ApiResponse.Created<Order>(createdOrder, "Order is created successfully");
       }
-      return Ok(new SuccessMessage<Order>
+      else
       {
-        Message = "Order is created successfully",
-        Data = createdOrder
-      });
+        return ApiResponse.ServerError("Error when creating new order");
+
+      }
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot create new Order");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPut("{orderId}")]
   public async Task<IActionResult> UpdateOrder(string orderId, Order updateOrder)
   {
@@ -127,35 +110,28 @@ public class OrderController : ControllerBase
     {
       if (!Guid.TryParse(orderId, out Guid orderIdGuid))
       {
-        return BadRequest("Invalid Order ID Format");
+        return ApiResponse.BadRequest("Invalid Order ID Format");
       }
       var order = await _dbContext.UpdateOrderService(orderIdGuid, updateOrder);
       if (order == null)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "No Order To Founded To Update"
-        });
+        return ApiResponse.NotFound("No Order Founded To Update");
       }
-      return Ok(new SuccessMessage<Order>
-      {
-        Message = "Order Is Updated Successfully",
-        Data = order
-      });
+      return ApiResponse.Success<Order>(
+          order,
+          "Order Is Updated Successfully"
+      );
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, cannot update the Order ");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpDelete("{orderId}")]
   public async Task<IActionResult> DeleteOrder(string orderId)
   {
@@ -163,25 +139,21 @@ public class OrderController : ControllerBase
     {
       if (!Guid.TryParse(orderId, out Guid OrderId_Guid))
       {
-        return BadRequest("Invalid Order ID Format");
+        return ApiResponse.BadRequest("Invalid order ID Format");
       }
       var result = await _dbContext.DeleteOrderService(OrderId_Guid);
       if (!result)
       {
-        return NotFound(new ErrorMessage
-        {
-          Message = "The Order is not found to be deleted"
-        });
+        return ApiResponse.NotFound("The Order is not found to be deleted");
+
       }
-      return Ok(new { success = true, message = " Order is deleted successfully" });
+      return ApiResponse.Success(" Order is deleted successfully");
     }
     catch (Exception ex)
     {
       Console.WriteLine($"An error occurred, the Order can not deleted");
-      return StatusCode(500, new ErrorMessage
-      {
-        Message = ex.Message
-      });
+      return ApiResponse.ServerError(ex.Message);
+
     }
   }
 }

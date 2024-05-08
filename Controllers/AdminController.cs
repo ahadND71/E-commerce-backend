@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
+using Microsoft.AspNetCore.Identity.Data;
+using api.Authentication.Service;
+using api.Authentication.Dtos;
+using Microsoft.IdentityModel.Tokens;
 
 namespace api.Controllers;
 
@@ -13,13 +16,15 @@ namespace api.Controllers;
 public class AdminController : ControllerBase
 {
     private readonly AdminService _dbContext;
-    public AdminController(AdminService adminService)
+    private readonly AuthService _authService;
+    public AdminController(AdminService adminService, AuthService authService)
     {
         _dbContext = adminService;
+        _authService = authService;
     }
 
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins()
     {
@@ -28,30 +33,24 @@ public class AdminController : ControllerBase
             var admins = await _dbContext.GetAllAdminsService();
             if (admins.ToList().Count < 1)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Admins To Display"
-                });
+                return ApiResponse.NotFound("No Admins To Display");
+
             }
 
-            return Ok(new SuccessMessage<IEnumerable<Admin>>
-            {
-                Message = "Admins are returned successfully",
-                Data = admins
-            });
+            return ApiResponse.Success<IEnumerable<Admin>>(
+                admins,
+               "Admins are returned successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Admin list");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpGet("{adminId}")]
     public async Task<IActionResult> GetAdmin(string adminId)
     {
@@ -64,34 +63,26 @@ public class AdminController : ControllerBase
             var admin = await _dbContext.GetAdminById(adminIdGuid);
             if (admin == null)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = $"No Admin Found With ID : ({adminIdGuid})"
-                });
+                return ApiResponse.NotFound(
+                 $"No Admin Found With ID : ({adminIdGuid})");
             }
             else
             {
-                return Ok(new SuccessMessage<Admin>
-                {
-                    Success = true,
-                    Message = "Admin is returned successfully",
-                    Data = admin
-                });
+                return ApiResponse.Success<Admin>(
+                 admin,
+                 "Admin is returned successfully"
+               );
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot return the Admin");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
         }
     }
 
 
-    [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {
@@ -100,27 +91,46 @@ public class AdminController : ControllerBase
             var createdAdmin = await _dbContext.CreateAdminService(newAdmin);
             if (createdAdmin != null)
             {
-                return CreatedAtAction(nameof(GetAdmin), new { adminId = createdAdmin.AdminId }, createdAdmin);
+                return ApiResponse.Created<Admin>(createdAdmin, "Admin is created successfully");
             }
-            return Ok(new SuccessMessage<Admin>
+            else
             {
-                Message = "Admin is created successfully",
-                Data = createdAdmin
-            });
+                return ApiResponse.ServerError("Error when creating new Admin");
+
+            }
+
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot create new Admin");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
         }
     }
 
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<IActionResult> LoginAdmin([FromBody] LoginUserDto loginUserDto)
+    {
+        try
+        {
+            var LoggedAdmin = await _dbContext.LoginAdminService(loginUserDto);
+            if (LoggedAdmin == null)
+            {
+                return ApiResponse.UnAuthorized("Invalid Credential");
+            }
+            var token = _authService.GenerateJwtToken(LoggedAdmin);
+            return ApiResponse.Success<LoginUserDto>(LoggedAdmin, "Admin is loggedIn successfully", null, token);
 
-    [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot login");
+            return ApiResponse.ServerError(ex.Message);
+        }
+    }
+
+    [Authorize(Roles = "Admin")]
     [HttpPut("{adminId}")]
     public async Task<IActionResult> UpdateAdmin(string adminId, Admin updateAdmin)
     {
@@ -128,35 +138,29 @@ public class AdminController : ControllerBase
         {
             if (!Guid.TryParse(adminId, out Guid adminIdGuid))
             {
-                return BadRequest("Invalid admin ID Format");
+                return ApiResponse.BadRequest("Invalid Admin ID Format");
             }
             var admin = await _dbContext.UpdateAdminService(adminIdGuid, updateAdmin);
             if (admin == null)
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "No Admin To Founded To Update"
-                });
+                return ApiResponse.NotFound("No Admin Founded To Update");
+
             }
-            return Ok(new SuccessMessage<Admin>
-            {
-                Message = "Admin Is Updated Successfully",
-                Data = admin
-            });
+            return ApiResponse.Success<Admin>(
+                admin,
+                "Admin Is Updated Successfully"
+            );
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, cannot update the Admin ");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 
 
-    [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{adminId}")]
     public async Task<IActionResult> DeleteAdmin(string adminId)
     {
@@ -164,27 +168,23 @@ public class AdminController : ControllerBase
         {
             if (!Guid.TryParse(adminId, out Guid adminIdGuid))
             {
-                return BadRequest("Invalid admin ID Format");
+                return ApiResponse.BadRequest("Invalid admin ID Format");
             }
             var result = await _dbContext.DeleteAdminService(adminIdGuid);
             if (!result)
 
             {
-                return NotFound(new ErrorMessage
-                {
-                    Message = "The Admin is not found to be deleted"
-                });
+                return ApiResponse.NotFound("The Admin is not found to be deleted");
+
             }
             //new SuccessMessage<Admin>
-            return Ok(new { success = true, message = " Admin is deleted successfully" });
+            return ApiResponse.Success(" Admin is deleted successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred, the Admin can not deleted");
-            return StatusCode(500, new ErrorMessage
-            {
-                Message = ex.Message
-            });
+            return ApiResponse.ServerError(ex.Message);
+
         }
     }
 }

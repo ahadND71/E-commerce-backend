@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -86,13 +85,13 @@ public class ProductController : ControllerBase
     }
   }
 
-
+  [AllowAnonymous]
   [HttpGet("search")]
   public async Task<IActionResult> SearchProducts(
-    int pageNumber = 1,
-    int pageSize = 10,
-    string? searchTerm = null
-  )
+      int pageNumber = 1,
+      int pageSize = 10,
+      string? searchTerm = null
+    )
   {
     try
     {
@@ -121,8 +120,7 @@ public class ProductController : ControllerBase
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPost]
   public async Task<IActionResult> CreateProduct(Product newProduct)
   {
@@ -148,8 +146,7 @@ public class ProductController : ControllerBase
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPut("{productId}")]
   public async Task<IActionResult> UpdateProduct(string productId, Product updateProduct)
   {
@@ -178,8 +175,7 @@ public class ProductController : ControllerBase
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpDelete("{productId}")]
   public async Task<IActionResult> DeleteProduct(string productId)
   {

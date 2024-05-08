@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
 using Microsoft.AspNetCore.Identity;
+using api.Authentication.Dtos;
 
 namespace api.Services;
 
@@ -43,6 +44,20 @@ public class CustomerService
     _dbContext.Customers.Add(newCustomer);
     await _dbContext.SaveChangesAsync();
     return newCustomer;
+  }
+
+  public async Task<LoginUserDto?> LoginCustomerService(LoginUserDto loginUserDto)
+  {
+    var customer = await _dbContext.Customers.SingleOrDefaultAsync(c => c.Email == loginUserDto.Email);
+    if (customer == null)
+    {
+      return null;
+    }
+    var result = _passwordHasher.VerifyHashedPassword(customer, customer.Password, loginUserDto.Password);
+    loginUserDto.UserId = customer.CustomerId;
+    loginUserDto.IsAdmin = false;
+    return result == PasswordVerificationResult.Success ? loginUserDto : null;
+
   }
 
 

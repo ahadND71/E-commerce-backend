@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -78,7 +77,6 @@ public class AddressController : ControllerBase
 
 
     [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPost]
     public async Task<IActionResult> CreateAddress(Address newAddress)
     {
@@ -106,7 +104,6 @@ public class AddressController : ControllerBase
 
 
     [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{addressId}")]
     public async Task<IActionResult> UpdateAddress(string addressId, Address updateAddress)
     {
@@ -136,7 +133,6 @@ public class AddressController : ControllerBase
 
 
     [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{addressId}")]
     public async Task<IActionResult> DeleteAddress(string addressId)
     {

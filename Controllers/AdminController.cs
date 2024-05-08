@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
+using Microsoft.AspNetCore.Identity.Data;
+using api.Authentication.Service;
+using api.Authentication.Dtos;
+using Microsoft.IdentityModel.Tokens;
 
 namespace api.Controllers;
 
@@ -13,13 +16,15 @@ namespace api.Controllers;
 public class AdminController : ControllerBase
 {
     private readonly AdminService _dbContext;
-    public AdminController(AdminService adminService)
+    private readonly AuthService _authService;
+    public AdminController(AdminService adminService, AuthService authService)
     {
         _dbContext = adminService;
+        _authService = authService;
     }
 
 
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins()
     {
@@ -45,7 +50,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpGet("{adminId}")]
     public async Task<IActionResult> GetAdmin(string adminId)
     {
@@ -77,8 +82,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {
@@ -103,9 +107,30 @@ public class AdminController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<IActionResult> LoginAdmin([FromBody] LoginUserDto loginUserDto)
+    {
+        try
+        {
+            var LoggedAdmin = await _dbContext.LoginAdminService(loginUserDto);
+            if (LoggedAdmin == null)
+            {
+                return ApiResponse.UnAuthorized("Invalid Credential");
+            }
+            var token = _authService.GenerateJwtToken(LoggedAdmin);
+            return ApiResponse.Success<LoginUserDto>(LoggedAdmin, "Admin is loggedIn successfully", null, token);
 
-    [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot login");
+            return ApiResponse.ServerError(ex.Message);
+        }
+    }
+
+    [Authorize(Roles = "Admin")]
     [HttpPut("{adminId}")]
     public async Task<IActionResult> UpdateAdmin(string adminId, Admin updateAdmin)
     {
@@ -135,8 +160,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{adminId}")]
     public async Task<IActionResult> DeleteAdmin(string adminId)
     {

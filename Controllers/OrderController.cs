@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -78,7 +77,6 @@ public class OrderController : ControllerBase
 
 
   [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
   [HttpPost]
   public async Task<IActionResult> CreateOrder(Order newOrder)
   {
@@ -104,8 +102,7 @@ public class OrderController : ControllerBase
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPut("{orderId}")]
   public async Task<IActionResult> UpdateOrder(string orderId, Order updateOrder)
   {
@@ -134,8 +131,7 @@ public class OrderController : ControllerBase
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpDelete("{orderId}")]
   public async Task<IActionResult> DeleteOrder(string orderId)
   {

@@ -26,19 +26,19 @@ public class AdminController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpGet]
-    public async Task<IActionResult> GetAllAdmins()
+    public async Task<IActionResult> GetAllAdmins([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         try
         {
-            var admins = await _dbContext.GetAllAdminsService();
-            if (admins.ToList().Count < 1)
+            var admins = await _dbContext.GetAllAdminsService(currentPage , pageSize);
+            if (admins.TotalCount < 1)
             {
                 return ApiResponse.NotFound("No Admins To Display");
 
             }
 
             return ApiResponse.Success<IEnumerable<Admin>>(
-                admins,
+                admins.Items,
                "Admins are returned successfully");
         }
         catch (Exception ex)

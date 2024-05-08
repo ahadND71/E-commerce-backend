@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using api.Data;
 using Microsoft.AspNetCore.Identity;
 using api.Authentication.Dtos;
+using api.Helpers;
 
 namespace api.Services;
 
@@ -18,14 +19,24 @@ public class CustomerService
   }
 
 
-  public async Task<IEnumerable<Customer>> GetAllCustomersService()
+  public async Task<PaginationResult<Customer>> GetAllCustomersService(int currentPage , int pageSize)
   {
-    return await _dbContext.Customers
+    var totalCustomerCount = await _dbContext.Customers.CountAsync();
+    var customer = await _dbContext.Customers
     .Include(a => a.Addresses)
     .Include(o => o.Orders)
       .ThenInclude(op => op.OrderProducts)
     .Include(r => r.Reviews)
-    .ToListAsync();
+    .Skip((currentPage -1) * pageSize)
+    .Take(pageSize)
+    .ToListAsync(); 
+    
+    return new PaginationResult<Customer>{
+      Items = customer,
+      TotalCount = totalCustomerCount,
+      CurrentPage = currentPage,
+      PageSize = pageSize,
+    };
   }
 
 

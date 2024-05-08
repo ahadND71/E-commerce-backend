@@ -14,12 +14,21 @@ public class CategoryService
   }
 
 
-  public async Task<IEnumerable<Category>> GetAllCategoryService()
+  public async Task<PaginationResult<Category>> GetAllCategoryService(int currentPage , int pageSize)
   {
-    return await _dbContext.Categories
+    var totalCategoryCount = await _dbContext.Categories.CountAsync();
+    var category = await _dbContext.Categories
     .Include(c => c.Products)
     .ThenInclude(r => r.Reviews)
+    .Skip((currentPage -1) * pageSize)
+    .Take(pageSize)
     .ToListAsync();
+    return new PaginationResult<Category>{
+      Items = category,
+      TotalCount = totalCategoryCount,
+      CurrentPage = currentPage,
+      PageSize = pageSize,
+    };
   }
 
 

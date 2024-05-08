@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
+using api.Helpers;
 
 namespace api.Services;
 
@@ -14,9 +15,19 @@ public class OrderService
   }
 
 
-  public async Task<IEnumerable<Order>> GetAllOrderService()
+  public async Task<PaginationResult<Order>> GetAllOrderService(int currentPage , int pageSize)
   {
-    return await _dbContext.Orders.Include(op => op.OrderProducts).ToListAsync();
+    var totalOrderCount = await _dbContext.Orders.CountAsync();
+    var order = await _dbContext.Orders.Include(op => op.OrderProducts)
+    .Skip((currentPage -1) * pageSize)
+    .Take(pageSize)
+    .ToListAsync();
+    return new PaginationResult<Order>{
+      Items = order,
+      TotalCount = totalOrderCount,
+      CurrentPage = currentPage,
+      PageSize = pageSize,
+    };
   }
 
 

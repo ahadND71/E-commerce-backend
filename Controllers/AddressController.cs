@@ -18,7 +18,7 @@ public class AddressController : ControllerBase
     }
 
 
-   // [Authorize]
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllAddress([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
@@ -76,7 +76,7 @@ public class AddressController : ControllerBase
     }
 
 
-    //[Authorize]
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateAddress(Address newAddress)
     {

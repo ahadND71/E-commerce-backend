@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
+using api.Helpers;
 
 namespace api.Services;
 
@@ -12,9 +13,19 @@ public class ReviewService
     }
 
 
-    public async Task<IEnumerable<Review>> GetAllReviewService()
+    public async Task<PaginationResult<Review>> GetAllReviewService(int currentPage , int pageSize)
     {
-        return await _dbContext.Reviews.ToListAsync();
+        var totalReviewCount = await _dbContext.Reviews.CountAsync();
+        var review = await _dbContext.Reviews
+        .Skip((currentPage -1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync(); 
+        return new PaginationResult<Review>{
+          Items = review,
+          TotalCount = totalReviewCount,
+          CurrentPage = currentPage,
+          PageSize = pageSize,
+        };
     }
 
 

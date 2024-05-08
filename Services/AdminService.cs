@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using api.Data;
 using Microsoft.AspNetCore.Identity;
 using api.Authentication.Dtos;
+using api.Helpers;
 
 namespace api.Services;
 
@@ -18,9 +19,19 @@ public class AdminService
   }
 
 
-  public async Task<IEnumerable<Admin>> GetAllAdminsService()
+  public async Task<PaginationResult<Admin>> GetAllAdminsService(int currentPage , int pageSize)
   {
-    return await _dbContext.Admins.ToListAsync();
+    var totalAdminCount = await _dbContext.Admins.CountAsync();
+    var admin = await _dbContext.Admins
+    .Skip((currentPage -1) * pageSize)
+    .Take(pageSize)
+    .ToListAsync();
+    return new PaginationResult<Admin>{
+      Items = admin,
+      TotalCount = totalAdminCount,
+      CurrentPage = currentPage,
+      PageSize = pageSize,};
+
   }
 
 

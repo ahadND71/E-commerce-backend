@@ -15,7 +15,6 @@ public class CustomerService
   {
     _dbContext = dbContext;
     _passwordHasher = passwordHasher;
-
   }
 
 

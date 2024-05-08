@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 [ApiController]
@@ -73,8 +72,7 @@ public class CategoryController : ControllerBase
   }
 
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPost]
   public async Task<IActionResult> CreateCategory(Category newCategory)
   {
@@ -99,8 +97,7 @@ public class CategoryController : ControllerBase
     }
   }
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpPut("{categoryId}")]
   public async Task<IActionResult> UpdateCategory(string categoryId, Category updateCategory)
   {
@@ -129,8 +126,7 @@ public class CategoryController : ControllerBase
     }
   }
 
-  [Authorize]
-  [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
+  [Authorize(Roles = "Admin")]
   [HttpDelete("{categoryId}")]
   public async Task<IActionResult> DeleteCategory(string categoryId)
   {

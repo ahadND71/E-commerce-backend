@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
 using api.Helpers;
-using api.Authentication.Identity;
 
 namespace api.Controllers;
 
@@ -77,7 +76,6 @@ public class ReviewController : ControllerBase
 
 
     [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPost]
     public async Task<IActionResult> CreateReview(Review newReview)
     {
@@ -104,7 +102,6 @@ public class ReviewController : ControllerBase
 
 
     [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpPut("{reviewId}")]
     public async Task<IActionResult> UpdateReview(string reviewId, Review updateReview)
     {
@@ -134,7 +131,6 @@ public class ReviewController : ControllerBase
 
 
     [Authorize]
-    [RequiresClaim(IdentityData.AdminUserClaimName, "true")]
     [HttpDelete("{reviewId}")]
     public async Task<IActionResult> DeleteReview(string reviewId)
     {

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
 using Microsoft.AspNetCore.Identity;
+using api.Authentication.Dtos;
 
 namespace api.Services;
 
@@ -37,6 +38,20 @@ public class AdminService
     _dbContext.Admins.Add(newAdmin);
     await _dbContext.SaveChangesAsync();
     return newAdmin;
+  }
+
+  public async Task<LoginUserDto?> LoginAdminService(LoginUserDto loginUserDto)
+  {
+    var admin = await _dbContext.Admins.SingleOrDefaultAsync(a => a.Email == loginUserDto.Email);
+    if (admin == null)
+    {
+      return null;
+    }
+    var result = _passwordHasher.VerifyHashedPassword(admin, admin.Password, loginUserDto.Password);
+    loginUserDto.UserId = admin.AdminId;
+    loginUserDto.IsAdmin = true;
+    return result == PasswordVerificationResult.Success ? loginUserDto : null;
+
   }
 
 

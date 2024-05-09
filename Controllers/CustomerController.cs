@@ -28,22 +28,16 @@ public class CustomerController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
-        try
-        {
-            var customers = await _dbContext.GetAllCustomersService(currentPage, pageSize);
+            var customers = await _dbContext.GetAllCustomersService(currentPage , pageSize);
             if (customers.TotalCount < 1)
             {
                 return ApiResponse.NotFound("No Customers To Display");
 
             }
-            return Ok(customers);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot return the Customer list");
-            return ApiResponse.ServerError(ex.Message);
+            return ApiResponse.Success<IEnumerable<Customer>>(
+                customers.Items,
+               "Customers are returned successfully");
 
-        }
     }
 
 
@@ -52,8 +46,7 @@ public class CustomerController : ControllerBase
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {
-        try
-        {
+       
             if (!Guid.TryParse(customerId, out Guid customerIdGuid))
             {
                 return ApiResponse.BadRequest("Invalid customer ID Format");
@@ -68,13 +61,7 @@ public class CustomerController : ControllerBase
             {
                 return Ok(customer);
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot return the Customer");
-            return ApiResponse.ServerError(ex.Message);
-
-        }
+        
     }
 
 
@@ -82,8 +69,7 @@ public class CustomerController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> CreateCustomer(Customer newCustomer)
     {
-        try
-        {
+        
             var createdCustomer = await _dbContext.CreateCustomerService(newCustomer);
             if (createdCustomer != null)
             {
@@ -94,21 +80,14 @@ public class CustomerController : ControllerBase
                 return ApiResponse.ServerError("Email already exists");
 
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot create new Customer");
-            return ApiResponse.ServerError(ex.Message);
-
-        }
+        
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> LoginCustomer([FromBody] LoginUserDto loginUserDto)
     {
-        try
-        {
+       
             var LoggedCustomer = await _dbContext.LoginCustomerService(loginUserDto);
             if (LoggedCustomer == null)
             {
@@ -118,12 +97,7 @@ public class CustomerController : ControllerBase
             return ApiResponse.Success<LoginUserDto>(LoggedCustomer, "Customer is loggedIn successfully", null, token);
 
 
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot login");
-            return ApiResponse.ServerError(ex.Message);
-        }
+        
     }
 
 
@@ -131,8 +105,7 @@ public class CustomerController : ControllerBase
     [HttpPut("{customerId}")]
     public async Task<IActionResult> UpdateCustomer(string customerId, Customer updateCustomer)
     {
-        try
-        {
+        
             if (!Guid.TryParse(customerId, out Guid customerIdGuid))
             {
                 return ApiResponse.BadRequest("Invalid Customer ID Format");
@@ -146,13 +119,6 @@ public class CustomerController : ControllerBase
                 customer,
                 "Customer Is Updated Successfully"
             );
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot update the Customer ");
-            return ApiResponse.ServerError(ex.Message);
-
-        }
     }
 
 
@@ -160,8 +126,7 @@ public class CustomerController : ControllerBase
     [HttpDelete("{customerId}")]
     public async Task<IActionResult> DeleteCustomer(string customerId)
     {
-        try
-        {
+        
             if (!Guid.TryParse(customerId, out Guid customerIdGuid))
             {
                 return ApiResponse.BadRequest("Invalid Customer ID Format");
@@ -173,42 +138,26 @@ public class CustomerController : ControllerBase
 
             }
             return ApiResponse.Success(" Customer is deleted successfully");
-
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, the Customer can not deleted");
-            return ApiResponse.ServerError(ex.Message);
-
-        }
     }
 
     [AllowAnonymous]
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword(string email)
     {
-        try
-        {
+        
             var result = await _dbContext.ForgotPasswordService(email);
             if (!result)
             {
                 return ApiResponse.NotFound("No user found with this email");
             }
             return ApiResponse.Success("Password reset email sent successfully");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot send password reset link: {ex.Message}");
-            return ApiResponse.ServerError(ex.Message);
-        }
     }
 
     [AllowAnonymous]
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
     {
-        try
-        {
+       
             if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmNewPassword)
             {
                 return ApiResponse.BadRequest("Passwords do not match");
@@ -222,12 +171,6 @@ public class CustomerController : ControllerBase
 
             }
             return ApiResponse.Success("Password reset successfully");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot reset password: {ex.Message}");
-            return ApiResponse.ServerError(ex.Message);
-        }
     }
 
 }

@@ -16,6 +16,7 @@ namespace api.Authentication.Service
             _configuration = configuration;
         }
 
+
         public string GenerateJwtToken(LoginUserDto loginRequest)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -33,10 +34,9 @@ namespace api.Authentication.Service
                 Issuer = _configuration["JwtSettings:Issuer"],
                 Audience = _configuration["JwtSettings:Audience"],
             };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
 
+            var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-
     }
 }

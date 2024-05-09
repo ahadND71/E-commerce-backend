@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.HttpResults;
 using SendGrid.Helpers.Errors.Model;
 
 namespace api.Middleware
@@ -19,6 +14,7 @@ namespace api.Middleware
             _logger = logger;
             _next = next;
         }
+
 
         public async Task InvokeAsync(HttpContext context)
         {
@@ -36,9 +32,10 @@ namespace api.Middleware
             }
             finally
             {
-                _logger.LogInformation($"--- Finished Exception Handling Requests: Response status {context.Response.StatusCode} ---");
+                _logger.LogInformation($"--- Exception Handling Requests Ends : Response status {context.Response.StatusCode} ---");
             }
         }
+
 
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
@@ -77,7 +74,7 @@ namespace api.Middleware
 
             var jsonResponse = JsonSerializer.Serialize(response);
             return context.Response.WriteAsync(jsonResponse);
-
         }
+
     }
 }

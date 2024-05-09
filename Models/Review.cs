@@ -16,7 +16,8 @@ public class Review
 
   public bool IsAnonymous { get; set; } = false;
 
-  // Relations
+  //? Relations
+
   public Guid ProductId { get; set; }
   public Guid CustomerId { get; set; }
   public Guid OrderId { get; set; }

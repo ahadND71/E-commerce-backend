@@ -2,18 +2,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
-using api.Helpers;
 
 namespace api.Controllers;
+
+
 [ApiController]
 [Route("/api/categories")]
 public class CategoryController : ControllerBase
 {
-
-  private readonly CategoryService _dbContext;
+  private readonly CategoryService _categoryService;
   public CategoryController(CategoryService categoryService)
   {
-    _dbContext = categoryService;
+    _categoryService = categoryService;
   }
 
 
@@ -21,25 +21,15 @@ public class CategoryController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetAllCategories([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
   {
-    try
+    var categories = await _categoryService.GetAllCategoryService(currentPage, pageSize);
+    if (categories.TotalCount < 1)
     {
-      var categories = await _dbContext.GetAllCategoryService(currentPage , pageSize);
-
-      if (categories.TotalCount < 1)
-      {
-        return ApiResponse.NotFound("No Categories To Display");
-
-      }
-      return ApiResponse.Success<IEnumerable<Category>>(
-                categories.Items,
-               "Categories are returned successfully");
+      return ApiResponse.NotFound("No Categories To Display");
     }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"An error occurred, cannot return the category list");
-      return ApiResponse.ServerError(ex.Message);
 
-    }
+    return ApiResponse.Success<IEnumerable<Category>>(
+              categories.Items,
+             "Categories are returned successfully");
   }
 
 
@@ -47,27 +37,18 @@ public class CategoryController : ControllerBase
   [HttpGet("{categoryId:guid}")]
   public async Task<IActionResult> GetCategory(Guid categoryId)
   {
-    try
+    var category = await _categoryService.GetCategoryById(categoryId);
+    if (category == null)
     {
-      var category = await _dbContext.GetCategoryById(categoryId);
-      if (category == null)
-      {
-        return ApiResponse.NotFound(
-                 $"No Category Found With ID : ({categoryId})");
-      }
-      else
-      {
-        return ApiResponse.Success<Category>(
-                   category,
-                   "Category is returned successfully"
-                 );
-      }
+      return ApiResponse.NotFound(
+               $"No Category Found With ID : ({categoryId})");
     }
-    catch (Exception ex)
+    else
     {
-      Console.WriteLine($"An error occurred, cannot return the category");
-      return ApiResponse.ServerError(ex.Message);
-
+      return ApiResponse.Success<Category>(
+                 category,
+                 "Category is returned successfully"
+               );
     }
   }
 
@@ -76,78 +57,53 @@ public class CategoryController : ControllerBase
   [HttpPost]
   public async Task<IActionResult> CreateCategory(Category newCategory)
   {
-    try
+    var createdCategory = await _categoryService.CreateCategoryService(newCategory);
+    if (createdCategory != null)
     {
-      var createdCategory = await _dbContext.CreateCategoryService(newCategory);
-      if (createdCategory != null)
-      {
-        return ApiResponse.Created<Category>(createdCategory, "Category is created successfully");
-      }
-      else
-      {
-        return ApiResponse.ServerError("Error when creating new category");
-
-      }
+      return ApiResponse.Created<Category>(createdCategory, "Category is created successfully");
     }
-    catch (Exception ex)
+    else
     {
-      Console.WriteLine($"An error occurred, cannot create new category");
-      return ApiResponse.ServerError(ex.Message);
-
+      return ApiResponse.ServerError("Error when creating new category");
     }
   }
+
 
   [Authorize(Roles = "Admin")]
   [HttpPut("{categoryId}")]
   public async Task<IActionResult> UpdateCategory(string categoryId, Category updateCategory)
   {
-    try
+    if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
     {
-      if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
-      {
-        return ApiResponse.BadRequest("Invalid Category ID Format");
-      }
-      var category = await _dbContext.UpdateCategoryService(categoryIdGuid, updateCategory);
-      if (category == null)
-      {
-        return ApiResponse.NotFound("No Category Founded To Update");
-
-      }
-      return ApiResponse.Success<Category>(
-                category,
-                "Category Is Updated Successfully"
-            );
+      return ApiResponse.BadRequest("Invalid Category ID Format");
     }
-    catch (Exception ex)
+
+    var category = await _categoryService.UpdateCategoryService(categoryIdGuid, updateCategory);
+    if (category == null)
     {
-      Console.WriteLine($"An error occurred, cannot update the category");
-      return ApiResponse.ServerError(ex.Message);
+      return ApiResponse.NotFound("No Category Founded To Update");
 
     }
+    return ApiResponse.Success<Category>(
+              category,
+              "Category Is Updated Successfully"
+          );
   }
 
   [Authorize(Roles = "Admin")]
   [HttpDelete("{categoryId}")]
   public async Task<IActionResult> DeleteCategory(string categoryId)
   {
-    try
+    if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
     {
-      if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
-      {
-        return ApiResponse.BadRequest("Invalid category ID Format");
-      }
-      var result = await _dbContext.DeleteCategoryService(categoryIdGuid);
-      if (!result)
-      {
-        return ApiResponse.NotFound("The Category is not found to be deleted");
-      }
-      return ApiResponse.Success("Category is deleted successfully");
+      return ApiResponse.BadRequest("Invalid category ID Format");
     }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"An error occurred, the category can not deleted");
-      return ApiResponse.ServerError(ex.Message);
 
+    var result = await _categoryService.DeleteCategoryService(categoryIdGuid);
+    if (!result)
+    {
+      return ApiResponse.NotFound("The Category is not found to be deleted");
     }
+    return ApiResponse.Success("Category is deleted successfully");
   }
 }

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
-using api.Helpers;
 
 namespace api.Controllers;
 
@@ -11,10 +10,10 @@ namespace api.Controllers;
 [Route("/api/orders")]
 public class OrderController : ControllerBase
 {
-  public OrderService _dbContext;
+  public OrderService _orderService;
   public OrderController(OrderService orderService)
   {
-    _dbContext = orderService;
+    _orderService = orderService;
   }
 
 
@@ -22,24 +21,15 @@ public class OrderController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetAllOrders([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
   {
-    try
+    var orders = await _orderService.GetAllOrderService(currentPage, pageSize);
+    if (orders.TotalCount < 1)
     {
-      var orders = await _dbContext.GetAllOrderService(currentPage , pageSize);
-      if (orders.TotalCount < 1)
-      {
-        return ApiResponse.NotFound("No Orders To Display");
-
-      }
-      return ApiResponse.Success<IEnumerable<Order>>(
-                orders.Items,
-               "Orders are returned successfully");
-    }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"An error occurred, cannot return the Order list");
-      return ApiResponse.ServerError(ex.Message);
+      return ApiResponse.NotFound("No Orders To Display");
 
     }
+    return ApiResponse.Success<IEnumerable<Order>>(
+              orders.Items,
+             "Orders are returned successfully");
   }
 
 
@@ -47,31 +37,23 @@ public class OrderController : ControllerBase
   [HttpGet("{orderId}")]
   public async Task<IActionResult> GetOrder(string orderId)
   {
-    try
+    if (!Guid.TryParse(orderId, out Guid orderIdGuid))
     {
-      if (!Guid.TryParse(orderId, out Guid orderIdGuid))
-      {
-        return ApiResponse.BadRequest("Invalid Order ID Format");
-      }
-      var order = await _dbContext.GetOrderByIdService(orderIdGuid);
-      if (order == null)
-      {
-        return ApiResponse.NotFound(
-                  $"No Order Found With ID : ({orderIdGuid})");
-      }
-      else
-      {
-        return ApiResponse.Success<Order>(
-          order,
-          "Order is returned successfully"
-        );
-      }
+      return ApiResponse.BadRequest("Invalid Order ID Format");
     }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"An error occurred, cannot return the Order");
-      return ApiResponse.ServerError(ex.Message);
 
+    var order = await _orderService.GetOrderByIdService(orderIdGuid);
+    if (order == null)
+    {
+      return ApiResponse.NotFound(
+                $"No Order Found With ID : ({orderIdGuid})");
+    }
+    else
+    {
+      return ApiResponse.Success<Order>(
+        order,
+        "Order is returned successfully"
+      );
     }
   }
 
@@ -80,23 +62,14 @@ public class OrderController : ControllerBase
   [HttpPost]
   public async Task<IActionResult> CreateOrder(Order newOrder)
   {
-    try
+    var createdOrder = await _orderService.CreateOrderService(newOrder);
+    if (createdOrder != null)
     {
-      var createdOrder = await _dbContext.CreateOrderService(newOrder);
-      if (createdOrder != null)
-      {
-        return ApiResponse.Created<Order>(createdOrder, "Order is created successfully");
-      }
-      else
-      {
-        return ApiResponse.ServerError("Error when creating new order");
-
-      }
+      return ApiResponse.Created(createdOrder, "Order is created successfully");
     }
-    catch (Exception ex)
+    else
     {
-      Console.WriteLine($"An error occurred, cannot create new Order");
-      return ApiResponse.ServerError(ex.Message);
+      return ApiResponse.ServerError("Error when creating new order");
 
     }
   }
@@ -106,28 +79,20 @@ public class OrderController : ControllerBase
   [HttpPut("{orderId}")]
   public async Task<IActionResult> UpdateOrder(string orderId, Order updateOrder)
   {
-    try
+    if (!Guid.TryParse(orderId, out Guid orderIdGuid))
     {
-      if (!Guid.TryParse(orderId, out Guid orderIdGuid))
-      {
-        return ApiResponse.BadRequest("Invalid Order ID Format");
-      }
-      var order = await _dbContext.UpdateOrderService(orderIdGuid, updateOrder);
-      if (order == null)
-      {
-        return ApiResponse.NotFound("No Order Founded To Update");
-      }
-      return ApiResponse.Success<Order>(
-          order,
-          "Order Is Updated Successfully"
-      );
+      return ApiResponse.BadRequest("Invalid Order ID Format");
     }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"An error occurred, cannot update the Order ");
-      return ApiResponse.ServerError(ex.Message);
 
+    var order = await _orderService.UpdateOrderService(orderIdGuid, updateOrder);
+    if (order == null)
+    {
+      return ApiResponse.NotFound("No Order Founded To Update");
     }
+    return ApiResponse.Success(
+        order,
+        "Order Is Updated Successfully"
+    );
   }
 
 
@@ -135,25 +100,18 @@ public class OrderController : ControllerBase
   [HttpDelete("{orderId}")]
   public async Task<IActionResult> DeleteOrder(string orderId)
   {
-    try
+    if (!Guid.TryParse(orderId, out Guid OrderId_Guid))
     {
-      if (!Guid.TryParse(orderId, out Guid OrderId_Guid))
-      {
-        return ApiResponse.BadRequest("Invalid order ID Format");
-      }
-      var result = await _dbContext.DeleteOrderService(OrderId_Guid);
-      if (!result)
-      {
-        return ApiResponse.NotFound("The Order is not found to be deleted");
-
-      }
-      return ApiResponse.Success(" Order is deleted successfully");
+      return ApiResponse.BadRequest("Invalid order ID Format");
     }
-    catch (Exception ex)
+
+    var result = await _orderService.DeleteOrderService(OrderId_Guid);
+    if (!result)
     {
-      Console.WriteLine($"An error occurred, the Order can not deleted");
-      return ApiResponse.ServerError(ex.Message);
+      return ApiResponse.NotFound("The Order is not found to be deleted");
 
     }
+    return ApiResponse.Success(" Order is deleted successfully");
   }
+
 }

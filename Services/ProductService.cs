@@ -8,14 +8,14 @@ namespace api.Services;
 
 public class ProductService
 {
-  private readonly AppDbContext _dbContext;
-  public ProductService(AppDbContext dbContext)
+  private readonly AppDbContext _productDbContext;
+
+  public ProductService(AppDbContext productDbContext)
   {
-    _dbContext = dbContext;
+    _productDbContext = productDbContext;
   }
 
 
-  // Get all products with pagination.
   public async Task<IEnumerable<Product>> GetAllProductService(
     int pageNumber,
     int pageSize,
@@ -26,8 +26,7 @@ public class ProductService
     decimal? maxPrice
   )
   {
-    var query = _dbContext.Products.AsQueryable(); // Start with a queryable
-
+    var query = _productDbContext.Products.AsQueryable(); // Start with a queryable
     // Apply filtering
     if (!string.IsNullOrEmpty(searchTerm))
     {
@@ -72,6 +71,7 @@ public class ProductService
   }
 
 
+
   // Helper method for dynamic sorting
   private Expression<Func<Product, object>> GetSortExpression(string sortBy)
   {
@@ -91,14 +91,14 @@ public class ProductService
   // Get a single product by its Id
   public async Task<Product?> GetProductByIdService(Guid productId)
   {
-    return await _dbContext.Products.FindAsync(productId);
+    return await _productDbContext.Products.FindAsync(productId);
   }
 
 
   // Search for products by name or description with pagination
   public async Task<IEnumerable<Product>> SearchProductsService(int pageNumber, int pageSize, string? searchTerm)
   {
-    var query = _dbContext.Products
+    var query = _productDbContext.Products
                 .Where(p => !string.IsNullOrEmpty(searchTerm) &&
                             (p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm)))
                 .Include(r => r.Reviews)  // should we include the relations?
@@ -113,7 +113,7 @@ public class ProductService
   // Get the count of products matching the search term (helper method for SearchProducts in ProductController.cs)
   public async Task<int> GetProductCountBySearchTerm(string? searchTerm)
   {
-    var query = _dbContext.Products.AsQueryable();
+    var query = _productDbContext.Products.AsQueryable();
 
     if (!string.IsNullOrEmpty(searchTerm))
     {
@@ -127,7 +127,7 @@ public class ProductService
   // Helper function to get total product count
   public async Task<int> GetTotalProductCount()
   {
-    return await _dbContext.Products.CountAsync();
+    return await _productDbContext.Products.CountAsync();
   }
 
 
@@ -141,7 +141,7 @@ public class ProductService
 
     if (newProduct.CategoryId != Guid.Empty)
     {
-      var category = await _dbContext.Categories.FindAsync(newProduct.CategoryId);
+      var category = await _productDbContext.Categories.FindAsync(newProduct.CategoryId);
       if (category != null)
       {
         newProduct.CategoryId = category.CategoryId;
@@ -156,8 +156,8 @@ public class ProductService
       newProduct.CategoryId = null; // Set CategoryId to null if not provided
     }
 
-    _dbContext.Products.Add(newProduct);
-    await _dbContext.SaveChangesAsync();
+    _productDbContext.Products.Add(newProduct);
+    await _productDbContext.SaveChangesAsync();
 
     return newProduct;
   }
@@ -166,7 +166,7 @@ public class ProductService
   // Update a product
   public async Task<Product?> UpdateProductService(Guid productId, Product updateProduct)
   {
-    var existingProduct = await _dbContext.Products.FindAsync(productId);
+    var existingProduct = await _productDbContext.Products.FindAsync(productId);
     if (existingProduct != null)
     {
       existingProduct.Name = updateProduct.Name ?? existingProduct.Name;
@@ -176,7 +176,7 @@ public class ProductService
       existingProduct.SKU = updateProduct.SKU ?? existingProduct.SKU;
       existingProduct.ImgUrl = updateProduct.ImgUrl ?? existingProduct.ImgUrl;
       existingProduct.UpdatedAt = DateTime.UtcNow;
-      await _dbContext.SaveChangesAsync();
+      await _productDbContext.SaveChangesAsync();
     }
     return existingProduct;
   }
@@ -185,14 +185,13 @@ public class ProductService
   // Delete a product
   public async Task<bool> DeleteProductService(Guid productId)
   {
-    var productToRemove = await _dbContext.Products.FindAsync(productId);
+    var productToRemove = await _productDbContext.Products.FindAsync(productId);
     if (productToRemove != null)
     {
-      _dbContext.Products.Remove(productToRemove);
-      await _dbContext.SaveChangesAsync();
+      _productDbContext.Products.Remove(productToRemove);
+      await _productDbContext.SaveChangesAsync();
       return true;
     }
     return false;
   }
-
 }

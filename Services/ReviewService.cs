@@ -7,24 +7,26 @@ namespace api.Services;
 public class ReviewService
 {
     private readonly AppDbContext _dbContext;
+
     public ReviewService(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
 
-    public async Task<PaginationResult<Review>> GetAllReviewService(int currentPage , int pageSize)
+    public async Task<PaginationResult<Review>> GetAllReviewService(int currentPage, int pageSize)
     {
         var totalReviewCount = await _dbContext.Reviews.CountAsync();
         var review = await _dbContext.Reviews
-        .Skip((currentPage -1) * pageSize)
+        .Skip((currentPage - 1) * pageSize)
         .Take(pageSize)
-        .ToListAsync(); 
-        return new PaginationResult<Review>{
-          Items = review,
-          TotalCount = totalReviewCount,
-          CurrentPage = currentPage,
-          PageSize = pageSize,
+        .ToListAsync();
+        return new PaginationResult<Review>
+        {
+            Items = review,
+            TotalCount = totalReviewCount,
+            CurrentPage = currentPage,
+            PageSize = pageSize,
         };
     }
 
@@ -69,5 +71,4 @@ public class ReviewService
         }
         return false;
     }
-
 }

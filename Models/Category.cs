@@ -15,7 +15,8 @@ public class Category
 
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-  // Relationship: Collection navigation containing dependents
+  //? Relations
+
   public Guid? AdminId { get; set; }
   public ICollection<Product> Products { get; } = new List<Product>();
 }

@@ -7,22 +7,23 @@ namespace api.Services;
 public class OrderService
 {
 
-  private readonly AppDbContext _dbContext;
+  private readonly AppDbContext _orderDbContext;
 
-  public OrderService(AppDbContext dbContext)
+  public OrderService(AppDbContext orderDbContext)
   {
-    _dbContext = dbContext;
+    _orderDbContext = orderDbContext;
   }
 
 
-  public async Task<PaginationResult<Order>> GetAllOrderService(int currentPage , int pageSize)
+  public async Task<PaginationResult<Order>> GetAllOrderService(int currentPage, int pageSize)
   {
-    var totalOrderCount = await _dbContext.Orders.CountAsync();
-    var order = await _dbContext.Orders.Include(op => op.OrderProducts)
-    .Skip((currentPage -1) * pageSize)
+    var totalOrderCount = await _orderDbContext.Orders.CountAsync();
+    var order = await _orderDbContext.Orders.Include(op => op.OrderProducts)
+    .Skip((currentPage - 1) * pageSize)
     .Take(pageSize)
     .ToListAsync();
-    return new PaginationResult<Order>{
+    return new PaginationResult<Order>
+    {
       Items = order,
       TotalCount = totalOrderCount,
       CurrentPage = currentPage,
@@ -33,7 +34,7 @@ public class OrderService
 
   public async Task<Order?> GetOrderByIdService(Guid orderId)
   {
-    return await _dbContext.Orders.FindAsync(orderId);
+    return await _orderDbContext.Orders.FindAsync(orderId);
   }
 
 
@@ -42,20 +43,21 @@ public class OrderService
     newOrder.OrderId = Guid.NewGuid();
     newOrder.CreatedAt = DateTime.UtcNow;
     newOrder.UpdatedAt = DateTime.UtcNow;
-    _dbContext.Orders.Add(newOrder);
-    await _dbContext.SaveChangesAsync();
+    _orderDbContext.Orders.Add(newOrder);
+    await _orderDbContext.SaveChangesAsync();
     return newOrder;
   }
 
+
   public async Task<Order?> UpdateOrderService(Guid orderId, Order updateOrder)
   {
-    var existingOrder = await _dbContext.Orders.FindAsync(orderId);
+    var existingOrder = await _orderDbContext.Orders.FindAsync(orderId);
     if (existingOrder != null)
     {
       existingOrder.TotalAmount = updateOrder.TotalAmount;
       existingOrder.Status = updateOrder.Status ?? existingOrder.Status;
       existingOrder.UpdatedAt = DateTime.UtcNow;
-      await _dbContext.SaveChangesAsync();
+      await _orderDbContext.SaveChangesAsync();
     }
     return existingOrder;
   }
@@ -63,14 +65,13 @@ public class OrderService
 
   public async Task<bool> DeleteOrderService(Guid orderId)
   {
-    var orderToRemove = await _dbContext.Orders.FindAsync(orderId);
+    var orderToRemove = await _orderDbContext.Orders.FindAsync(orderId);
     if (orderToRemove != null)
     {
-      _dbContext.Orders.Remove(orderToRemove);
-      await _dbContext.SaveChangesAsync();
+      _orderDbContext.Orders.Remove(orderToRemove);
+      await _orderDbContext.SaveChangesAsync();
       return true;
     }
     return false;
   }
-
 }

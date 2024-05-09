@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using api.Data;
 using Microsoft.AspNetCore.Identity;
 using api.Authentication.Dtos;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace api.Services;
 
@@ -10,10 +12,13 @@ public class AdminService
 
   private readonly AppDbContext _dbContext;
   private readonly IPasswordHasher<Admin> _passwordHasher;
-  public AdminService(AppDbContext dbContext, IPasswordHasher<Admin> passwordHasher)
+  private readonly IEmailSender _emailSender;
+
+  public AdminService(AppDbContext dbContext, IPasswordHasher<Admin> passwordHasher, IEmailSender emailSender)
   {
     _dbContext = dbContext;
     _passwordHasher = passwordHasher;
+    _emailSender = emailSender;
 
   }
 
@@ -83,5 +88,44 @@ public class AdminService
     }
     return false;
   }
+
+  public async Task<bool> ForgotPasswordService(string email)
+  {
+    var admin = await _dbContext.Admins.FirstOrDefaultAsync(a => a.Email == email);
+    if (admin == null)
+    {
+      return false;
+    }
+
+    var resetToken = Guid.NewGuid();
+
+    admin.ResetToken = resetToken;
+    admin.ResetTokenExpiration = DateTime.UtcNow.AddHours(1);
+    // bc we still not have real host so i will just send a token so we can test it using swagger in the production adjust this 2 lines
+    // string resetLink = $"http://localhost:5125/api/admins/reset-password?email={email}&token={resetToken}";
+
+    await _emailSender.SendEmailAsync(email, "Password Reset", $"Dear {admin.FirstName},\nThis is your token {resetToken} to reset your password");
+    await _dbContext.SaveChangesAsync();
+    return true;
+
+  }
+
+  public async Task<bool> ResetPasswordService(ResetPasswordDto resetPasswordDto)
+  {
+    var admin = await _dbContext.Admins.FirstOrDefaultAsync(a => a.Email == resetPasswordDto.Email);
+    if (admin == null || admin.ResetToken != resetPasswordDto.Token || admin.ResetTokenExpiration < DateTime.UtcNow)
+    {
+      return false;
+    }
+    admin.Password = _passwordHasher.HashPassword(admin, resetPasswordDto.NewPassword);
+    admin.ResetToken = null;
+    admin.ResetTokenExpiration = null;
+    await _dbContext.SaveChangesAsync();
+    return true;
+
+  }
+
+
+
 
 }

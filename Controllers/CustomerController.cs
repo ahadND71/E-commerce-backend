@@ -186,4 +186,51 @@ public class CustomerController : ControllerBase
 
         }
     }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(string email)
+    {
+        try
+        {
+            var result = await _dbContext.ForgotPasswordService(email);
+            if (!result)
+            {
+                return ApiResponse.NotFound("No user found with this email");
+            }
+            return ApiResponse.Success("Password reset email sent successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot send password reset link: {ex.Message}");
+            return ApiResponse.ServerError(ex.Message);
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+    {
+        try
+        {
+            if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmNewPassword)
+            {
+                return ApiResponse.BadRequest("Passwords do not match");
+            }
+
+            var result = await _dbContext.ResetPasswordService(resetPasswordDto);
+
+            if (!result)
+            {
+                return ApiResponse.BadRequest("User with this email not found");
+
+            }
+            return ApiResponse.Success("Password reset successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot reset password: {ex.Message}");
+            return ApiResponse.ServerError(ex.Message);
+        }
+    }
 }

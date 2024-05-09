@@ -24,7 +24,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins()
     {

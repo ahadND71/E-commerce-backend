@@ -25,7 +25,9 @@ public class CategoryService
 
   public async Task<Category?> GetCategoryById(Guid categoryId)
   {
-    return await _dbContext.Categories.FindAsync(categoryId);
+    return await _dbContext.Categories
+                  .Include(c => c.Products)
+                  .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
   }
 
 

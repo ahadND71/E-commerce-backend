@@ -5,12 +5,12 @@ using api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.Extensions.Options;
 using api.Authentication.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Identity;
 using api.Authentication.Service;
+using WebApplication1.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,7 +55,7 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IPasswordHasher<Admin>, PasswordHasher<Admin>>();
 builder.Services.AddScoped<IPasswordHasher<Customer>, PasswordHasher<Customer>>();
-
+builder.Services.AddScoped<DbInitializer>();
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -63,6 +63,29 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 var app = builder.Build();
+
+
+// TODO seeding DbInitializer 
+// adding data to the database if it doesn't exist, so we can all test the APIs
+// still testing this
+
+// using (var scope = app.Services.CreateScope())
+// {
+//     var services = scope.ServiceProvider;
+//     try
+//     {
+//         var context = services.GetRequiredService<AppDbContext>();
+//         var initializer = services.GetRequiredService<DbInitializer>();
+//         await initializer.InitializeAsync(context, services);
+//     }
+//     catch (Exception ex)
+//     {
+//         var logger = services.GetRequiredService<ILogger<Program>>();
+//         logger.LogError(ex, "An error occurred while seeding the database");
+//     }
+// }
+
+//
 
 
 if (app.Environment.IsDevelopment())

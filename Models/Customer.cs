@@ -33,6 +33,8 @@ public class Customer
   public bool IsBanned { get; set; } = false;
 
   public DateTime CreatedAt { get; set; }
+  public Guid? ResetToken { get; set; }
+  public DateTime? ResetTokenExpiration { get; set; }
 
   // Relations
   // public string AddressId { get; set; } = string.Empty;

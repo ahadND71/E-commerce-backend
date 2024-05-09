@@ -16,6 +16,8 @@ using api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//add email sender
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(
         builder.Configuration.GetConnectionString("LegendsConnection")

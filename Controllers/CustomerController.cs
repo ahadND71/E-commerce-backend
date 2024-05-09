@@ -20,15 +20,14 @@ public class CustomerController : ControllerBase
     {
         _dbContext = customerService;
         _authService = authService;
-
     }
 
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
-       
             var customers = await _dbContext.GetAllCustomersService(currentPage , pageSize);
             if (customers.TotalCount < 1)
             {
@@ -38,11 +37,12 @@ public class CustomerController : ControllerBase
             return ApiResponse.Success<IEnumerable<Customer>>(
                 customers.Items,
                "Customers are returned successfully");
-        
+
     }
 
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {
@@ -59,10 +59,7 @@ public class CustomerController : ControllerBase
             }
             else
             {
-                return ApiResponse.Success<Customer>(
-                  customer,
-                  "Customer is returned successfully"
-                );
+                return Ok(customer);
             }
         
     }
@@ -80,7 +77,7 @@ public class CustomerController : ControllerBase
             }
             else
             {
-                return ApiResponse.ServerError("Error when creating new customer");
+                return ApiResponse.ServerError("Email already exists");
 
             }
         
@@ -88,7 +85,7 @@ public class CustomerController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> LoginAdmin([FromBody] LoginUserDto loginUserDto)
+    public async Task<IActionResult> LoginCustomer([FromBody] LoginUserDto loginUserDto)
     {
        
             var LoggedCustomer = await _dbContext.LoginCustomerService(loginUserDto);
@@ -175,4 +172,5 @@ public class CustomerController : ControllerBase
             }
             return ApiResponse.Success("Password reset successfully");
     }
+
 }

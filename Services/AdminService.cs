@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using api.Authentication.Dtos;
 
 using api.Helpers;
-
-using SendGrid;
-using SendGrid.Helpers.Mail;
+using AutoMapper;
 
 
 namespace api.Services;
@@ -17,40 +15,52 @@ public class AdminService
   private readonly AppDbContext _dbContext;
   private readonly IPasswordHasher<Admin> _passwordHasher;
   private readonly IEmailSender _emailSender;
+  private readonly IMapper _mapper;
 
-  public AdminService(AppDbContext dbContext, IPasswordHasher<Admin> passwordHasher, IEmailSender emailSender)
+  public AdminService(AppDbContext dbContext, IPasswordHasher<Admin> passwordHasher, IEmailSender emailSender, IMapper mapper)
   {
     _dbContext = dbContext;
     _passwordHasher = passwordHasher;
     _emailSender = emailSender;
-
+    _mapper = mapper;
   }
 
 
-  public async Task<PaginationResult<Admin>> GetAllAdminsService(int currentPage , int pageSize)
+  public async Task<PaginationResult<AdminDto>> GetAllAdminsService(int currentPage, int pageSize)
   {
     var totalAdminCount = await _dbContext.Admins.CountAsync();
-    var admin = await _dbContext.Admins
-    .Skip((currentPage -1) * pageSize)
+    var admins = await _dbContext.Admins
+    .Skip((currentPage - 1) * pageSize)
     .Take(pageSize)
     .ToListAsync();
-    return new PaginationResult<Admin>{
-      Items = admin,
+
+    var adminDtos = _mapper.Map<List<Admin>, List<AdminDto>>(admins);
+
+    return new PaginationResult<AdminDto>
+    {
+      Items = adminDtos,
       TotalCount = totalAdminCount,
       CurrentPage = currentPage,
-      PageSize = pageSize,};
-
+      PageSize = pageSize,
+    };
   }
 
 
-  public async Task<Admin?> GetAdminById(Guid adminId)
+  public async Task<AdminDto?> GetAdminById(Guid adminId)
   {
-    return await _dbContext.Admins.FindAsync(adminId);
+    var admin = await _dbContext.Customers.FindAsync(adminId);
+    var adminDto = _mapper.Map<AdminDto>(admin);
+    return adminDto;
   }
 
 
-  public async Task<Admin> CreateAdminService(Admin newAdmin)
+  public async Task<Admin?> CreateAdminService(Admin newAdmin)
   {
+    bool userExist = await IsEmailExists(newAdmin.Email);
+    if (userExist)
+    {
+      return null;
+    }
     newAdmin.AdminId = Guid.NewGuid();
     newAdmin.CreatedAt = DateTime.UtcNow;
     newAdmin.Password = _passwordHasher.HashPassword(newAdmin, newAdmin.Password);
@@ -140,6 +150,11 @@ public class AdminService
   }
 
 
+  public async Task<bool> IsEmailExists(string email)
+  {
+    return await _dbContext.Admins.AnyAsync(a => a.Email == email) || await _dbContext.Customers.AnyAsync(c => c.Email == email);
+
+  }
 
 
 }

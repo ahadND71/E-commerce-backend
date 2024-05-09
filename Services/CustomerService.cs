@@ -3,6 +3,7 @@ using api.Data;
 using Microsoft.AspNetCore.Identity;
 using api.Authentication.Dtos;
 using api.Helpers;
+using AutoMapper;
 
 namespace api.Services;
 
@@ -12,20 +13,21 @@ public class CustomerService
   private readonly AppDbContext _dbContext;
   private readonly IPasswordHasher<Customer> _passwordHasher;
   private readonly IEmailSender _emailSender;
+  private readonly IMapper _mapper;
 
-  public CustomerService(AppDbContext dbContext, IPasswordHasher<Customer> passwordHasher, IEmailSender emailSender)
+  public CustomerService(AppDbContext dbContext, IPasswordHasher<Customer> passwordHasher, IEmailSender emailSender, IMapper mapper)
   {
     _dbContext = dbContext;
     _passwordHasher = passwordHasher;
     _emailSender = emailSender;
-
+    _mapper = mapper;
   }
 
 
-  public async Task<PaginationResult<Customer>> GetAllCustomersService(int currentPage, int pageSize)
+  public async Task<PaginationResult<CustomerDto>> GetAllCustomersService(int currentPage, int pageSize)
   {
     var totalCustomerCount = await _dbContext.Customers.CountAsync();
-    var customer = await _dbContext.Customers
+    var customers = await _dbContext.Customers
     .Include(a => a.Addresses)
     .Include(o => o.Orders)
       .ThenInclude(op => op.OrderProducts)
@@ -34,9 +36,11 @@ public class CustomerService
     .Take(pageSize)
     .ToListAsync();
 
-    return new PaginationResult<Customer>
+    var customerDtos = _mapper.Map<List<Customer>, List<CustomerDto>>(customers);
+
+    return new PaginationResult<CustomerDto>
     {
-      Items = customer,
+      Items = customerDtos,
       TotalCount = totalCustomerCount,
       CurrentPage = currentPage,
       PageSize = pageSize,
@@ -44,14 +48,21 @@ public class CustomerService
   }
 
 
-  public async Task<Customer?> GetCustomerById(Guid customerId)
+  public async Task<CustomerDto?> GetCustomerById(Guid customerId)
   {
-    return await _dbContext.Customers.FindAsync(customerId);
+    var customer = await _dbContext.Customers.FindAsync(customerId);
+    var customerDto = _mapper.Map<CustomerDto>(customer);
+    return customerDto;
   }
 
 
   public async Task<Customer> CreateCustomerService(Customer newCustomer)
   {
+    bool userExist = await IsEmailExists(newCustomer.Email);
+    if (userExist)
+    {
+      return null;
+    }
     newCustomer.CustomerId = Guid.NewGuid();
     newCustomer.CreatedAt = DateTime.UtcNow;
     newCustomer.Password = _passwordHasher.HashPassword(newCustomer, newCustomer.Password);
@@ -59,6 +70,7 @@ public class CustomerService
     await _dbContext.SaveChangesAsync();
     return newCustomer;
   }
+
 
   public async Task<LoginUserDto?> LoginCustomerService(LoginUserDto loginUserDto)
   {
@@ -138,6 +150,11 @@ public class CustomerService
     customer.ResetTokenExpiration = null;
     await _dbContext.SaveChangesAsync();
     return true;
+
+  }
+  public async Task<bool> IsEmailExists(string email)
+  {
+    return await _dbContext.Admins.AnyAsync(a => a.Email == email) || await _dbContext.Customers.AnyAsync(c => c.Email == email);
 
   }
 

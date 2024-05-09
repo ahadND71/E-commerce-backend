@@ -22,7 +22,7 @@ public class CustomerService
   }
 
 
-  public async Task<PaginationResult<Customer>> GetAllCustomersService(int currentPage , int pageSize)
+  public async Task<PaginationResult<Customer>> GetAllCustomersService(int currentPage, int pageSize)
   {
     var totalCustomerCount = await _dbContext.Customers.CountAsync();
     var customer = await _dbContext.Customers
@@ -30,11 +30,12 @@ public class CustomerService
     .Include(o => o.Orders)
       .ThenInclude(op => op.OrderProducts)
     .Include(r => r.Reviews)
-    .Skip((currentPage -1) * pageSize)
+    .Skip((currentPage - 1) * pageSize)
     .Take(pageSize)
-    .ToListAsync(); 
-    
-    return new PaginationResult<Customer>{
+    .ToListAsync();
+
+    return new PaginationResult<Customer>
+    {
       Items = customer,
       TotalCount = totalCustomerCount,
       CurrentPage = currentPage,

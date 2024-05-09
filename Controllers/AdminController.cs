@@ -98,7 +98,7 @@ public class AdminController : ControllerBase
             }
             else
             {
-                return ApiResponse.ServerError("Error when creating new Admin");
+                return ApiResponse.ServerError("Email already exists");
 
             }
 

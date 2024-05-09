@@ -54,8 +54,13 @@ public class AdminService
   }
 
 
-  public async Task<Admin> CreateAdminService(Admin newAdmin)
+  public async Task<Admin?> CreateAdminService(Admin newAdmin)
   {
+    bool userExist = await IsEmailExists(newAdmin.Email);
+    if (userExist)
+    {
+      return null;
+    }
     newAdmin.AdminId = Guid.NewGuid();
     newAdmin.CreatedAt = DateTime.UtcNow;
     newAdmin.Password = _passwordHasher.HashPassword(newAdmin, newAdmin.Password);
@@ -145,6 +150,11 @@ public class AdminService
   }
 
 
+  public async Task<bool> IsEmailExists(string email)
+  {
+    return await _dbContext.Admins.AnyAsync(a => a.Email == email) || await _dbContext.Customers.AnyAsync(c => c.Email == email);
+
+  }
 
 
 }

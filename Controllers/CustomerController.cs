@@ -20,25 +20,23 @@ public class CustomerController : ControllerBase
     {
         _dbContext = customerService;
         _authService = authService;
-
     }
 
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         try
         {
-            var customers = await _dbContext.GetAllCustomersService(currentPage , pageSize);
+            var customers = await _dbContext.GetAllCustomersService(currentPage, pageSize);
             if (customers.TotalCount < 1)
             {
                 return ApiResponse.NotFound("No Customers To Display");
 
             }
-            return ApiResponse.Success<IEnumerable<Customer>>(
-                customers.Items,
-               "Customers are returned successfully");
+            return Ok(customers);
         }
         catch (Exception ex)
         {
@@ -49,7 +47,8 @@ public class CustomerController : ControllerBase
     }
 
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {
@@ -67,10 +66,7 @@ public class CustomerController : ControllerBase
             }
             else
             {
-                return ApiResponse.Success<Customer>(
-                  customer,
-                  "Customer is returned successfully"
-                );
+                return Ok(customer);
             }
         }
         catch (Exception ex)
@@ -109,7 +105,7 @@ public class CustomerController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> LoginAdmin([FromBody] LoginUserDto loginUserDto)
+    public async Task<IActionResult> LoginCustomer([FromBody] LoginUserDto loginUserDto)
     {
         try
         {
@@ -233,4 +229,5 @@ public class CustomerController : ControllerBase
             return ApiResponse.ServerError(ex.Message);
         }
     }
+
 }

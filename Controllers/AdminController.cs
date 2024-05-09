@@ -34,7 +34,7 @@ public class AdminController : ControllerBase
     {
         try
         {
-            var admins = await _dbContext.GetAllAdminsService(currentPage , pageSize);
+            var admins = await _dbContext.GetAllAdminsService(currentPage, pageSize);
             if (admins.TotalCount < 1)
             {
                 return ApiResponse.NotFound("No Admins To Display");
@@ -85,7 +85,7 @@ public class AdminController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {

@@ -11,9 +11,13 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Identity;
 using api.Authentication.Service;
 using WebApplication1.Data;
+using api.Middleware;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
+//add email sender
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(
         builder.Configuration.GetConnectionString("LegendsConnection")
@@ -101,4 +105,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers().WithParameterValidation();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.Run();

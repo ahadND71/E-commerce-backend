@@ -19,19 +19,19 @@ public class CategoryController : ControllerBase
 
   [AllowAnonymous]
   [HttpGet]
-  public async Task<IActionResult> GetAllCategories()
+  public async Task<IActionResult> GetAllCategories([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
   {
     try
     {
-      var categories = await _dbContext.GetAllCategoryService();
+      var categories = await _dbContext.GetAllCategoryService(currentPage , pageSize);
 
-      if (categories.ToList().Count < 1)
+      if (categories.TotalCount < 1)
       {
         return ApiResponse.NotFound("No Categories To Display");
 
       }
       return ApiResponse.Success<IEnumerable<Category>>(
-                categories,
+                categories.Items,
                "Categories are returned successfully");
     }
     catch (Exception ex)

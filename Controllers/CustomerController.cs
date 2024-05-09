@@ -26,18 +26,18 @@ public class CustomerController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpGet]
-    public async Task<IActionResult> GetAllCustomers()
+    public async Task<IActionResult> GetAllCustomers([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         try
         {
-            var customers = await _dbContext.GetAllCustomersService();
-            if (customers.ToList().Count < 1)
+            var customers = await _dbContext.GetAllCustomersService(currentPage , pageSize);
+            if (customers.TotalCount < 1)
             {
                 return ApiResponse.NotFound("No Customers To Display");
 
             }
             return ApiResponse.Success<IEnumerable<Customer>>(
-                customers,
+                customers.Items,
                "Customers are returned successfully");
         }
         catch (Exception ex)
@@ -184,6 +184,53 @@ public class CustomerController : ControllerBase
             Console.WriteLine($"An error occurred, the Customer can not deleted");
             return ApiResponse.ServerError(ex.Message);
 
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(string email)
+    {
+        try
+        {
+            var result = await _dbContext.ForgotPasswordService(email);
+            if (!result)
+            {
+                return ApiResponse.NotFound("No user found with this email");
+            }
+            return ApiResponse.Success("Password reset email sent successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot send password reset link: {ex.Message}");
+            return ApiResponse.ServerError(ex.Message);
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+    {
+        try
+        {
+            if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmNewPassword)
+            {
+                return ApiResponse.BadRequest("Passwords do not match");
+            }
+
+            var result = await _dbContext.ResetPasswordService(resetPasswordDto);
+
+            if (!result)
+            {
+                return ApiResponse.BadRequest("User with this email not found");
+
+            }
+            return ApiResponse.Success("Password reset successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred, cannot reset password: {ex.Message}");
+            return ApiResponse.ServerError(ex.Message);
         }
     }
 }

@@ -30,6 +30,8 @@ public class Admin
   public string Image { get; set; } = string.Empty;
 
   public DateTime CreatedAt { get; set; }
+  public Guid? ResetToken { get; set; }
+  public DateTime? ResetTokenExpiration { get; set; }
 
   // Relations
   // public ICollection<Product> Products { get; set; }

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
+// you can delete this bc i already add service to check the uniqueness for the two tables
 [Index(nameof(Email), IsUnique = true)]
 public class Admin
 {

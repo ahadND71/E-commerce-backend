@@ -52,6 +52,11 @@ public class CustomerService
 
   public async Task<Customer> CreateCustomerService(Customer newCustomer)
   {
+    bool userExist = await IsEmailExists(newCustomer.Email);
+    if (userExist)
+    {
+      return null;
+    }
     newCustomer.CustomerId = Guid.NewGuid();
     newCustomer.CreatedAt = DateTime.UtcNow;
     newCustomer.Password = _passwordHasher.HashPassword(newCustomer, newCustomer.Password);
@@ -138,6 +143,11 @@ public class CustomerService
     customer.ResetTokenExpiration = null;
     await _dbContext.SaveChangesAsync();
     return true;
+
+  }
+  public async Task<bool> IsEmailExists(string email)
+  {
+    return await _dbContext.Admins.AnyAsync(a => a.Email == email) || await _dbContext.Customers.AnyAsync(c => c.Email == email);
 
   }
 

@@ -11,6 +11,8 @@ using api.Authentication.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Identity;
 using api.Authentication.Service;
+using api.Middleware;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +73,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    
 }
 
 app.UseHttpsRedirection();
@@ -80,4 +83,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers().WithParameterValidation();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.Run();

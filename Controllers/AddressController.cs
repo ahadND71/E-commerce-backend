@@ -20,17 +20,17 @@ public class AddressController : ControllerBase
 
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetAllAddress()
+    public async Task<IActionResult> GetAllAddress([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         try
         {
-            var addresses = await _dbContext.GetAllAddressService();
-            if (addresses.ToList().Count < 1)
+            var addresses = await _dbContext.GetAllAddressService(currentPage , pageSize);
+            if (addresses.TotalCount < 1)
             {
                 return ApiResponse.NotFound("No Addresses To Display");
             }
             return ApiResponse.Success<IEnumerable<Address>>(
-                addresses,
+                addresses.Items,
                 "Addresses are returned successfully");
         }
         catch (Exception ex)

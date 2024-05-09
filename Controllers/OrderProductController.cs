@@ -20,18 +20,18 @@ public class OrderProductController : ControllerBase
 
   [Authorize]
   [HttpGet]
-  public async Task<IActionResult> GetAllOrderProducts()
+  public async Task<IActionResult> GetAllOrderProducts([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
   {
     try
     {
-      var orderProducts = await _dbContext.GetAllOrderProductService();
-      if (orderProducts.ToList().Count < 1)
+      var orderProducts = await _dbContext.GetAllOrderProductService(currentPage , pageSize);
+      if (orderProducts.TotalCount < 1)
       {
         return ApiResponse.NotFound("No Orders Details To Display");
 
       }
       return ApiResponse.Success<IEnumerable<OrderProduct>>(
-                orderProducts,
+                orderProducts.Items,
                "Orders Details are returned successfully");
     }
     catch (Exception ex)

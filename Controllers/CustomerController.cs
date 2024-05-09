@@ -26,18 +26,18 @@ public class CustomerController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpGet]
-    public async Task<IActionResult> GetAllCustomers()
+    public async Task<IActionResult> GetAllCustomers([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         try
         {
-            var customers = await _dbContext.GetAllCustomersService();
-            if (customers.ToList().Count < 1)
+            var customers = await _dbContext.GetAllCustomersService(currentPage , pageSize);
+            if (customers.TotalCount < 1)
             {
                 return ApiResponse.NotFound("No Customers To Display");
 
             }
             return ApiResponse.Success<IEnumerable<Customer>>(
-                customers,
+                customers.Items,
                "Customers are returned successfully");
         }
         catch (Exception ex)

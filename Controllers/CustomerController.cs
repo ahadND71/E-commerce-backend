@@ -95,7 +95,7 @@ public class CustomerController : ControllerBase
             }
             else
             {
-                return ApiResponse.ServerError("Error when creating new customer");
+                return ApiResponse.ServerError("Email already exists");
 
             }
         }

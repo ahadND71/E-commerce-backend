@@ -20,17 +20,17 @@ public class ReviewController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetAllReviews()
+    public async Task<IActionResult> GetAllReviews([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         try
         {
-            var reviews = await _dbContext.GetAllReviewService();
-            if (reviews.ToList().Count < 1)
+            var reviews = await _dbContext.GetAllReviewService(currentPage , pageSize);
+            if (reviews.TotalCount < 1)
             {
                 return ApiResponse.NotFound("No Reviews To Display");
             }
             return ApiResponse.Success<IEnumerable<Review>>(
-                reviews,
+                reviews.Items,
                 "Reviews are returned successfully");
         }
         catch (Exception ex)

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using api.Data;
+using api.Helpers;
 
 namespace api.Services;
 
@@ -13,9 +14,20 @@ public class AddressService
   }
 
 
-  public async Task<IEnumerable<Address>> GetAllAddressService()
-  {
-    return await _dbContext.Addresses.ToListAsync();
+  public async Task<PaginationResult<Address>> GetAllAddressService(int currentPage , int pageSize)
+  { 
+    var totalAddressCount = await _dbContext.Addresses.CountAsync();
+    var address = await _dbContext.Addresses 
+    .Skip((currentPage -1) * pageSize)
+    .Take(pageSize)
+    .ToListAsync();
+    
+    return new PaginationResult<Address>{
+      Items = address,
+      TotalCount = totalAddressCount,
+      CurrentPage = currentPage,
+      PageSize = pageSize,
+    };
   }
 
 

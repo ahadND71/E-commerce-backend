@@ -10,7 +10,7 @@ public class OrderProduct
     public int? Quantity { get; set; }
 
     [Required(ErrorMessage = "The price of unit can not be empty")]
-    public int ProductPrice { get; set; }
+    public decimal ProductPrice { get; set; }
 
     //? Relations
 

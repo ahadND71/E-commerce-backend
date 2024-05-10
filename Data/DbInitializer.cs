@@ -144,7 +144,7 @@ public class DbInitializer
                     Name = "Stickers",
                     Slug = "stickers",
                     Description = "All things stickers, awesome, testing",
-                    CreatedAt = new DateTime(2024, 4, 28, 25, 25, 25, DateTimeKind.Utc),
+                    CreatedAt = new DateTime(2024, 4, 28, 22, 25, 25, DateTimeKind.Utc),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
                 new Category
@@ -153,7 +153,7 @@ public class DbInitializer
                     Name = "Notebooks",
                     Slug = "notebooks",
                     Description = "Journals, sketchbooks, planners, and notepads",
-                    CreatedAt = new DateTime(2024, 4, 28, 26, 25, 25, DateTimeKind.Utc),
+                    CreatedAt = new DateTime(2024, 4, 28, 22, 25, 25, DateTimeKind.Utc),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
                 new Category
@@ -162,7 +162,7 @@ public class DbInitializer
                     Name = "Pens",
                     Slug = "pens",
                     Description = "Fountain pens, ballpoint pens, gel pens, and more!",
-                    CreatedAt = new DateTime(2024, 4, 28, 27, 25, 25, DateTimeKind.Utc),
+                    CreatedAt = new DateTime(2024, 4, 28, 23, 25, 25, DateTimeKind.Utc),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
                 new Category
@@ -171,7 +171,7 @@ public class DbInitializer
                     Name = "Pencils",
                     Slug = "pencils",
                     Description = "Mechanical pencils, graphite pencils, colored pencils",
-                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
+                    CreatedAt = new DateTime(2024, 4, 28, 22, 25, 25, DateTimeKind.Utc),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 }
             };
@@ -198,7 +198,7 @@ public class DbInitializer
                     StockQuantity = 110,
                     SKU = "PRO-TES-ING-THIS",
                     ImgUrl = "product-1.webp",
-                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
+                    CreatedAt = new DateTime(2024, 4, 29, 15, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("bca83459-e31f-4ffc-9573-9245c9cbe6b7"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
@@ -212,7 +212,7 @@ public class DbInitializer
                     StockQuantity = 110,
                     SKU = "PRO-TES-ING-THIS",
                     ImgUrl = "product-1.webp",
-                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
+                    CreatedAt = new DateTime(2024, 4, 29, 16, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("bca83459-e31f-4ffc-9573-9245c9cbe6b7"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
@@ -226,7 +226,7 @@ public class DbInitializer
                     StockQuantity = 40,
                     SKU = "PRO-TES-ING-THIS",
                     ImgUrl = "product-1.webp",
-                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
+                    CreatedAt = new DateTime(2024, 4, 29, 17, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("c94d673b-be8d-4b1f-8a36-cbd6ed765644"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
@@ -240,7 +240,7 @@ public class DbInitializer
                     StockQuantity = 30,
                     SKU = "PRO-TES-ING-THIS",
                     ImgUrl = "product-1.webp",
-                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
+                    CreatedAt = new DateTime(2024, 4, 29, 17, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("9c506bbf-0fd7-43af-9507-40fb32d8bdbd"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
@@ -254,7 +254,7 @@ public class DbInitializer
                     StockQuantity = 30,
                     SKU = "PRO-TES-ING-THIS",
                     ImgUrl = "product-1.webp",
-                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
+                    CreatedAt = new DateTime(2024, 4, 29, 17, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("fafbdf01-de53-486b-9e4b-5b501cc8369e"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 }

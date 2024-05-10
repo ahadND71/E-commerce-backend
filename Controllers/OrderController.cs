@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
+using SendGrid.Helpers.Errors.Model;
+using System.ComponentModel.DataAnnotations;
+using Backend.Dtos;
 
 namespace Backend.Controllers;
 
@@ -26,7 +29,7 @@ public class OrderController : ControllerBase
     var orders = await _orderService.GetAllOrderService(currentPage, pageSize);
     if (orders.TotalCount < 1)
     {
-      return ApiResponse.NotFound("No Orders To Display");
+      throw new NotFoundException("No Orders To Display");
 
     }
     return ApiResponse.Success<IEnumerable<Order>>(
@@ -41,22 +44,16 @@ public class OrderController : ControllerBase
   {
     if (!Guid.TryParse(orderId, out Guid orderIdGuid))
     {
-      return ApiResponse.BadRequest("Invalid Order ID Format");
+      throw new ValidationException("Invalid Order ID Format");
     }
 
-    var order = await _orderService.GetOrderByIdService(orderIdGuid);
-    if (order == null)
-    {
-      return ApiResponse.NotFound(
-                $"No Order Found With ID : ({orderIdGuid})");
-    }
-    else
-    {
-      return ApiResponse.Success<Order>(
-        order,
-        "Order is returned successfully"
-      );
-    }
+    var order = await _orderService.GetOrderByIdService(orderIdGuid) ?? throw new NotFoundException($"No Order Found With ID : ({orderIdGuid})");
+
+    return ApiResponse.Success<Order>(
+      order,
+      "Order is returned successfully"
+    );
+
   }
 
 
@@ -64,33 +61,24 @@ public class OrderController : ControllerBase
   [HttpPost]
   public async Task<IActionResult> CreateOrder(Order newOrder)
   {
-    var createdOrder = await _orderService.CreateOrderService(newOrder);
-    if (createdOrder != null)
-    {
-      return ApiResponse.Created(createdOrder, "Order is created successfully");
-    }
-    else
-    {
-      return ApiResponse.ServerError("Error when creating new order");
+    var createdOrder = await _orderService.CreateOrderService(newOrder) ?? throw new Exception("Error when creating new order");
 
-    }
+    return ApiResponse.Created(createdOrder, "Order is created successfully");
+
   }
 
 
   [Authorize(Roles = "Admin")]
   [HttpPut("{orderId}")]
-  public async Task<IActionResult> UpdateOrder(string orderId, Order updateOrder)
+  public async Task<IActionResult> UpdateOrder(string orderId, OrderDto updateOrder)
   {
     if (!Guid.TryParse(orderId, out Guid orderIdGuid))
     {
-      return ApiResponse.BadRequest("Invalid Order ID Format");
+      throw new ValidationException("Invalid Order ID Format");
     }
 
-    var order = await _orderService.UpdateOrderService(orderIdGuid, updateOrder);
-    if (order == null)
-    {
-      return ApiResponse.NotFound("No Order Founded To Update");
-    }
+    var order = await _orderService.UpdateOrderService(orderIdGuid, updateOrder) ?? throw new NotFoundException("No Order Founded To Update");
+
     return ApiResponse.Success(
         order,
         "Order Is Updated Successfully"
@@ -104,13 +92,13 @@ public class OrderController : ControllerBase
   {
     if (!Guid.TryParse(orderId, out Guid OrderId_Guid))
     {
-      return ApiResponse.BadRequest("Invalid order ID Format");
+      throw new ValidationException("Invalid order ID Format");
     }
 
     var result = await _orderService.DeleteOrderService(OrderId_Guid);
     if (!result)
     {
-      return ApiResponse.NotFound("The Order is not found to be deleted");
+      throw new NotFoundException("The Order is not found to be deleted");
 
     }
     return ApiResponse.Success(" Order is deleted successfully");

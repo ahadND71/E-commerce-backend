@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
+using Backend.Dtos;
 
 namespace Backend.Controllers;
 
@@ -36,19 +37,19 @@ public class OrderProductController : ControllerBase
 
 
   [Authorize]
-  [HttpGet("{orderItemId}")]
-  public async Task<IActionResult> GetOrderProduct(string orderItemId)
+  [HttpGet("{orderProductId}")]
+  public async Task<IActionResult> GetOrderProduct(string orderProductId)
   {
-    if (!Guid.TryParse(orderItemId, out Guid orderItemIdGuid))
+    if (!Guid.TryParse(orderProductId, out Guid orderProductGuid))
     {
       return ApiResponse.BadRequest("Invalid OrderProduct ID Format");
     }
 
-    var orderProduct = await _orderProductService.GetOrderProductByIdService(orderItemIdGuid);
+    var orderProduct = await _orderProductService.GetOrderProductByIdService(orderProductGuid);
     if (orderProduct == null)
     {
       return ApiResponse.NotFound(
-        $"No Order Details Found With ID : ({orderItemIdGuid})");
+        $"No Order Details Found With ID : ({orderProductGuid})");
     }
     else
     {
@@ -77,15 +78,15 @@ public class OrderProductController : ControllerBase
 
 
   [Authorize(Roles = "Admin")]
-  [HttpPut("{orderItemId}")]
-  public async Task<IActionResult> UpdateOrderProduct(string orderItemId, OrderProduct updateOrderProduct)
+  [HttpPut("{orderProductId}")]
+  public async Task<IActionResult> UpdateOrderProduct(string orderProductId, OrderProductDto updateOrderProduct)
   {
-    if (!Guid.TryParse(orderItemId, out Guid orderItemIdGuid))
+    if (!Guid.TryParse(orderProductId, out Guid orderProductGuid))
     {
       return ApiResponse.BadRequest("Invalid Order Product ID Format");
     }
 
-    var orderProduct = await _orderProductService.UpdateOrderProductService(orderItemIdGuid, updateOrderProduct);
+    var orderProduct = await _orderProductService.UpdateOrderProductService(orderProductGuid, updateOrderProduct);
     if (orderProduct == null)
     {
       return ApiResponse.NotFound("No Order Details Founded To Update");
@@ -98,15 +99,15 @@ public class OrderProductController : ControllerBase
 
 
   [Authorize(Roles = "Admin")]
-  [HttpDelete("{OrderItemId}")]
-  public async Task<IActionResult> DeleteOrderProduct(string orderItemId)
+  [HttpDelete("{orderProductId}")]
+  public async Task<IActionResult> DeleteOrderProduct(string orderProductId)
   {
-    if (!Guid.TryParse(orderItemId, out Guid OrderItemId_Guid))
+    if (!Guid.TryParse(orderProductId, out Guid orderProductGuid))
     {
       return ApiResponse.BadRequest("Invalid OrderProduct ID Format");
     }
 
-    var result = await _orderProductService.DeleteOrderProductService(OrderItemId_Guid);
+    var result = await _orderProductService.DeleteOrderProductService(orderProductGuid);
     if (!result)
     {
       return ApiResponse.NotFound("The Order Details is not found to be deleted");

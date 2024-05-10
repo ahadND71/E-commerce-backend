@@ -7,7 +7,7 @@ public class Review
     public Guid ReviewId { get; set; }
 
     [Required(ErrorMessage = "Product rate is required")]
-    [Range(1, 5)]
+    [Range(1, 5, ErrorMessage = "Rate Must Be Between 1 and 5")]
     public int Rating { get; set; }
 
     public string Comment { get; set; } = string.Empty;

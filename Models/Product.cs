@@ -23,7 +23,7 @@ public class Product
     public string SKU { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Stock quantity is required")]
-    [Range(0, int.MaxValue, ErrorMessage = "Error StockQuantity")]
+    [Range(0, int.MaxValue, ErrorMessage = "Stock Quantity Must Be Positive Number")]
     public int StockQuantity { get; set; }
 
     [Required(ErrorMessage = "Product image is required")]

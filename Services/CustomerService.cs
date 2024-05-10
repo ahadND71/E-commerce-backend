@@ -7,6 +7,7 @@ using Backend.Dtos;
 using Backend.EmailSetup;
 using Backend.Helpers;
 using Backend.Models;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Services;
 
@@ -52,7 +53,12 @@ public class CustomerService
 
     public async Task<CustomerDto?> GetCustomerById(Guid customerId)
     {
-        var customer = await _dbContext.Customers.FindAsync(customerId);
+        var customer = await _dbContext.Customers
+            .Include(a => a.Addresses)
+            .Include(o => o.Orders)
+            .ThenInclude(op => op.OrderProducts)
+            .Include(r => r.Reviews)
+            .FirstOrDefaultAsync(c => c.CustomerId == customerId);
         var customerDto = _mapper.Map<CustomerDto>(customer);
         return customerDto;
     }
@@ -67,6 +73,7 @@ public class CustomerService
         }
 
         newCustomer.CustomerId = Guid.NewGuid();
+        newCustomer.Email = newCustomer.Email.ToLower();
         newCustomer.CreatedAt = DateTime.UtcNow;
         newCustomer.Password = _passwordHasher.HashPassword(newCustomer, newCustomer.Password);
         _dbContext.Customers.Add(newCustomer);
@@ -77,7 +84,7 @@ public class CustomerService
 
     public async Task<LoginUserDto?> LoginCustomerService(LoginUserDto loginUserDto)
     {
-        var customer = await _dbContext.Customers.SingleOrDefaultAsync(c => c.Email == loginUserDto.Email);
+        var customer = await _dbContext.Customers.SingleOrDefaultAsync(c => c.Email == loginUserDto.Email.ToLower());
         if (customer == null)
         {
             return null;
@@ -90,18 +97,17 @@ public class CustomerService
     }
 
 
-    public async Task<Customer?> UpdateCustomerService(Guid customerId, Customer updateCustomer)
+    public async Task<Customer?> UpdateCustomerService(Guid customerId, CustomerDto updateCustomer)
     {
         var existingCustomer = await _dbContext.Customers.FindAsync(customerId);
         if (existingCustomer != null)
         {
-            existingCustomer.FirstName = updateCustomer.FirstName ?? existingCustomer.FirstName;
-            existingCustomer.LastName = updateCustomer.LastName ?? existingCustomer.LastName;
-            existingCustomer.Email = updateCustomer.Email ?? existingCustomer.Email;
-            existingCustomer.Password = updateCustomer.Password != null ? _passwordHasher.HashPassword(updateCustomer, updateCustomer.Password) : existingCustomer.Password;
-            existingCustomer.Mobile = updateCustomer.Mobile ?? existingCustomer.Mobile;
-            existingCustomer.Image = updateCustomer.Image ?? existingCustomer.Image;
-            existingCustomer.IsBanned = updateCustomer.IsBanned;
+            existingCustomer.FirstName = updateCustomer.FirstName.IsNullOrEmpty() ? existingCustomer.FirstName : updateCustomer.FirstName;
+            existingCustomer.LastName = updateCustomer.LastName.IsNullOrEmpty() ? existingCustomer.LastName : updateCustomer.LastName;
+            existingCustomer.Email = updateCustomer.Email.IsNullOrEmpty() ? existingCustomer.Email : updateCustomer.Email.ToLower();
+            existingCustomer.Mobile = updateCustomer.Mobile.IsNullOrEmpty() ? existingCustomer.Mobile : updateCustomer.Mobile;
+            existingCustomer.Image = updateCustomer.Image.IsNullOrEmpty() ? existingCustomer.Image : updateCustomer.Image;
+            existingCustomer.IsBanned = updateCustomer.IsBanned == existingCustomer.IsBanned ? existingCustomer.IsBanned : updateCustomer.IsBanned;
             await _dbContext.SaveChangesAsync();
         }
 
@@ -161,6 +167,6 @@ public class CustomerService
 
     public async Task<bool> IsEmailExists(string email)
     {
-        return await _dbContext.Admins.AnyAsync(a => a.Email == email) || await _dbContext.Customers.AnyAsync(c => c.Email == email);
+        return await _dbContext.Admins.AnyAsync(a => a.Email == email.ToLower()) || await _dbContext.Customers.AnyAsync(c => c.Email == email.ToLower());
     }
 }

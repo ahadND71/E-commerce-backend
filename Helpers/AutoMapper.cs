@@ -10,6 +10,11 @@ namespace Backend.Helpers
         {
             CreateMap<Customer, CustomerDto>();
             CreateMap<Admin, AdminDto>();
+            CreateMap<Category, CategoryDto>();
+            CreateMap<Order, OrderDto>();
+            CreateMap<OrderProduct, OrderProductDto>();
+            CreateMap<Address, AddressDto>();
+
         }
     }
 }

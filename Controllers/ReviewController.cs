@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
+using Backend.Dtos;
 
 namespace Backend.Controllers;
 
@@ -75,9 +76,9 @@ public class ReviewController : ControllerBase
     }
 
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpPut("{reviewId}")]
-    public async Task<IActionResult> UpdateReview(string reviewId, Review updateReview)
+    public async Task<IActionResult> UpdateReview(string reviewId, ReviewDto updateReview)
     {
         if (!Guid.TryParse(reviewId, out Guid reviewIdGuid))
         {

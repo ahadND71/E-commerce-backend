@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
+using SendGrid.Helpers.Errors.Model;
+using Backend.Dtos;
 
 namespace Backend.Controllers;
 
@@ -26,7 +28,7 @@ public class AddressController : ControllerBase
         var addresses = await _addressService.GetAllAddressService(currentPage, pageSize);
         if (addresses.TotalCount < 1)
         {
-            return ApiResponse.NotFound("No Addresses To Display");
+            throw new NotFoundException("No Addresses To Display");
         }
 
         return ApiResponse.Success<IEnumerable<Address>>(
@@ -81,7 +83,7 @@ public class AddressController : ControllerBase
 
     [Authorize]
     [HttpPut("{addressId}")]
-    public async Task<IActionResult> UpdateAddress(string addressId, Address updateAddress)
+    public async Task<IActionResult> UpdateAddress(string addressId, AddressDto updateAddress)
     {
         if (!Guid.TryParse(addressId, out Guid addressIdGuid))
         {

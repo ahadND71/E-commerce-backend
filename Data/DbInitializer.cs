@@ -277,7 +277,7 @@ public class DbInitializer
             OrderProductId = Guid.Parse("51f1f3a8-23d2-4c80-b159-88a1ee8f893b"),
             ProductId = Guid.Parse("7b88a4f8-ee9f-44f7-99ef-e084da0c8ee9"),
             OrderId = Guid.Parse("d043296e-d2d5-4374-88f8-5fe0d6d71e5e"),
-            ProductPrice = 12,
+            ProductPrice = 12m,
             Quantity = 2,
         },
         new OrderProduct

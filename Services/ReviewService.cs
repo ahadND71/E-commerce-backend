@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
+using Backend.Dtos;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Services;
 
@@ -49,13 +51,12 @@ public class ReviewService
     }
 
 
-    public async Task<Review?> UpdateReviewService(Guid reviewId, Review updateReview)
+    public async Task<Review?> UpdateReviewService(Guid reviewId, ReviewDto updateReview)
     {
         var existingReview = await _dbContext.Reviews.FindAsync(reviewId);
         if (existingReview != null)
         {
-            existingReview.Comment = updateReview.Comment ?? existingReview.Comment;
-            existingReview.Status = updateReview.Status ?? existingReview.Status;
+            existingReview.Status = updateReview.Status.IsNullOrEmpty() ? existingReview.Status : updateReview.Status;
             await _dbContext.SaveChangesAsync();
         }
 

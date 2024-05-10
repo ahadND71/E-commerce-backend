@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
+using Backend.Dtos;
 
 namespace Backend.Controllers;
 
@@ -112,7 +113,7 @@ public class ProductController : ControllerBase
 
   [Authorize(Roles = "Admin")]
   [HttpPut("{productId}")]
-  public async Task<IActionResult> UpdateProduct(string productId, Product updateProduct)
+  public async Task<IActionResult> UpdateProduct(string productId, ProductDto updateProduct)
   {
     if (!Guid.TryParse(productId, out Guid productIdGuid))
     {

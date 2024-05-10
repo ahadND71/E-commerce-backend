@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
+using Backend.Dtos;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Services;
 
@@ -22,6 +24,8 @@ public class CategoryService
         var category = await _categoryDbContext.Categories
             .Include(c => c.Products)
             .ThenInclude(r => r.Reviews)
+            .Include(p => p.Products)
+            .ThenInclude(o => o.OrderProducts)
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -40,6 +44,9 @@ public class CategoryService
     {
         return await _categoryDbContext.Categories
             .Include(c => c.Products)
+            .ThenInclude(r => r.Reviews)
+            .Include(p => p.Products)
+            .ThenInclude(o => o.OrderProducts)
             .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
     }
 
@@ -55,13 +62,14 @@ public class CategoryService
     }
 
 
-    public async Task<Category?> UpdateCategoryService(Guid categoryId, Category updateCategory)
+    public async Task<Category?> UpdateCategoryService(Guid categoryId, CategoryDto updateCategory)
     {
         var existingCategory = await _categoryDbContext.Categories.FindAsync(categoryId);
         if (existingCategory != null)
         {
-            existingCategory.Name = updateCategory.Name ?? existingCategory.Name;
-            existingCategory.Description = updateCategory.Description ?? existingCategory.Name;
+            existingCategory.Name = updateCategory.Name.IsNullOrEmpty() ? existingCategory.Name : updateCategory.Name;
+            existingCategory.Slug = SlugGenerator.GenerateSlug(existingCategory.Name);
+            existingCategory.Description = updateCategory.Description.IsNullOrEmpty() ? existingCategory.Description : updateCategory.Description;
             await _categoryDbContext.SaveChangesAsync();
         }
 

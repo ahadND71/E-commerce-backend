@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
+using Backend.Dtos;
 
 namespace Backend.Services;
 
@@ -48,13 +49,13 @@ public class OrderProductService
     }
 
 
-    public async Task<OrderProduct?> UpdateOrderProductService(Guid orderItemId, OrderProduct updateOrderProduct)
+    public async Task<OrderProduct?> UpdateOrderProductService(Guid orderItemId, OrderProductDto updateOrderProduct)
     {
         var existingOrderProduct = await _orderProductDbContext.OrderProducts.FindAsync(orderItemId);
         if (existingOrderProduct != null)
         {
             existingOrderProduct.Quantity = updateOrderProduct.Quantity ?? existingOrderProduct.Quantity;
-            existingOrderProduct.ProductPrice = updateOrderProduct.ProductPrice;
+            existingOrderProduct.ProductPrice = updateOrderProduct.ProductPrice ?? existingOrderProduct.ProductPrice;
             await _orderProductDbContext.SaveChangesAsync();
         }
 

@@ -29,7 +29,7 @@ namespace Backend.Services
                     new Claim(ClaimTypes.NameIdentifier, loginRequest.UserId.ToString()),
                     new Claim(ClaimTypes.Role, loginRequest.IsAdmin ? "Admin" : "Customer"),
                 }),
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddHours(8),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = _configuration["JwtSettings:Issuer"],
                 Audience = _configuration["JwtSettings:Audience"],

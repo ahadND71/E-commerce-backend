@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
+using Backend.Dtos;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Services;
 
@@ -49,19 +51,19 @@ public class AddressService
     }
 
 
-    public async Task<Address?> UpdateAddressService(Guid addressId, Address updateAddress)
+    public async Task<Address?> UpdateAddressService(Guid addressId, AddressDto updateAddress)
     {
         var existingAddress = await _addressDbContext.Addresses.FindAsync(addressId);
 
         if (existingAddress != null)
         {
-            existingAddress.Name = updateAddress.Name ?? existingAddress.Name;
-            existingAddress.AddressLine1 = updateAddress.AddressLine1 ?? existingAddress.AddressLine1;
-            existingAddress.AddressLine2 = updateAddress.AddressLine2 ?? existingAddress.AddressLine2;
-            existingAddress.Country = updateAddress.Country ?? existingAddress.Country;
-            existingAddress.Province = updateAddress.Province ?? existingAddress.Province;
-            existingAddress.City = updateAddress.City ?? existingAddress.City;
-            existingAddress.ZipCode = updateAddress.ZipCode ?? existingAddress.ZipCode;
+            existingAddress.Name = updateAddress.Name.IsNullOrEmpty() ? existingAddress.Name : updateAddress.Name;
+            existingAddress.AddressLine1 = updateAddress.AddressLine1.IsNullOrEmpty() ? existingAddress.AddressLine1 : updateAddress.AddressLine1;
+            existingAddress.AddressLine2 = updateAddress.AddressLine2.IsNullOrEmpty() ? existingAddress.AddressLine2 : updateAddress.AddressLine2;
+            existingAddress.Country = updateAddress.Country.IsNullOrEmpty() ? existingAddress.Country : updateAddress.Country;
+            existingAddress.Province = updateAddress.Province.IsNullOrEmpty() ? existingAddress.Province : updateAddress.Province;
+            existingAddress.City = updateAddress.City.IsNullOrEmpty() ? existingAddress.City : updateAddress.City;
+            existingAddress.ZipCode = updateAddress.ZipCode.IsNullOrEmpty() ? existingAddress.ZipCode : updateAddress.ZipCode;
             await _addressDbContext.SaveChangesAsync();
         }
 

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using SendGrid.Helpers.Errors.Model;
 
 namespace Backend.Middleware
 {
@@ -44,7 +45,7 @@ namespace Backend.Middleware
 
             switch (exception)
             {
-                case DllNotFoundException notFoundException:
+                case NotFoundException notFoundException:
                     responseCode = StatusCodes.Status404NotFound;
                     message = notFoundException.Message;
                     break;

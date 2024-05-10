@@ -7,6 +7,7 @@ using Backend.EmailSetup;
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
+using SendGrid.Helpers.Errors.Model;
 
 namespace Backend.Controllers;
 
@@ -37,7 +38,7 @@ public class AdminController : ControllerBase
 
         }
 
-        return Ok(admins);
+        return ApiResponse.Success(admins, "Admins are returned successfully");
     }
 
 
@@ -45,17 +46,9 @@ public class AdminController : ControllerBase
     [HttpGet("{adminId:guid}")]
     public async Task<IActionResult> GetAdmin(Guid adminId)
     {
-        var admin = await _adminService.GetAdminById(adminId);
-        if (admin == null)
-        {
-            return ApiResponse.NotFound(
-             $"No Admin Found With ID : ({adminId})");
-        }
-        else
-        {
-            return ApiResponse.Success(admin,
-           "Admin is returned successfully");
-        }
+        var admin = await _adminService.GetAdminById(adminId) ?? throw new NotFoundException($"No Admin Found With ID : ({adminId})");
+
+        return ApiResponse.Success(admin, "Admin is returned successfully");
     }
 
 
@@ -92,7 +85,7 @@ public class AdminController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{adminId}")]
-    public async Task<IActionResult> UpdateAdmin(string adminId, Admin updateAdmin)
+    public async Task<IActionResult> UpdateAdmin(string adminId, AdminDto updateAdmin)
     {
         if (!Guid.TryParse(adminId, out Guid adminIdGuid))
         {

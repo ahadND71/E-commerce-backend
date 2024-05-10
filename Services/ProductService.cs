@@ -4,6 +4,8 @@ using System.Linq.Expressions;
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
+using Microsoft.IdentityModel.Tokens;
+using Backend.Dtos;
 
 namespace Backend.Services;
 
@@ -91,7 +93,10 @@ public class ProductService
     // Get a single product by its Id
     public async Task<Product?> GetProductByIdService(Guid productId)
     {
-        return await _productDbContext.Products.FindAsync(productId);
+        return await _productDbContext.Products
+        .Include(r => r.Reviews) // Include relations
+        .Include(op => op.OrderProducts)
+        .FirstOrDefaultAsync(p => p.ProductId == productId);
     }
 
 
@@ -164,17 +169,17 @@ public class ProductService
 
 
     // Update a product
-    public async Task<Product?> UpdateProductService(Guid productId, Product updateProduct)
+    public async Task<Product?> UpdateProductService(Guid productId, ProductDto updateProduct)
     {
         var existingProduct = await _productDbContext.Products.FindAsync(productId);
         if (existingProduct != null)
         {
-            existingProduct.Name = updateProduct.Name ?? existingProduct.Name;
-            existingProduct.Slug = updateProduct.Slug ?? existingProduct.Slug;
-            existingProduct.Description = updateProduct.Description ?? existingProduct.Description;
-            existingProduct.Price = updateProduct.Price;
-            existingProduct.SKU = updateProduct.SKU ?? existingProduct.SKU;
-            existingProduct.ImgUrl = updateProduct.ImgUrl ?? existingProduct.ImgUrl;
+            existingProduct.Name = updateProduct.Name.IsNullOrEmpty() ? existingProduct.Name : updateProduct.Name;
+            existingProduct.Slug = SlugGenerator.GenerateSlug(existingProduct.Name);
+            existingProduct.Description = updateProduct.Description.IsNullOrEmpty() ? existingProduct.Description : updateProduct.Description;
+            existingProduct.Price = updateProduct.Price ?? existingProduct.Price;
+            existingProduct.SKU = updateProduct.SKU.IsNullOrEmpty() ? existingProduct.SKU : updateProduct.SKU;
+            existingProduct.ImgUrl = updateProduct.ImgUrl.IsNullOrEmpty() ? existingProduct.ImgUrl : updateProduct.ImgUrl;
             existingProduct.UpdatedAt = DateTime.UtcNow;
             await _productDbContext.SaveChangesAsync();
         }

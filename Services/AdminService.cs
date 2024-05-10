@@ -7,6 +7,7 @@ using Backend.Dtos;
 using Backend.EmailSetup;
 using Backend.Helpers;
 using Backend.Models;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Services;
 
@@ -62,6 +63,7 @@ public class AdminService
         }
 
         newAdmin.AdminId = Guid.NewGuid();
+        newAdmin.Email = newAdmin.Email.ToLower();
         newAdmin.CreatedAt = DateTime.UtcNow;
         newAdmin.Password = _passwordHasher.HashPassword(newAdmin, newAdmin.Password);
         _dbContext.Admins.Add(newAdmin);
@@ -72,7 +74,7 @@ public class AdminService
 
     public async Task<LoginUserDto?> LoginAdminService(LoginUserDto loginUserDto)
     {
-        var admin = await _dbContext.Admins.SingleOrDefaultAsync(a => a.Email == loginUserDto.Email);
+        var admin = await _dbContext.Admins.SingleOrDefaultAsync(a => a.Email == loginUserDto.Email.ToLower());
         if (admin == null)
         {
             return null;
@@ -85,17 +87,16 @@ public class AdminService
     }
 
 
-    public async Task<Admin?> UpdateAdminService(Guid adminId, Admin updateAdmin)
+    public async Task<Admin?> UpdateAdminService(Guid adminId, AdminDto updateAdmin)
     {
         var existingAdmin = await _dbContext.Admins.FindAsync(adminId);
         if (existingAdmin != null)
         {
-            existingAdmin.FirstName = updateAdmin.FirstName ?? existingAdmin.FirstName;
-            existingAdmin.LastName = updateAdmin.LastName ?? existingAdmin.LastName;
-            existingAdmin.Email = updateAdmin.Email ?? existingAdmin.Email;
-            existingAdmin.Password = updateAdmin.Password != null ? _passwordHasher.HashPassword(updateAdmin, updateAdmin.Password) : existingAdmin.Password;
-            existingAdmin.Mobile = updateAdmin.Mobile ?? existingAdmin.Mobile;
-            existingAdmin.Image = updateAdmin.Image ?? existingAdmin.Image;
+            existingAdmin.FirstName = updateAdmin.FirstName.IsNullOrEmpty() ? existingAdmin.FirstName : updateAdmin.FirstName;
+            existingAdmin.LastName = updateAdmin.LastName.IsNullOrEmpty() ? existingAdmin.LastName : updateAdmin.LastName;
+            existingAdmin.Email = updateAdmin.Email.IsNullOrEmpty() ? existingAdmin.Email : updateAdmin.Email.ToLower();
+            existingAdmin.Mobile = updateAdmin.Mobile.IsNullOrEmpty() ? existingAdmin.Mobile : updateAdmin.Mobile;
+            existingAdmin.Image = updateAdmin.Image.IsNullOrEmpty() ? existingAdmin.Image : updateAdmin.Image;
             await _dbContext.SaveChangesAsync();
         }
 
@@ -154,6 +155,6 @@ public class AdminService
 
     public async Task<bool> IsEmailExists(string email)
     {
-        return await _dbContext.Admins.AnyAsync(a => a.Email == email) || await _dbContext.Customers.AnyAsync(c => c.Email == email);
+        return await _dbContext.Admins.AnyAsync(a => a.Email == email.ToLower()) || await _dbContext.Customers.AnyAsync(c => c.Email == email.ToLower());
     }
 }

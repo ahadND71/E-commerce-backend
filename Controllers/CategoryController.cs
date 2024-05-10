@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
+using Backend.Dtos;
 
 namespace Backend.Controllers;
 
@@ -73,7 +74,7 @@ public class CategoryController : ControllerBase
 
   [Authorize(Roles = "Admin")]
   [HttpPut("{categoryId}")]
-  public async Task<IActionResult> UpdateCategory(string categoryId, Category updateCategory)
+  public async Task<IActionResult> UpdateCategory(string categoryId, CategoryDto updateCategory)
   {
     if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
     {

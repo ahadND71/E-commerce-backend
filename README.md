@@ -16,11 +16,11 @@ This repository contains ASP.NET Core application with RESTful API endpoints for
 ### Team 3: The Legends
 
 | Name         | Role      |
-| ------------ | --------- |
+| ------------ |-----------|
 | @Mohkhasa    | `Admin`   |
 | @ahadND71    | `Manager` |
 | @EnasBatarfi | `Member`  |
-| @ShahadDraim | 😴        |
+| @ShahadDraim | `Member`  |
 
 <br/>
 

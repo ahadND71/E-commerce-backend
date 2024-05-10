@@ -1,77 +1,80 @@
 using Microsoft.EntityFrameworkCore;
-using api.Data;
-using api.Helpers;
 
-namespace api.Services;
+using Backend.Data;
+using Backend.Helpers;
+using Backend.Models;
+
+namespace Backend.Services;
 
 public class OrderService
 {
+    private readonly AppDbContext _orderDbContext;
 
-  private readonly AppDbContext _orderDbContext;
-
-  public OrderService(AppDbContext orderDbContext)
-  {
-    _orderDbContext = orderDbContext;
-  }
-
-
-  public async Task<PaginationResult<Order>> GetAllOrderService(int currentPage, int pageSize)
-  {
-    var totalOrderCount = await _orderDbContext.Orders.CountAsync();
-    var order = await _orderDbContext.Orders.Include(op => op.OrderProducts)
-    .Skip((currentPage - 1) * pageSize)
-    .Take(pageSize)
-    .ToListAsync();
-    return new PaginationResult<Order>
+    public OrderService(AppDbContext orderDbContext)
     {
-      Items = order,
-      TotalCount = totalOrderCount,
-      CurrentPage = currentPage,
-      PageSize = pageSize,
-    };
-  }
-
-
-  public async Task<Order?> GetOrderByIdService(Guid orderId)
-  {
-    return await _orderDbContext.Orders.FindAsync(orderId);
-  }
-
-
-  public async Task<Order> CreateOrderService(Order newOrder)
-  {
-    newOrder.OrderId = Guid.NewGuid();
-    newOrder.CreatedAt = DateTime.UtcNow;
-    newOrder.UpdatedAt = DateTime.UtcNow;
-    _orderDbContext.Orders.Add(newOrder);
-    await _orderDbContext.SaveChangesAsync();
-    return newOrder;
-  }
-
-
-  public async Task<Order?> UpdateOrderService(Guid orderId, Order updateOrder)
-  {
-    var existingOrder = await _orderDbContext.Orders.FindAsync(orderId);
-    if (existingOrder != null)
-    {
-      existingOrder.TotalAmount = updateOrder.TotalAmount;
-      existingOrder.Status = updateOrder.Status ?? existingOrder.Status;
-      existingOrder.UpdatedAt = DateTime.UtcNow;
-      await _orderDbContext.SaveChangesAsync();
+        _orderDbContext = orderDbContext;
     }
-    return existingOrder;
-  }
 
 
-  public async Task<bool> DeleteOrderService(Guid orderId)
-  {
-    var orderToRemove = await _orderDbContext.Orders.FindAsync(orderId);
-    if (orderToRemove != null)
+    public async Task<PaginationResult<Order>> GetAllOrderService(int currentPage, int pageSize)
     {
-      _orderDbContext.Orders.Remove(orderToRemove);
-      await _orderDbContext.SaveChangesAsync();
-      return true;
+        var totalOrderCount = await _orderDbContext.Orders.CountAsync();
+        var order = await _orderDbContext.Orders.Include(op => op.OrderProducts)
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+        return new PaginationResult<Order>
+        {
+            Items = order,
+            TotalCount = totalOrderCount,
+            CurrentPage = currentPage,
+            PageSize = pageSize,
+        };
     }
-    return false;
-  }
+
+
+    public async Task<Order?> GetOrderByIdService(Guid orderId)
+    {
+        return await _orderDbContext.Orders.FindAsync(orderId);
+    }
+
+
+    public async Task<Order> CreateOrderService(Order newOrder)
+    {
+        newOrder.OrderId = Guid.NewGuid();
+        newOrder.CreatedAt = DateTime.UtcNow;
+        newOrder.UpdatedAt = DateTime.UtcNow;
+        _orderDbContext.Orders.Add(newOrder);
+        await _orderDbContext.SaveChangesAsync();
+        return newOrder;
+    }
+
+
+    public async Task<Order?> UpdateOrderService(Guid orderId, Order updateOrder)
+    {
+        var existingOrder = await _orderDbContext.Orders.FindAsync(orderId);
+        if (existingOrder != null)
+        {
+            existingOrder.TotalAmount = updateOrder.TotalAmount;
+            existingOrder.Status = updateOrder.Status ?? existingOrder.Status;
+            existingOrder.UpdatedAt = DateTime.UtcNow;
+            await _orderDbContext.SaveChangesAsync();
+        }
+
+        return existingOrder;
+    }
+
+
+    public async Task<bool> DeleteOrderService(Guid orderId)
+    {
+        var orderToRemove = await _orderDbContext.Orders.FindAsync(orderId);
+        if (orderToRemove != null)
+        {
+            _orderDbContext.Orders.Remove(orderToRemove);
+            await _orderDbContext.SaveChangesAsync();
+            return true;
+        }
+
+        return false;
+    }
 }

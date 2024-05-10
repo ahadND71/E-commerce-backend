@@ -1,3 +1,5 @@
+namespace Backend.Dtos;
+
 public class AdminDto
 {
     public Guid AdminId { get; set; }

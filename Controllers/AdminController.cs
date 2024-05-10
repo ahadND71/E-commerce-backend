@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using api.Services;
-using api.Authentication.Service;
-using api.Authentication.Dtos;
+using Backend.Data;
+using Backend.Dtos;
+using Backend.EmailSetup;
+using Backend.Helpers;
+using Backend.Models;
+using Backend.Services;
 
-namespace api.Controllers;
+namespace Backend.Controllers;
 
 
 [ApiController]
@@ -39,19 +42,14 @@ public class AdminController : ControllerBase
 
 
     [Authorize(Roles = "Admin")]
-    [HttpGet("{adminId}")]
-    public async Task<IActionResult> GetAdmin(string adminId)
+    [HttpGet("{adminId:guid}")]
+    public async Task<IActionResult> GetAdmin(Guid adminId)
     {
-        if (!Guid.TryParse(adminId, out Guid adminIdGuid))
-        {
-            return ApiResponse.BadRequest("Invalid admin ID Format");
-        }
-
-        var admin = await _adminService.GetAdminById(adminIdGuid);
+        var admin = await _adminService.GetAdminById(adminId);
         if (admin == null)
         {
             return ApiResponse.NotFound(
-             $"No Admin Found With ID : ({adminIdGuid})");
+             $"No Admin Found With ID : ({adminId})");
         }
         else
         {

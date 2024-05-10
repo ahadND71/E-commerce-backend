@@ -1,3 +1,4 @@
+namespace Backend.EmailSetup;
 
 public interface IEmailSender
 {

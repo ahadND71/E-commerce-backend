@@ -1,11 +1,11 @@
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using api.Authentication.Dtos;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
 
-namespace api.Authentication.Service
+using Backend.Dtos;
+
+namespace Backend.Services
 {
     public class AuthService
     {
@@ -24,10 +24,10 @@ namespace api.Authentication.Service
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]{
+                Subject = new ClaimsIdentity(new[]
+                {
                     new Claim(ClaimTypes.NameIdentifier, loginRequest.UserId.ToString()),
-                    new Claim(ClaimTypes.Role, loginRequest.IsAdmin?"Admin":"Customer"),
-
+                    new Claim(ClaimTypes.Role, loginRequest.IsAdmin ? "Admin" : "Customer"),
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

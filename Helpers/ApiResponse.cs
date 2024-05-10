@@ -1,13 +1,12 @@
-using api.Helpers;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Net;
 
-namespace api.Controllers
+namespace Backend.Helpers
 {
     public static class ApiResponse
     {
-        public static IActionResult Success<T>(T data, string message = "Success", PaginationMeta? meta = null, string? token = null)
+        public static IActionResult Success<T>(T data, string message = "Success", PaginationMeta? meta = null,
+            string? token = null)
         {
             return CreateResponse<T>(HttpStatusCode.OK, true, message, data, token, meta);
         }
@@ -55,9 +54,11 @@ namespace api.Controllers
         }
 
 
-        private static IActionResult CreateResponse<T>(HttpStatusCode statusCode, bool success, string message, T data, string token, PaginationMeta meta)
+        private static IActionResult CreateResponse<T>(HttpStatusCode statusCode, bool success, string message, T data,
+            string token, PaginationMeta meta)
         {
-            var result = new ObjectResult(new ApiResponseTemplate<T>((int)statusCode, success, message, data, token, meta));
+            var result =
+                new ObjectResult(new ApiResponseTemplate<T>((int)statusCode, success, message, data, token, meta));
             //without this line the status code will be shown as 200 then the body will show the error so i make sure the the status code and the body status code is consistent 
             result.StatusCode = (int)statusCode;
             return result;
@@ -73,7 +74,8 @@ namespace api.Controllers
         public string Token { get; set; }
         public PaginationMeta? Meta { get; set; }
 
-        public ApiResponseTemplate(int statusCode, bool success, string message, T? data, string token, PaginationMeta? meta)
+        public ApiResponseTemplate(int statusCode, bool success, string message, T? data, string token,
+            PaginationMeta? meta)
         {
             StatusCode = statusCode;
             Success = success;

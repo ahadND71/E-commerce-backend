@@ -1,12 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace api.Data
+using Backend.Models;
+
+namespace Backend.Data
 {
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-            // TODO this need testing
+            // 
         }
 
         public DbSet<Admin> Admins { get; set; }

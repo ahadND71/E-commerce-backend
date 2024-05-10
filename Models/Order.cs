@@ -1,21 +1,23 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace Backend.Models;
+
 public class Order
 {
-  public Guid OrderId { get; set; }
+    public Guid OrderId { get; set; }
 
-  [Required(ErrorMessage = "The total amount of the order can not be empty")]
-  public int TotalAmount { get; set; }
+    [Required(ErrorMessage = "The total amount of the order can not be empty")]
+    public int TotalAmount { get; set; }
 
-  public string Status { get; set; } = "Pending...";
+    public string Status { get; set; } = "Pending...";
 
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-  public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-  //? Relations
+    //? Relations
 
-  public Guid CustomerId { get; set; }
-  public Guid AddressId { get; set; }
-  public ICollection<OrderProduct> OrderProducts { get; } = new List<OrderProduct>();
+    public Guid CustomerId { get; set; }
+    public Guid AddressId { get; set; }
+    public ICollection<OrderProduct> OrderProducts { get; } = new List<OrderProduct>();
 }

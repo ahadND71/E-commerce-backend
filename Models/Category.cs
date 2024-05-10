@@ -1,23 +1,23 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace Backend.Models;
+
 public class Category
 {
-  public Guid CategoryId { get; set; }
+    public Guid CategoryId { get; set; }
 
-  [Required(ErrorMessage = "Category name is required")]
-  [MaxLength(100), MinLength(2)]
-  public string Name { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Category name is required")]
+    [MaxLength(100), MinLength(2)]
+    public string Name { get; set; } = string.Empty;
 
-  public string Slug { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
 
-  [MaxLength(300)]
-  public string Description { get; set; } = string.Empty;
+    [MaxLength(300)] public string Description { get; set; } = string.Empty;
 
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-  //? Relations
+    //? Relations
 
-  public Guid? AdminId { get; set; }
-  public ICollection<Product> Products { get; } = new List<Product>();
+    public Guid? AdminId { get; set; }
+    public ICollection<Product> Products { get; } = new List<Product>();
 }
-

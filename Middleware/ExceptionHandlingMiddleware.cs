@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using SendGrid.Helpers.Errors.Model;
 
-namespace api.Middleware
+namespace Backend.Middleware
 {
     public class ExceptionHandlingMiddleware
     {
@@ -61,6 +60,7 @@ namespace api.Middleware
                         responseCode = StatusCodes.Status400BadRequest;
                         message = exception.Message;
                     }
+
                     break;
             }
 
@@ -75,6 +75,5 @@ namespace api.Middleware
             var jsonResponse = JsonSerializer.Serialize(response);
             return context.Response.WriteAsync(jsonResponse);
         }
-
     }
 }

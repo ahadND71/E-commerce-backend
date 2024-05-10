@@ -1,3 +1,5 @@
+namespace Backend.Dtos;
+
 public class CustomerDto
 {
     public Guid CustomerId { get; set; }

@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using api.Services;
-using api.Authentication.Service;
-using api.Authentication.Dtos;
+using Backend.Data;
+using Backend.Dtos;
+using Backend.Helpers;
+using Backend.Models;
+using Backend.Services;
 
-namespace api.Controllers;
+namespace Backend.Controllers;
 
 
 [ApiController]

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace api.Authentication.Dtos
+namespace Backend.Data
 {
     public class ResetPasswordDto
     {

@@ -1,12 +1,11 @@
-
-using api.Data;
 using Microsoft.AspNetCore.Identity;
 
-namespace WebApplication1.Data;
+using Backend.Models;
+
+namespace Backend.Data;
 
 public class DbInitializer
 {
-
     private readonly IPasswordHasher<Admin> _passwordHasher;
 
     public DbInitializer(IPasswordHasher<Admin> passwordHasher)
@@ -31,12 +30,82 @@ public class DbInitializer
                     LastName = "Alkhamis",
                     Email = "moh@example.com",
                     Password = _passwordHasher.HashPassword(null, "Test@123")
+                },
+                new Admin
+                {
+                    AdminId = Guid.Parse("03c18f24-d667-4c07-8c4f-454dea50c115"),
+                    FirstName = "Enas",
+                    LastName = "Batarfi",
+                    Email = "enas@example.com",
+                    Password = _passwordHasher.HashPassword(null, "Test@123")
+                },
+                new Admin
+                {
+                    AdminId = Guid.Parse("04c18f24-d667-4c07-8c4f-454dea50c115"),
+                    FirstName = "Ahad",
+                    LastName = "Nasser",
+                    Email = "ahad@example.com",
+                    Password = _passwordHasher.HashPassword(null, "Test@123")
+                },
+                new Admin
+                {
+                    AdminId = Guid.Parse("05c18f24-d667-4c07-8c4f-454dea50c115"),
+                    FirstName = "Shahad",
+                    LastName = "Draim",
+                    Email = "shahad@example.com",
+                    Password = _passwordHasher.HashPassword(null, "Test@123")
                 }
             };
 
             foreach (Admin admin in admins)
             {
                 context.Admins.Add(admin);
+            }
+        }
+
+        //
+        // if no customers found add these
+        if (!context.Customers.Any())
+        {
+            var customers = new Customer[]
+            {
+                new Customer
+                {
+                    CustomerId = Guid.Parse("feee9ca6-fd69-46cf-a990-64db26780922"),
+                    FirstName = "Marim",
+                    LastName = "Ahmad",
+                    Email = "marim@example.com",
+                    Password = _passwordHasher.HashPassword(null, "Test@123")
+                },
+                new Customer
+                {
+                    CustomerId = Guid.Parse("12295810-446c-4ef3-b5f9-8b7ec0a81e88"),
+                    FirstName = "Nora",
+                    LastName = "Faisal",
+                    Email = "nora@example.com",
+                    Password = _passwordHasher.HashPassword(null, "Test@123")
+                },
+                new Customer
+                {
+                    CustomerId = Guid.Parse("a470781d-df28-4a68-b5f4-9b259b4b69d9"),
+                    FirstName = "Fahad",
+                    LastName = "Abdulrahman",
+                    Email = "fahad@example.com",
+                    Password = _passwordHasher.HashPassword(null, "Test@123")
+                },
+                new Customer
+                {
+                    CustomerId = Guid.Parse("cb45d6e0-b134-491a-8968-9f27fc5c4c37"),
+                    FirstName = "Somyia",
+                    LastName = "Saad",
+                    Email = "somyia@example.com",
+                    Password = _passwordHasher.HashPassword(null, "Test@123")
+                }
+            };
+
+            foreach (Customer customer in customers)
+            {
+                context.Customers.Add(customer);
             }
         }
 
@@ -152,74 +221,74 @@ public class DbInitializer
 
         //
         // orderProduct
-        if (!context.OrderProducts.Any())
-        {
-            var orderProduct = new OrderProduct[]
-            {
-                new OrderProduct
-                {
-                    OrderProductId= Guid.Parse(""),
-                    ProductId = Guid.Parse("7b88a4f8-ee9f-44f7-99ef-e084da0c8ee9"),
-                    OrderId = Guid.Parse(""),
-                    ProductPrice = 12,
-                    Quantity = 2,
-                },
-
-            };
-
-            foreach (OrderProduct op in orderProduct)
-            {
-                context.OrderProducts.Add(op);
-            }
-        }
+        // if (!context.OrderProducts.Any())
+        // {
+        //     var orderProduct = new OrderProduct[]
+        //     {
+        //         new OrderProduct
+        //         {
+        //             OrderProductId= Guid.Parse(""),
+        //             ProductId = Guid.Parse("7b88a4f8-ee9f-44f7-99ef-e084da0c8ee9"),
+        //             OrderId = Guid.Parse(""),
+        //             ProductPrice = 12,
+        //             Quantity = 2,
+        //         },
+        //
+        //     };
+        //
+        //     foreach (OrderProduct op in orderProduct)
+        //     {
+        //         context.OrderProducts.Add(op);
+        //     }
+        // }
 
         //
         // order
-        if (!context.Orders.Any())
-        {
-            var order = new Order[]
-            {
-                new Order
-                {
-                    OrderId = Guid.Parse(""),
-                    AddressId = Guid.Parse(""),
-                    CreatedAt = DateTime.UtcNow,
-                    CustomerId = Guid.Parse(""),
-                    // OrderProducts = ,
-                    
-                },
-
-            };
-
-            foreach (Order o in order)
-            {
-                context.Orders.Add(o);
-            }
-        }
+        // if (!context.Orders.Any())
+        // {
+        //     var order = new Order[]
+        //     {
+        //         new Order
+        //         {
+        //             OrderId = Guid.Parse(""),
+        //             AddressId = Guid.Parse(""),
+        //             CreatedAt = DateTime.UtcNow,
+        //             CustomerId = Guid.Parse(""),
+        //             // OrderProducts = ,
+        //             
+        //         },
+        //
+        //     };
+        //
+        //     foreach (Order o in order)
+        //     {
+        //         context.Orders.Add(o);
+        //     }
+        // }
 
 
         //review
-        if (!context.Reviews.Any())
-        {
-            var review = new Review[]
-            {
-                new Review
-                {
-                    ReviewId = Guid.Parse(""),
-                    Comment = "",
-                    OrderId = Guid.Parse(""),
-                    CustomerId = Guid.Parse(""),
-                    ProductId = Guid.Parse(""),
-                    Rating = 3,
-                },
-
-            };
-
-            foreach (Review r in review)
-            {
-                context.Reviews.Add(r);
-            }
-        }
+        // if (!context.Reviews.Any())
+        // {
+        //     var review = new Review[]
+        //     {
+        //         new Review
+        //         {
+        //             ReviewId = Guid.Parse(""),
+        //             Comment = "",
+        //             OrderId = Guid.Parse(""),
+        //             CustomerId = Guid.Parse(""),
+        //             ProductId = Guid.Parse(""),
+        //             Rating = 3,
+        //         },
+        //
+        //     };
+        //
+        //     foreach (Review r in review)
+        //     {
+        //         context.Reviews.Add(r);
+        //     }
+        // }
 
 
         context.SaveChanges();

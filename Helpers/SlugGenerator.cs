@@ -1,10 +1,10 @@
-namespace api.Helpers
+namespace Backend.Helpers
 {
-  public class SlugGenerator
-  {
-    public static string GenerateSlug(string name)
+    public class SlugGenerator
     {
-      return name.ToLower().Replace(" ", "-");
+        public static string GenerateSlug(string name)
+        {
+            return name.ToLower().Replace(" ", "-");
+        }
     }
-  }
 }

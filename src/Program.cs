@@ -1,17 +1,17 @@
 using Microsoft.EntityFrameworkCore;
-
-using api.Data;
-using api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.Extensions.Options;
-using api.Authentication.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Identity;
-using api.Authentication.Service;
-using WebApplication1.Data;
-using api.Middleware;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text;
+
+using Backend;
+using Backend.Data;
+using Backend.EmailSetup;
+using Backend.Middleware;
+using Backend.Models;
+using Backend.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,8 +20,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(
-        builder.Configuration.GetConnectionString("LegendsConnection")
-    ));
+    builder.Configuration.GetConnectionString("LegendsConnection")
+).EnableSensitiveDataLogging());
 
 //Add the authentication
 var configuration = builder.Configuration;
@@ -73,21 +73,21 @@ var app = builder.Build();
 // adding data to the database if it doesn't exist, so we can all test the APIs
 // still testing this
 
-// using (var scope = app.Services.CreateScope())
-// {
-//     var services = scope.ServiceProvider;
-//     try
-//     {
-//         var context = services.GetRequiredService<AppDbContext>();
-//         var initializer = services.GetRequiredService<DbInitializer>();
-//         await initializer.InitializeAsync(context, services);
-//     }
-//     catch (Exception ex)
-//     {
-//         var logger = services.GetRequiredService<ILogger<Program>>();
-//         logger.LogError(ex, "An error occurred while seeding the database");
-//     }
-// }
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        var initializer = services.GetRequiredService<DbInitializer>();
+        await initializer.InitializeAsync(context, services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database");
+    }
+}
 
 //
 

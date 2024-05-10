@@ -1,25 +1,26 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace Backend.Models;
+
 public class Review
 {
-  public Guid ReviewId { get; set; }
+    public Guid ReviewId { get; set; }
 
-  [Required(ErrorMessage = "Product rate is required")]
-  [Range(1, 5)]
-  public int Rating { get; set; }
+    [Required(ErrorMessage = "Product rate is required")]
+    [Range(1, 5)]
+    public int Rating { get; set; }
 
-  public string Comment { get; set; } = string.Empty;
+    public string Comment { get; set; } = string.Empty;
 
-  public DateTime ReviewDate { get; set; }
+    public DateTime ReviewDate { get; set; }
 
-  public string Status { get; set; } = "Pending";
+    public string Status { get; set; } = "Pending";
 
-  public bool IsAnonymous { get; set; } = false;
+    public bool IsAnonymous { get; set; } = false;
 
-  //? Relations
+    //? Relations
 
-  public Guid ProductId { get; set; }
-  public Guid CustomerId { get; set; }
-  public Guid OrderId { get; set; }
-
+    public Guid ProductId { get; set; }
+    public Guid CustomerId { get; set; }
+    public Guid OrderId { get; set; }
 }

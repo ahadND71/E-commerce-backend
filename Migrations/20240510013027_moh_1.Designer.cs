@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240503220753_enas_database_mig1")]
-    partial class enas_database_mig1
+    [Migration("20240510013027_moh_1")]
+    partial class moh_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -104,13 +104,19 @@ namespace Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("Mobile")
-                        .HasColumnType("integer");
+                    b.Property<string>("Mobile")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)");
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ResetToken")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ResetTokenExpiration")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("AdminId");
 
@@ -123,7 +129,7 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AdminId")
+                    b.Property<Guid?>("AdminId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -179,10 +185,19 @@ namespace Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Mobile")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)");
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ResetToken")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ResetTokenExpiration")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("CustomerId");
 
@@ -223,7 +238,7 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("OrderProduct", b =>
                 {
-                    b.Property<Guid>("OrderItemId")
+                    b.Property<Guid>("OrderProductId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -240,7 +255,7 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("integer");
 
-                    b.HasKey("OrderItemId");
+                    b.HasKey("OrderProductId");
 
                     b.HasIndex("OrderId");
 
@@ -320,7 +335,7 @@ namespace Backend.Migrations
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("OrderId")
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ProductId")

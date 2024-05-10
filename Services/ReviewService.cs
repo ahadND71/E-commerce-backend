@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using api.Data;
-using api.Helpers;
 
-namespace api.Services;
+using Backend.Data;
+using Backend.Helpers;
+using Backend.Models;
+
+namespace Backend.Services;
 
 public class ReviewService
 {
@@ -18,9 +20,9 @@ public class ReviewService
     {
         var totalReviewCount = await _dbContext.Reviews.CountAsync();
         var review = await _dbContext.Reviews
-        .Skip((currentPage - 1) * pageSize)
-        .Take(pageSize)
-        .ToListAsync();
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
         return new PaginationResult<Review>
         {
             Items = review,
@@ -56,6 +58,7 @@ public class ReviewService
             existingReview.Status = updateReview.Status ?? existingReview.Status;
             await _dbContext.SaveChangesAsync();
         }
+
         return existingReview;
     }
 
@@ -69,6 +72,7 @@ public class ReviewService
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
         return false;
     }
 }

@@ -33,11 +33,11 @@ public class Product
 
   public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-  // Relations
+  //? Relations
+
   public Guid? CategoryId { get; set; }
   public Guid? AdminId { get; set; }
 
   public ICollection<Review> Reviews { get; } = new List<Review>();
-
   public ICollection<OrderProduct> OrderProducts { get; } = new List<OrderProduct>();
 }

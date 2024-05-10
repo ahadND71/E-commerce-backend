@@ -6,12 +6,11 @@ using api.Authentication.Dtos;
 using api.Helpers;
 using AutoMapper;
 
-
 namespace api.Services;
+
 
 public class AdminService
 {
-
   private readonly AppDbContext _dbContext;
   private readonly IPasswordHasher<Admin> _passwordHasher;
   private readonly IEmailSender _emailSender;
@@ -35,7 +34,6 @@ public class AdminService
     .ToListAsync();
 
     var adminDtos = _mapper.Map<List<Admin>, List<AdminDto>>(admins);
-
     return new PaginationResult<AdminDto>
     {
       Items = adminDtos,
@@ -61,6 +59,7 @@ public class AdminService
     {
       return null;
     }
+
     newAdmin.AdminId = Guid.NewGuid();
     newAdmin.CreatedAt = DateTime.UtcNow;
     newAdmin.Password = _passwordHasher.HashPassword(newAdmin, newAdmin.Password);
@@ -69,6 +68,7 @@ public class AdminService
     return newAdmin;
   }
 
+
   public async Task<LoginUserDto?> LoginAdminService(LoginUserDto loginUserDto)
   {
     var admin = await _dbContext.Admins.SingleOrDefaultAsync(a => a.Email == loginUserDto.Email);
@@ -76,15 +76,15 @@ public class AdminService
     {
       return null;
     }
+
     var result = _passwordHasher.VerifyHashedPassword(admin, admin.Password, loginUserDto.Password);
     loginUserDto.UserId = admin.AdminId;
     loginUserDto.IsAdmin = true;
     return result == PasswordVerificationResult.Success ? loginUserDto : null;
-
   }
 
 
-  public async Task<Admin> UpdateAdminService(Guid adminId, Admin updateAdmin)
+  public async Task<Admin?> UpdateAdminService(Guid adminId, Admin updateAdmin)
   {
     var existingAdmin = await _dbContext.Admins.FindAsync(adminId);
     if (existingAdmin != null)
@@ -110,8 +110,10 @@ public class AdminService
       await _dbContext.SaveChangesAsync();
       return true;
     }
+
     return false;
   }
+
 
   public async Task<bool> ForgotPasswordService(string email)
   {
@@ -122,17 +124,15 @@ public class AdminService
     }
 
     var resetToken = Guid.NewGuid();
-
     admin.ResetToken = resetToken;
     admin.ResetTokenExpiration = DateTime.UtcNow.AddHours(1);
     // bc we still not have real host so i will just send a token so we can test it using swagger in the production adjust this 2 lines
     // string resetLink = $"http://localhost:5125/api/admins/reset-password?email={email}&token={resetToken}";
-
     await _emailSender.SendEmailAsync(email, "Password Reset", $"Dear {admin.FirstName},\nThis is your token {resetToken} to reset your password");
     await _dbContext.SaveChangesAsync();
     return true;
-
   }
+
 
   public async Task<bool> ResetPasswordService(ResetPasswordDto resetPasswordDto)
   {
@@ -146,15 +146,11 @@ public class AdminService
     admin.ResetTokenExpiration = null;
     await _dbContext.SaveChangesAsync();
     return true;
-
   }
 
 
   public async Task<bool> IsEmailExists(string email)
   {
     return await _dbContext.Admins.AnyAsync(a => a.Email == email) || await _dbContext.Customers.AnyAsync(c => c.Email == email);
-
   }
-
-
 }

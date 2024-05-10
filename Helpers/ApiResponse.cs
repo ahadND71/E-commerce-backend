@@ -12,40 +12,48 @@ namespace api.Controllers
             return CreateResponse<T>(HttpStatusCode.OK, true, message, data, token, meta);
         }
 
+
         public static IActionResult Created<T>(T data, string message = "Resource Created")
         {
             return CreateResponse<T>(HttpStatusCode.Created, true, message, data, null, null);
         }
+
 
         public static IActionResult NotFound(string message = "Resource Not Found")
         {
             return CreateResponse<object>(HttpStatusCode.NotFound, false, message, null, null, null);
         }
 
+
         public static IActionResult Conflict(string message = "Conflict Detected")
         {
             return CreateResponse<object>(HttpStatusCode.Conflict, false, message, null, null, null);
         }
+
 
         public static IActionResult BadRequest(string message = "Bad Request")
         {
             return CreateResponse<object>(HttpStatusCode.BadRequest, false, message, null, null, null);
         }
 
+
         public static IActionResult UnAuthorized(string message = "Unauthorized Access")
         {
             return CreateResponse<object>(HttpStatusCode.Unauthorized, false, message, null, null, null);
         }
+
 
         public static IActionResult Forbidden(string message = "Forbidden Access")
         {
             return CreateResponse<object>(HttpStatusCode.Forbidden, false, message, null, null, null);
         }
 
+
         public static IActionResult ServerError(string message = "Internal Server Error")
         {
             return CreateResponse<object>(HttpStatusCode.InternalServerError, false, message, null, null, null);
         }
+
 
         private static IActionResult CreateResponse<T>(HttpStatusCode statusCode, bool success, string message, T data, string token, PaginationMeta meta)
         {
@@ -65,7 +73,6 @@ namespace api.Controllers
         public string Token { get; set; }
         public PaginationMeta? Meta { get; set; }
 
-
         public ApiResponseTemplate(int statusCode, bool success, string message, T? data, string token, PaginationMeta? meta)
         {
             StatusCode = statusCode;
@@ -74,7 +81,6 @@ namespace api.Controllers
             Data = data;
             Token = token;
             Meta = meta;
-
         }
     }
 }

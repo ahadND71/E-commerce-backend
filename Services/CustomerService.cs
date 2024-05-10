@@ -7,9 +7,9 @@ using AutoMapper;
 
 namespace api.Services;
 
+
 public class CustomerService
 {
-
   private readonly AppDbContext _dbContext;
   private readonly IPasswordHasher<Customer> _passwordHasher;
   private readonly IEmailSender _emailSender;
@@ -61,7 +61,7 @@ public class CustomerService
     bool userExist = await IsEmailExists(newCustomer.Email);
     if (userExist)
     {
-      return null;
+      return (Customer)Results.BadRequest();
     }
     newCustomer.CustomerId = Guid.NewGuid();
     newCustomer.CreatedAt = DateTime.UtcNow;
@@ -87,7 +87,7 @@ public class CustomerService
   }
 
 
-  public async Task<Customer> UpdateCustomerService(Guid customerId, Customer updateCustomer)
+  public async Task<Customer?> UpdateCustomerService(Guid customerId, Customer updateCustomer)
   {
     var existingCustomer = await _dbContext.Customers.FindAsync(customerId);
     if (existingCustomer != null)
@@ -101,6 +101,7 @@ public class CustomerService
       existingCustomer.IsBanned = updateCustomer.IsBanned;
       await _dbContext.SaveChangesAsync();
     }
+
     return existingCustomer;
   }
 
@@ -114,8 +115,10 @@ public class CustomerService
       await _dbContext.SaveChangesAsync();
       return true;
     }
+
     return false;
   }
+
 
   public async Task<bool> ForgotPasswordService(string email)
   {
@@ -126,7 +129,6 @@ public class CustomerService
     }
 
     var resetToken = Guid.NewGuid();
-
     customer.ResetToken = resetToken;
     customer.ResetTokenExpiration = DateTime.UtcNow.AddHours(1);
     // bc we still not have real host so i will just send a token so we can test it using swagger in the production adjust this 2 lines
@@ -135,8 +137,8 @@ public class CustomerService
     await _emailSender.SendEmailAsync(email, "Password Reset", $"Dear {customer.FirstName},\nThis is your token {resetToken} to reset your password");
     await _dbContext.SaveChangesAsync();
     return true;
-
   }
+
 
   public async Task<bool> ResetPasswordService(ResetPasswordDto resetPasswordDto)
   {
@@ -152,11 +154,10 @@ public class CustomerService
     return true;
 
   }
+
+
   public async Task<bool> IsEmailExists(string email)
   {
     return await _dbContext.Admins.AnyAsync(a => a.Email == email) || await _dbContext.Customers.AnyAsync(c => c.Email == email);
-
   }
-
-
 }

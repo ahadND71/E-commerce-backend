@@ -1,8 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
 
-
-[Index(nameof(Email), IsUnique = true)]
 public class Customer
 {
   public Guid CustomerId { get; set; }
@@ -23,9 +20,7 @@ public class Customer
   [Required(ErrorMessage = "Mobile number is required")]
   public string Mobile { get; set; } = string.Empty;
 
-
   [Required(ErrorMessage = "Password is required")]
-  // [MaxLength(25), MinLength(8)]
   public string Password { get; set; } = string.Empty;
 
   public string Image { get; set; } = string.Empty;
@@ -36,8 +31,8 @@ public class Customer
   public Guid? ResetToken { get; set; }
   public DateTime? ResetTokenExpiration { get; set; }
 
-  // Relations
-  // public string AddressId { get; set; } = string.Empty;
+  //? Relations
+
   public ICollection<Address> Addresses { get; } = new List<Address>();
   public ICollection<Order> Orders { get; } = new List<Order>();
   public ICollection<Review> Reviews { get; } = new List<Review>();

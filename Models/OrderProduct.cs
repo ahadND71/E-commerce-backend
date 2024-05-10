@@ -1,19 +1,18 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 public class OrderProduct
 {
-  [Key]
-  public Guid OrderItemId { get; set; }
+  public Guid OrderProductId { get; set; }
 
   [Required(ErrorMessage = "Number of quantity of the item ordered can not be empty")]
-  // [MaxLength(10), MinLength(1)]
   public int? Quantity { get; set; }
 
   [Required(ErrorMessage = "The price of unit can not be empty")]
   public int ProductPrice { get; set; }
 
-  // Relations
+  //? Relations
+
   public Guid OrderId { get; set; }
   public Guid ProductId { get; set; }
 }

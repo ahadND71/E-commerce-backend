@@ -8,7 +8,6 @@ namespace api.Helpers
         {
             CreateMap<Customer, CustomerDto>();
             CreateMap<Admin, AdminDto>();
-
         }
     }
 }

@@ -6,24 +6,26 @@ namespace api.Services;
 
 public class CategoryService
 {
+  private readonly AppDbContext _categoryDbContext;
 
-  private readonly AppDbContext _dbContext;
-  public CategoryService(AppDbContext dbContext)
+  public CategoryService(AppDbContext categoryDbContext)
   {
-    _dbContext = dbContext;
+    _categoryDbContext = categoryDbContext;
   }
 
 
-  public async Task<PaginationResult<Category>> GetAllCategoryService(int currentPage , int pageSize)
+  public async Task<PaginationResult<Category>> GetAllCategoryService(int currentPage, int pageSize)
   {
-    var totalCategoryCount = await _dbContext.Categories.CountAsync();
-    var category = await _dbContext.Categories
+    var totalCategoryCount = await _categoryDbContext.Categories.CountAsync();
+    var category = await _categoryDbContext.Categories
     .Include(c => c.Products)
     .ThenInclude(r => r.Reviews)
-    .Skip((currentPage -1) * pageSize)
+    .Skip((currentPage - 1) * pageSize)
     .Take(pageSize)
     .ToListAsync();
-    return new PaginationResult<Category>{
+
+    return new PaginationResult<Category>
+    {
       Items = category,
       TotalCount = totalCategoryCount,
       CurrentPage = currentPage,
@@ -34,9 +36,9 @@ public class CategoryService
 
   public async Task<Category?> GetCategoryById(Guid categoryId)
   {
-    return await _dbContext.Categories
-                  .Include(c => c.Products)
-                  .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
+    return await _categoryDbContext.Categories
+      .Include(c => c.Products)
+      .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
   }
 
 
@@ -45,35 +47,36 @@ public class CategoryService
     newCategory.CategoryId = Guid.NewGuid();
     newCategory.Slug = SlugGenerator.GenerateSlug(newCategory.Name);
     newCategory.CreatedAt = DateTime.UtcNow;
-    _dbContext.Categories.Add(newCategory);
-    await _dbContext.SaveChangesAsync();
+    _categoryDbContext.Categories.Add(newCategory);
+    await _categoryDbContext.SaveChangesAsync();
     return newCategory;
   }
 
 
   public async Task<Category?> UpdateCategoryService(Guid categoryId, Category updateCategory)
   {
-    var existingCategory = await _dbContext.Categories.FindAsync(categoryId);
+    var existingCategory = await _categoryDbContext.Categories.FindAsync(categoryId);
     if (existingCategory != null)
     {
       existingCategory.Name = updateCategory.Name ?? existingCategory.Name;
       existingCategory.Description = updateCategory.Description ?? existingCategory.Name;
-      await _dbContext.SaveChangesAsync();
+      await _categoryDbContext.SaveChangesAsync();
     }
+
     return existingCategory;
   }
 
 
   public async Task<bool> DeleteCategoryService(Guid categoryId)
   {
-    var categoryToRemove = await _dbContext.Categories.FindAsync(categoryId);
+    var categoryToRemove = await _categoryDbContext.Categories.FindAsync(categoryId);
     if (categoryToRemove != null)
     {
-      _dbContext.Categories.Remove(categoryToRemove);
-      await _dbContext.SaveChangesAsync();
+      _categoryDbContext.Categories.Remove(categoryToRemove);
+      await _categoryDbContext.SaveChangesAsync();
       return true;
     }
+
     return false;
   }
-
 }

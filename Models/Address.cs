@@ -30,7 +30,7 @@ public class Address
   [MaxLength(10)]
   public string ZipCode { get; set; } = string.Empty;
 
-  // Relations
-  public Guid CustomerId { get; set; }
+  //? Relations
 
+  public Guid CustomerId { get; set; }
 }

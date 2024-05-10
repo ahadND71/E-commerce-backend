@@ -2,12 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using api.Services;
-using api.Helpers;
-using Microsoft.AspNetCore.Identity.Data;
 using api.Authentication.Service;
 using api.Authentication.Dtos;
-using Microsoft.IdentityModel.Tokens;
-using SendGrid.Helpers.Errors.Model;
 
 namespace api.Controllers;
 
@@ -16,41 +12,29 @@ namespace api.Controllers;
 [Route("/api/admins")]
 public class AdminController : ControllerBase
 {
-    private readonly AdminService _dbContext;
+    private readonly AdminService _adminService;
     private readonly AuthService _authService;
     private readonly IEmailSender _emailSender;
-
     public AdminController(AdminService adminService, AuthService authService, IEmailSender emailSender)
     {
-        _dbContext = adminService;
+        _adminService = adminService;
         _authService = authService;
         _emailSender = emailSender;
     }
 
 
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllAdmins([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
-        try
+        var admins = await _adminService.GetAllAdminsService(currentPage, pageSize);
+        if (admins.TotalCount < 1)
         {
-            var admins = await _dbContext.GetAllAdminsService(currentPage, pageSize);
-            if (admins.TotalCount < 1)
-            {
-                return ApiResponse.NotFound("No Admins To Display");
-
-            }
-
-            return ApiResponse.Success<IEnumerable<Admin>>(
-                admins.Items,
-               "Admins are returned successfully");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot return the Admin list");
-            return ApiResponse.ServerError(ex.Message);
+            return ApiResponse.NotFound("No Admins To Display");
 
         }
+
+        return Ok(admins);
     }
 
 
@@ -58,108 +42,75 @@ public class AdminController : ControllerBase
     [HttpGet("{adminId}")]
     public async Task<IActionResult> GetAdmin(string adminId)
     {
-        try
+        if (!Guid.TryParse(adminId, out Guid adminIdGuid))
         {
-            if (!Guid.TryParse(adminId, out Guid adminIdGuid))
-            {
-                return BadRequest("Invalid admin ID Format");
-            }
-            var admin = await _dbContext.GetAdminById(adminIdGuid);
-            if (admin == null)
-            {
-                return ApiResponse.NotFound(
-                 $"No Admin Found With ID : ({adminIdGuid})");
-            }
-            else
-            {
-                return ApiResponse.Success<Admin>(
-                 admin,
-                 "Admin is returned successfully"
-               );
-            }
+            return ApiResponse.BadRequest("Invalid admin ID Format");
         }
-        catch (Exception ex)
+
+        var admin = await _adminService.GetAdminById(adminIdGuid);
+        if (admin == null)
         {
-            Console.WriteLine($"An error occurred, cannot return the Admin");
-            return ApiResponse.ServerError(ex.Message);
+            return ApiResponse.NotFound(
+             $"No Admin Found With ID : ({adminIdGuid})");
+        }
+        else
+        {
+            return ApiResponse.Success(admin,
+           "Admin is returned successfully");
         }
     }
 
-    // [Authorize(Roles = "Admin")]
+
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {
-        try
+        var createdAdmin = await _adminService.CreateAdminService(newAdmin);
+        if (createdAdmin != null)
         {
-            var createdAdmin = await _dbContext.CreateAdminService(newAdmin);
-            if (createdAdmin != null)
-            {
-                return ApiResponse.Created<Admin>(createdAdmin, "Admin is created successfully");
-            }
-            else
-            {
-                return ApiResponse.ServerError("Email already exists");
-
-            }
-
+            return ApiResponse.Created(createdAdmin, "Admin is created successfully");
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"An error occurred, cannot create new Admin");
-            return ApiResponse.ServerError(ex.Message);
+            return ApiResponse.ServerError("Email already exists");
         }
     }
+
 
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> LoginAdmin([FromBody] LoginUserDto loginUserDto)
     {
-        try
+        var LoggedAdmin = await _adminService.LoginAdminService(loginUserDto);
+        if (LoggedAdmin == null)
         {
-            var LoggedAdmin = await _dbContext.LoginAdminService(loginUserDto);
-            if (LoggedAdmin == null)
-            {
-                return ApiResponse.UnAuthorized("Invalid Credential");
-            }
-            var token = _authService.GenerateJwtToken(LoggedAdmin);
-            return ApiResponse.Success<LoginUserDto>(LoggedAdmin, "Admin is loggedIn successfully", null, token);
-
-
+            return ApiResponse.UnAuthorized("Invalid Credential");
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot login");
-            return ApiResponse.ServerError(ex.Message);
-        }
+
+        var token = _authService.GenerateJwtToken(LoggedAdmin);
+        return ApiResponse.Success(LoggedAdmin, "Admin is loggedIn successfully", null, token);
     }
+
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{adminId}")]
     public async Task<IActionResult> UpdateAdmin(string adminId, Admin updateAdmin)
     {
-        try
+        if (!Guid.TryParse(adminId, out Guid adminIdGuid))
         {
-            if (!Guid.TryParse(adminId, out Guid adminIdGuid))
-            {
-                return ApiResponse.BadRequest("Invalid Admin ID Format");
-            }
-            var admin = await _dbContext.UpdateAdminService(adminIdGuid, updateAdmin);
-            if (admin == null)
-            {
-                return ApiResponse.NotFound("No Admin Founded To Update");
-
-            }
-            return ApiResponse.Success<Admin>(
-                admin,
-                "Admin Is Updated Successfully"
-            );
+            return ApiResponse.BadRequest("Invalid Admin ID Format");
         }
-        catch (Exception ex)
+
+        var admin = await _adminService.UpdateAdminService(adminIdGuid, updateAdmin);
+        if (admin == null)
         {
-            Console.WriteLine($"An error occurred, cannot update the Admin ");
-            return ApiResponse.ServerError(ex.Message);
+            return ApiResponse.NotFound("No Admin Founded To Update");
 
         }
+        return ApiResponse.Success<Admin>(
+            admin,
+            "Admin Is Updated Successfully"
+        );
     }
 
 
@@ -167,29 +118,21 @@ public class AdminController : ControllerBase
     [HttpDelete("{adminId}")]
     public async Task<IActionResult> DeleteAdmin(string adminId)
     {
-        try
+        if (!Guid.TryParse(adminId, out Guid adminIdGuid))
         {
-            if (!Guid.TryParse(adminId, out Guid adminIdGuid))
-            {
-                return ApiResponse.BadRequest("Invalid admin ID Format");
-            }
-            var result = await _dbContext.DeleteAdminService(adminIdGuid);
-            if (!result)
-
-            {
-                return ApiResponse.NotFound("The Admin is not found to be deleted");
-
-            }
-            //new SuccessMessage<Admin>
-            return ApiResponse.Success(" Admin is deleted successfully");
+            return ApiResponse.BadRequest("Invalid admin ID Format");
         }
-        catch (Exception ex)
+
+        var result = await _adminService.DeleteAdminService(adminIdGuid);
+        if (!result)
+
         {
-            Console.WriteLine($"An error occurred, the Admin can not deleted");
-            return ApiResponse.ServerError(ex.Message);
-
+            return ApiResponse.NotFound("The Admin is not found to be deleted");
         }
+        //new SuccessMessage<Admin>
+        return ApiResponse.Success(" Admin is deleted successfully");
     }
+
 
     //uncomment this to test it in your email but please use any domain except gmail i think you can also use temp email (preferred)
     // [AllowAnonymous]
@@ -199,53 +142,38 @@ public class AdminController : ControllerBase
     //     await _emailSender.SendEmailAsync("jixaba1294@facais.com", "hello", "how are you");
     //     return Ok();
     // }
+
+
     [AllowAnonymous]
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword(string email)
     {
-        try
+        var result = await _adminService.ForgotPasswordService(email);
+        if (!result)
         {
-            var result = await _dbContext.ForgotPasswordService(email);
-            if (!result)
-            {
-                return ApiResponse.NotFound("No user found with this email");
-            }
-            return ApiResponse.Success("Password reset email sent successfully");
+            return ApiResponse.NotFound("No user found with this email");
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred, cannot send password reset link: {ex.Message}");
-            return ApiResponse.ServerError(ex.Message);
-        }
+        return ApiResponse.Success("Password reset email sent successfully");
     }
+
 
     [AllowAnonymous]
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
     {
-        try
+        if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmNewPassword)
         {
-            if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmNewPassword)
-            {
-                return ApiResponse.BadRequest("Passwords do not match");
-            }
-
-            var result = await _dbContext.ResetPasswordService(resetPasswordDto);
-
-            if (!result)
-            {
-                return ApiResponse.BadRequest("User with this email not found");
-
-            }
-            return ApiResponse.Success("Password reset successfully");
+            return ApiResponse.BadRequest("Passwords do not match");
         }
-        catch (Exception ex)
+
+        var result = await _adminService.ResetPasswordService(resetPasswordDto);
+
+        if (!result)
         {
-            Console.WriteLine($"An error occurred, cannot reset password: {ex.Message}");
-            return ApiResponse.ServerError(ex.Message);
+            return ApiResponse.BadRequest("User with this email not found");
         }
+        return ApiResponse.Success("Password reset successfully");
     }
-
 }
 
 

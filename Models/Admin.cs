@@ -1,8 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
 
-// you can delete this bc i already add service to check the uniqueness for the two tables
-[Index(nameof(Email), IsUnique = true)]
 public class Admin
 {
   public Guid AdminId { get; set; }
@@ -21,11 +18,9 @@ public class Admin
   public string Email { get; set; } = string.Empty;
 
   [Required(ErrorMessage = "Password is required")]
-  // [MaxLength(25), MinLength(8)]
   public string Password { get; set; } = string.Empty;
 
   [Required(ErrorMessage = "Mobile number is required")]
-  // [MinLength(9)]
   public string Mobile { get; set; } = string.Empty;
 
   public string Image { get; set; } = string.Empty;
@@ -33,7 +28,4 @@ public class Admin
   public DateTime CreatedAt { get; set; }
   public Guid? ResetToken { get; set; }
   public DateTime? ResetTokenExpiration { get; set; }
-
-  // Relations
-  // public ICollection<Product> Products { get; set; }
 }

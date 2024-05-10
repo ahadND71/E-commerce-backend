@@ -37,8 +37,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    // [Authorize(Roles = "Admin")]
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin")]
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {
@@ -56,7 +55,7 @@ public class CustomerController : ControllerBase
         else
         {
             return ApiResponse.Success(customer,
-           "Customers is returned successfully");
+           "Customer is returned successfully");
         }
     }
 
@@ -92,8 +91,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    // [Authorize(Roles = "Admin")]
-    [AllowAnonymous]
+    [Authorize]
     [HttpPut("{customerId}")]
     public async Task<IActionResult> UpdateCustomer(string customerId, Customer updateCustomer)
     {
@@ -114,8 +112,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    // [Authorize(Roles = "Admin")]
-    [AllowAnonymous]
+    [Authorize]
     [HttpDelete("{customerId}")]
     public async Task<IActionResult> DeleteCustomer(string customerId)
     {

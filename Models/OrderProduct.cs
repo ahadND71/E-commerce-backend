@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 public class OrderProduct
 {
-  public Guid OrderItemId { get; set; }
+  public Guid OrderProductId { get; set; }
 
   [Required(ErrorMessage = "Number of quantity of the item ordered can not be empty")]
   public int? Quantity { get; set; }

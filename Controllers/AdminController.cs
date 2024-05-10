@@ -34,9 +34,7 @@ public class AdminController : ControllerBase
 
         }
 
-        return ApiResponse.Success(
-            admins.Items,
-           "Admins are returned successfully");
+        return Ok(admins);
     }
 
 
@@ -46,7 +44,7 @@ public class AdminController : ControllerBase
     {
         if (!Guid.TryParse(adminId, out Guid adminIdGuid))
         {
-            return BadRequest("Invalid admin ID Format");
+            return ApiResponse.BadRequest("Invalid admin ID Format");
         }
 
         var admin = await _adminService.GetAdminById(adminIdGuid);
@@ -57,27 +55,24 @@ public class AdminController : ControllerBase
         }
         else
         {
-            return ApiResponse.Success(
-             admin,
-             "Admin is returned successfully"
-           );
+            return ApiResponse.Success(admin,
+           "Admin is returned successfully");
         }
     }
 
 
-    // [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {
         var createdAdmin = await _adminService.CreateAdminService(newAdmin);
         if (createdAdmin != null)
         {
-            return ApiResponse.Created<Admin>(createdAdmin, "Admin is created successfully");
+            return ApiResponse.Created(createdAdmin, "Admin is created successfully");
         }
         else
         {
             return ApiResponse.ServerError("Email already exists");
-
         }
     }
 
@@ -93,8 +88,9 @@ public class AdminController : ControllerBase
         }
 
         var token = _authService.GenerateJwtToken(LoggedAdmin);
-        return ApiResponse.Success<LoginUserDto>(LoggedAdmin, "Admin is loggedIn successfully", null, token);
+        return ApiResponse.Success(LoggedAdmin, "Admin is loggedIn successfully", null, token);
     }
+
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{adminId}")]

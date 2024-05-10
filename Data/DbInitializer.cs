@@ -158,7 +158,7 @@ public class DbInitializer
             {
                 new OrderProduct
                 {
-                    OrderItemId = Guid.Parse(""),
+                    OrderProductId= Guid.Parse(""),
                     ProductId = Guid.Parse("7b88a4f8-ee9f-44f7-99ef-e084da0c8ee9"),
                     OrderId = Guid.Parse(""),
                     ProductPrice = 12,

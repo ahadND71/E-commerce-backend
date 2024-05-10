@@ -45,7 +45,7 @@ namespace api.Middleware
 
             switch (exception)
             {
-                case NotFoundException notFoundException:
+                case DllNotFoundException notFoundException:
                     responseCode = StatusCodes.Status404NotFound;
                     message = notFoundException.Message;
                     break;

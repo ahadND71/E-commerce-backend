@@ -10,14 +10,14 @@ namespace api.Services;
 
 public class CustomerService
 {
-  private readonly AppDbContext _customerDbContext;
+  private readonly AppDbContext _dbContext;
   private readonly IPasswordHasher<Customer> _passwordHasher;
   private readonly IEmailSender _emailSender;
   private readonly IMapper _mapper;
 
-  public CustomerService(AppDbContext customerDbContext, IPasswordHasher<Customer> passwordHasher, IEmailSender emailSender, IMapper mapper)
+  public CustomerService(AppDbContext dbContext, IPasswordHasher<Customer> passwordHasher, IEmailSender emailSender, IMapper mapper)
   {
-    _customerDbContext = customerDbContext;
+    _dbContext = dbContext;
     _passwordHasher = passwordHasher;
     _emailSender = emailSender;
     _mapper = mapper;
@@ -26,8 +26,8 @@ public class CustomerService
 
   public async Task<PaginationResult<CustomerDto>> GetAllCustomersService(int currentPage, int pageSize)
   {
-    var totalCustomerCount = await _customerDbContext.Customers.CountAsync();
-    var customers = await _customerDbContext.Customers
+    var totalCustomerCount = await _dbContext.Customers.CountAsync();
+    var customers = await _dbContext.Customers
     .Include(a => a.Addresses)
     .Include(o => o.Orders)
       .ThenInclude(op => op.OrderProducts)
@@ -50,7 +50,7 @@ public class CustomerService
 
   public async Task<CustomerDto?> GetCustomerById(Guid customerId)
   {
-    var customer = await _customerDbContext.Customers.FindAsync(customerId);
+    var customer = await _dbContext.Customers.FindAsync(customerId);
     var customerDto = _mapper.Map<CustomerDto>(customer);
     return customerDto;
   }
@@ -66,15 +66,15 @@ public class CustomerService
     newCustomer.CustomerId = Guid.NewGuid();
     newCustomer.CreatedAt = DateTime.UtcNow;
     newCustomer.Password = _passwordHasher.HashPassword(newCustomer, newCustomer.Password);
-    _customerDbContext.Customers.Add(newCustomer);
-    await _customerDbContext.SaveChangesAsync();
+    _dbContext.Customers.Add(newCustomer);
+    await _dbContext.SaveChangesAsync();
     return newCustomer;
   }
 
 
   public async Task<LoginUserDto?> LoginCustomerService(LoginUserDto loginUserDto)
   {
-    var customer = await _customerDbContext.Customers.SingleOrDefaultAsync(c => c.Email == loginUserDto.Email);
+    var customer = await _dbContext.Customers.SingleOrDefaultAsync(c => c.Email == loginUserDto.Email);
     if (customer == null)
     {
       return null;
@@ -89,7 +89,7 @@ public class CustomerService
 
   public async Task<Customer?> UpdateCustomerService(Guid customerId, Customer updateCustomer)
   {
-    var existingCustomer = await _customerDbContext.Customers.FindAsync(customerId);
+    var existingCustomer = await _dbContext.Customers.FindAsync(customerId);
     if (existingCustomer != null)
     {
       existingCustomer.FirstName = updateCustomer.FirstName ?? existingCustomer.FirstName;
@@ -99,7 +99,7 @@ public class CustomerService
       existingCustomer.Mobile = updateCustomer.Mobile ?? existingCustomer.Mobile;
       existingCustomer.Image = updateCustomer.Image ?? existingCustomer.Image;
       existingCustomer.IsBanned = updateCustomer.IsBanned;
-      await _customerDbContext.SaveChangesAsync();
+      await _dbContext.SaveChangesAsync();
     }
 
     return existingCustomer;
@@ -108,11 +108,11 @@ public class CustomerService
 
   public async Task<bool> DeleteCustomerService(Guid customerId)
   {
-    var customerToRemove = await _customerDbContext.Customers.FindAsync(customerId);
+    var customerToRemove = await _dbContext.Customers.FindAsync(customerId);
     if (customerToRemove != null)
     {
-      _customerDbContext.Customers.Remove(customerToRemove);
-      await _customerDbContext.SaveChangesAsync();
+      _dbContext.Customers.Remove(customerToRemove);
+      await _dbContext.SaveChangesAsync();
       return true;
     }
 
@@ -122,7 +122,7 @@ public class CustomerService
 
   public async Task<bool> ForgotPasswordService(string email)
   {
-    var customer = await _customerDbContext.Customers.FirstOrDefaultAsync(e => e.Email == email);
+    var customer = await _dbContext.Customers.FirstOrDefaultAsync(e => e.Email == email);
     if (customer == null)
     {
       return false;
@@ -135,14 +135,14 @@ public class CustomerService
     // string resetLink = $"http://localhost:5125/api/admins/reset-password?email={email}&token={resetToken}";
 
     await _emailSender.SendEmailAsync(email, "Password Reset", $"Dear {customer.FirstName},\nThis is your token {resetToken} to reset your password");
-    await _customerDbContext.SaveChangesAsync();
+    await _dbContext.SaveChangesAsync();
     return true;
   }
 
 
   public async Task<bool> ResetPasswordService(ResetPasswordDto resetPasswordDto)
   {
-    var customer = await _customerDbContext.Customers.FirstOrDefaultAsync(a => a.Email == resetPasswordDto.Email);
+    var customer = await _dbContext.Customers.FirstOrDefaultAsync(a => a.Email == resetPasswordDto.Email);
     if (customer == null || customer.ResetToken != resetPasswordDto.Token || customer.ResetTokenExpiration < DateTime.UtcNow)
     {
       return false;
@@ -150,7 +150,7 @@ public class CustomerService
     customer.Password = _passwordHasher.HashPassword(customer, resetPasswordDto.NewPassword);
     customer.ResetToken = null;
     customer.ResetTokenExpiration = null;
-    await _customerDbContext.SaveChangesAsync();
+    await _dbContext.SaveChangesAsync();
     return true;
 
   }
@@ -158,6 +158,6 @@ public class CustomerService
 
   public async Task<bool> IsEmailExists(string email)
   {
-    return await _customerDbContext.Admins.AnyAsync(a => a.Email == email) || await _customerDbContext.Customers.AnyAsync(c => c.Email == email);
+    return await _dbContext.Admins.AnyAsync(a => a.Email == email) || await _dbContext.Customers.AnyAsync(c => c.Email == email);
   }
 }

@@ -38,7 +38,7 @@ public class OrderProductService
 
   public async Task<OrderProduct> CreateOrderProductService(OrderProduct newOrderProduct)
   {
-    newOrderProduct.OrderItemId = Guid.NewGuid();
+    newOrderProduct.OrderProductId = Guid.NewGuid();
     _orderProductDbContext.OrderProducts.Add(newOrderProduct);
     await _orderProductDbContext.SaveChangesAsync();
     return newOrderProduct;

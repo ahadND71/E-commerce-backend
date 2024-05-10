@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-
 using Backend.Models;
 
 namespace Backend.Data;
@@ -29,6 +28,9 @@ public class DbInitializer
                     FirstName = "Mohammad",
                     LastName = "Alkhamis",
                     Email = "moh@example.com",
+                    Image = "moh.webp",
+                    Mobile = "966554556677",
+                    CreatedAt = new DateTime(2024, 4, 28, 11, 35, 0, DateTimeKind.Utc),
                     Password = _passwordHasher.HashPassword(null, "Test@123")
                 },
                 new Admin
@@ -37,6 +39,9 @@ public class DbInitializer
                     FirstName = "Enas",
                     LastName = "Batarfi",
                     Email = "enas@example.com",
+                    Image = "enas.webp",
+                    Mobile = "966554556677",
+                    CreatedAt = new DateTime(2024, 4, 29, 15, 44, 22, DateTimeKind.Utc),
                     Password = _passwordHasher.HashPassword(null, "Test@123")
                 },
                 new Admin
@@ -45,6 +50,9 @@ public class DbInitializer
                     FirstName = "Ahad",
                     LastName = "Nasser",
                     Email = "ahad@example.com",
+                    Image = "ahad.webp",
+                    Mobile = "966554556677",
+                    CreatedAt = new DateTime(2024, 4, 28, 8, 18, 32, DateTimeKind.Utc),
                     Password = _passwordHasher.HashPassword(null, "Test@123")
                 },
                 new Admin
@@ -53,6 +61,9 @@ public class DbInitializer
                     FirstName = "Shahad",
                     LastName = "Draim",
                     Email = "shahad@example.com",
+                    Image = "shahad.webp",
+                    Mobile = "966554556677",
+                    CreatedAt = new DateTime(2024, 4, 30, 18, 55, 55, DateTimeKind.Utc),
                     Password = _passwordHasher.HashPassword(null, "Test@123")
                 }
             };
@@ -75,6 +86,9 @@ public class DbInitializer
                     FirstName = "Marim",
                     LastName = "Ahmad",
                     Email = "marim@example.com",
+                    Image = "image.webp",
+                    Mobile = "966554556677",
+                    CreatedAt = new DateTime(2024, 5, 1, 12, 12, 12, DateTimeKind.Utc),
                     Password = _passwordHasher.HashPassword(null, "Test@123")
                 },
                 new Customer
@@ -83,6 +97,9 @@ public class DbInitializer
                     FirstName = "Nora",
                     LastName = "Faisal",
                     Email = "nora@example.com",
+                    Image = "image.webp",
+                    Mobile = "966554556677",
+                    CreatedAt = new DateTime(2024, 5, 1, 12, 12, 12, DateTimeKind.Utc),
                     Password = _passwordHasher.HashPassword(null, "Test@123")
                 },
                 new Customer
@@ -91,6 +108,9 @@ public class DbInitializer
                     FirstName = "Fahad",
                     LastName = "Abdulrahman",
                     Email = "fahad@example.com",
+                    Image = "image.webp",
+                    Mobile = "966554556677",
+                    CreatedAt = new DateTime(2024, 5, 1, 12, 12, 12, DateTimeKind.Utc),
                     Password = _passwordHasher.HashPassword(null, "Test@123")
                 },
                 new Customer
@@ -99,6 +119,9 @@ public class DbInitializer
                     FirstName = "Somyia",
                     LastName = "Saad",
                     Email = "somyia@example.com",
+                    Image = "image.webp",
+                    Mobile = "966554556677",
+                    CreatedAt = new DateTime(2024, 5, 1, 12, 12, 12, DateTimeKind.Utc),
                     Password = _passwordHasher.HashPassword(null, "Test@123")
                 }
             };
@@ -121,6 +144,7 @@ public class DbInitializer
                     Name = "Stickers",
                     Slug = "stickers",
                     Description = "All things stickers, awesome, testing",
+                    CreatedAt = new DateTime(2024, 4, 28, 25, 25, 25, DateTimeKind.Utc),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
                 new Category
@@ -129,6 +153,7 @@ public class DbInitializer
                     Name = "Notebooks",
                     Slug = "notebooks",
                     Description = "Journals, sketchbooks, planners, and notepads",
+                    CreatedAt = new DateTime(2024, 4, 28, 26, 25, 25, DateTimeKind.Utc),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
                 new Category
@@ -137,6 +162,7 @@ public class DbInitializer
                     Name = "Pens",
                     Slug = "pens",
                     Description = "Fountain pens, ballpoint pens, gel pens, and more!",
+                    CreatedAt = new DateTime(2024, 4, 28, 27, 25, 25, DateTimeKind.Utc),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
                 new Category
@@ -145,6 +171,7 @@ public class DbInitializer
                     Name = "Pencils",
                     Slug = "pencils",
                     Description = "Mechanical pencils, graphite pencils, colored pencils",
+                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 }
             };
@@ -165,9 +192,13 @@ public class DbInitializer
                 {
                     ProductId = Guid.Parse("7b88a4f8-ee9f-44f7-99ef-e084da0c8ee9"),
                     Name = "Saudi stickers",
+                    Slug = "saudi-stickers",
                     Price = 39.9m,
                     Description = "Saudi related stickers",
                     StockQuantity = 110,
+                    SKU = "PRO-TES-ING-THIS",
+                    ImgUrl = "product-1.webp",
+                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("bca83459-e31f-4ffc-9573-9245c9cbe6b7"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
@@ -175,9 +206,13 @@ public class DbInitializer
                 {
                     ProductId = Guid.Parse("4963d195-33e0-4718-9c0c-f7db68678917"),
                     Name = "Planner Stickers",
+                    Slug = "planner-stickers",
                     Price = 5.9m,
                     Description = "Sheet of functional stickers for organizing your planner",
                     StockQuantity = 110,
+                    SKU = "PRO-TES-ING-THIS",
+                    ImgUrl = "product-1.webp",
+                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("bca83459-e31f-4ffc-9573-9245c9cbe6b7"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
@@ -185,9 +220,13 @@ public class DbInitializer
                 {
                     ProductId = Guid.Parse("210518cb-b4c4-4d2f-9a53-f6520b534657"),
                     Name = "Stars Notebooks",
+                    Slug = "stars-notebooks",
                     Price = 25.5m,
                     Description = "Notebook will take you to the stars",
                     StockQuantity = 40,
+                    SKU = "PRO-TES-ING-THIS",
+                    ImgUrl = "product-1.webp",
+                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("c94d673b-be8d-4b1f-8a36-cbd6ed765644"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
@@ -195,9 +234,13 @@ public class DbInitializer
                 {
                     ProductId = Guid.Parse("33ad3125-c70f-485e-bf32-b90ad76e3ad4"),
                     Name = "Blue Gel pen",
+                    Slug = "blue-gel-pen",
                     Price = 35.5m,
                     Description = "Write your ideas",
                     StockQuantity = 30,
+                    SKU = "PRO-TES-ING-THIS",
+                    ImgUrl = "product-1.webp",
+                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("9c506bbf-0fd7-43af-9507-40fb32d8bdbd"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 },
@@ -205,9 +248,13 @@ public class DbInitializer
                 {
                     ProductId = Guid.Parse("b106d590-002f-4b10-9237-b3954651efd0"),
                     Name = "Pencil",
+                    Slug = "pencil",
                     Price = 35.5m,
                     Description = "Write your ideas",
                     StockQuantity = 30,
+                    SKU = "PRO-TES-ING-THIS",
+                    ImgUrl = "product-1.webp",
+                    CreatedAt = new DateTime(2024, 4, 28, 28, 25, 25, DateTimeKind.Utc),
                     CategoryId = Guid.Parse("fafbdf01-de53-486b-9e4b-5b501cc8369e"),
                     AdminId = Guid.Parse("02c18f24-d667-4c07-8c4f-454dea50c115")
                 }

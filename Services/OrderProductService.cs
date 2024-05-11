@@ -47,14 +47,11 @@ public class OrderProductService
         if (product != null)
         {
             newOrderProduct.ProductPrice = product.Price * newOrderProduct.Quantity;
-
-            var order = _dbContext.Orders.FirstOrDefault(o => o.OrderId == newOrderProduct.OrderId);
-
-            order.TotalPrice += newOrderProduct.ProductPrice;
         }
 
         _dbContext.OrderProducts.Add(newOrderProduct);
         await _dbContext.SaveChangesAsync();
+        await UpdateOrderPrice(newOrderProduct.OrderId);
         return newOrderProduct;
     }
 
@@ -65,8 +62,10 @@ public class OrderProductService
         if (existingOrderProduct != null)
         {
             existingOrderProduct.Quantity = updateOrderProduct.Quantity ?? existingOrderProduct.Quantity;
-            existingOrderProduct.ProductPrice = updateOrderProduct.ProductPrice ?? existingOrderProduct.ProductPrice;
+            var price = updateOrderProduct.ProductPrice ?? existingOrderProduct.ProductPrice;
+            existingOrderProduct.ProductPrice = price * existingOrderProduct.Quantity;
             await _dbContext.SaveChangesAsync();
+            await UpdateOrderPrice(existingOrderProduct.OrderId);
         }
 
         return existingOrderProduct;
@@ -84,5 +83,19 @@ public class OrderProductService
         }
 
         return false;
+    }
+
+    public async Task UpdateOrderPrice(Guid orderId)
+    {
+        var order = await _dbContext.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
+        if (order != null)
+        {
+            decimal sumProductPrices = await _dbContext.OrderProducts
+                 .Where(op => op.OrderId == order.OrderId)
+                 .SumAsync(op => op.ProductPrice);
+            order.TotalPrice = sumProductPrices;
+            await _dbContext.SaveChangesAsync();
+        }
+
     }
 }

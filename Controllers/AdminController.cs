@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 using Backend.Data;
 using Backend.Dtos;
@@ -8,10 +9,8 @@ using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using SendGrid.Helpers.Errors.Model;
-using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
-
 
 [ApiController]
 [Route("/api/admins")]
@@ -20,6 +19,7 @@ public class AdminController : ControllerBase
     private readonly AdminService _adminService;
     private readonly AuthService _authService;
     private readonly IEmailSender _emailSender;
+
     public AdminController(AdminService adminService, AuthService authService, IEmailSender emailSender)
     {
         _adminService = adminService;
@@ -36,7 +36,6 @@ public class AdminController : ControllerBase
         if (admins.TotalCount < 1)
         {
             throw new NotFoundException("No Admins To Display");
-
         }
 
         return ApiResponse.Success(admins, "Admins are returned successfully");
@@ -57,11 +56,9 @@ public class AdminController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {
-        var createdAdmin = await _adminService.CreateAdminService(newAdmin)?? throw new Exception("Email already exists");
-       
+        var createdAdmin = await _adminService.CreateAdminService(newAdmin) ?? throw new Exception("Email already exists");
+
         return ApiResponse.Created(createdAdmin, "Admin is created successfully");
-        
-     
     }
 
 
@@ -85,7 +82,7 @@ public class AdminController : ControllerBase
             throw new ValidationException("Invalid Admin ID Format");
         }
 
-        var admin = await _adminService.UpdateAdminService(adminIdGuid, updateAdmin)?? throw new NotFoundException("No Admin Founded To Update");
+        var admin = await _adminService.UpdateAdminService(adminIdGuid, updateAdmin) ?? throw new NotFoundException("No Admin Founded To Update");
 
         return ApiResponse.Success<Admin>(
             admin,
@@ -109,6 +106,7 @@ public class AdminController : ControllerBase
         {
             throw new NotFoundException("The Admin is not found to be deleted");
         }
+
         //new SuccessMessage<Admin>
         return ApiResponse.Success(" Admin is deleted successfully");
     }
@@ -133,6 +131,7 @@ public class AdminController : ControllerBase
         {
             throw new NotFoundException("No user found with this email");
         }
+
         return ApiResponse.Success("Password reset email sent successfully");
     }
 
@@ -152,8 +151,7 @@ public class AdminController : ControllerBase
         {
             throw new NotFoundException("User with this email not found");
         }
+
         return ApiResponse.Success("Password reset successfully");
     }
 }
-
-

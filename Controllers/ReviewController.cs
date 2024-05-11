@@ -1,21 +1,21 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using Backend.Dtos;
 using SendGrid.Helpers.Errors.Model;
-using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
-
 
 [ApiController]
 [Route("/api/reviews")]
 public class ReviewController : ControllerBase
 {
     private readonly ReviewService _reviewService;
+
     public ReviewController(ReviewService reviewService)
     {
         _reviewService = reviewService;
@@ -31,6 +31,7 @@ public class ReviewController : ControllerBase
         {
             throw new NotFoundException("No Reviews To Display");
         }
+
         return ApiResponse.Success(
             reviews,
             "Reviews are returned successfully");
@@ -48,10 +49,10 @@ public class ReviewController : ControllerBase
 
         var review = await _reviewService.GetReviewById(reviewIdGuid) ?? throw new NotFoundException($"No Review Found With ID : ({reviewIdGuid})");
 
-            return ApiResponse.Success<Review>(
-              review,
-              "Review is returned successfully"
-            );
+        return ApiResponse.Success<Review>(
+            review,
+            "Review is returned successfully"
+        );
     }
 
 
@@ -74,7 +75,7 @@ public class ReviewController : ControllerBase
             throw new ValidationException("Invalid review ID Format");
         }
 
-        var review = await _reviewService.UpdateReviewService(reviewIdGuid, updateReview)?? throw new NotFoundException("No Order Founded To Update");
+        var review = await _reviewService.UpdateReviewService(reviewIdGuid, updateReview) ?? throw new NotFoundException("No Order Founded To Update");
 
         return ApiResponse.Success(
             review,
@@ -97,6 +98,7 @@ public class ReviewController : ControllerBase
         {
             throw new NotFoundException("The Review is not found to be deleted");
         }
+
         return ApiResponse.Success(" Review is deleted successfully");
     }
 }

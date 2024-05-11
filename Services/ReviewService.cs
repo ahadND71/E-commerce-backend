@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
@@ -44,10 +43,10 @@ public class ReviewService
     public async Task<Review> CreateReviewService(Review newReview)
     {
         var existingReview = await _dbContext.Reviews
-    .FirstOrDefaultAsync(r =>
-        r.ProductId == newReview.ProductId &&
-        r.CustomerId == newReview.CustomerId &&
-        r.OrderId == newReview.OrderId);
+            .FirstOrDefaultAsync(r =>
+                r.ProductId == newReview.ProductId &&
+                r.CustomerId == newReview.CustomerId &&
+                r.OrderId == newReview.OrderId);
 
         if (existingReview != null)
         {

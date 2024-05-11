@@ -14,8 +14,7 @@ public class Address
     [MaxLength(100)]
     public string AddressLine1 { get; set; } = string.Empty;
 
-    [MaxLength(100)]
-    public string AddressLine2 { get; set; } = string.Empty;
+    [MaxLength(100)] public string AddressLine2 { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Country name is required")]
     [MaxLength(100)]
@@ -29,8 +28,7 @@ public class Address
     [MaxLength(100)]
     public string City { get; set; } = string.Empty;
 
-    [MaxLength(10)]
-    public string ZipCode { get; set; } = string.Empty;
+    [MaxLength(10)] public string ZipCode { get; set; } = string.Empty;
 
     //? Relations
 

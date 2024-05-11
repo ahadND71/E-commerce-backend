@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 namespace Backend.Models;
 
 [Index(nameof(Name), IsUnique = true)]
-
 public class Product
 {
     public Guid ProductId { get; set; }

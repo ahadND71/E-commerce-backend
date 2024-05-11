@@ -4,7 +4,6 @@ namespace Backend.Dtos;
 
 public class OrderProductDto
 {
-
     [Range(1, int.MaxValue, ErrorMessage = "Quantity Must Be Greater Than Zero")]
     public int? Quantity { get; set; }
 

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
@@ -91,11 +90,10 @@ public class OrderProductService
         if (order != null)
         {
             decimal sumProductPrices = await _dbContext.OrderProducts
-                 .Where(op => op.OrderId == order.OrderId)
-                 .SumAsync(op => op.ProductPrice);
+                .Where(op => op.OrderId == order.OrderId)
+                .SumAsync(op => op.ProductPrice);
             order.TotalPrice = sumProductPrices;
             await _dbContext.SaveChangesAsync();
         }
-
     }
 }

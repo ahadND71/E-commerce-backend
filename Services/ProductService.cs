@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
@@ -94,9 +93,9 @@ public class ProductService
     public async Task<Product?> GetProductByIdService(Guid productId)
     {
         return await _dbContext.Products
-        .Include(r => r.Reviews) // Include relations
-        .Include(op => op.OrderProducts)
-        .FirstOrDefaultAsync(p => p.ProductId == productId);
+            .Include(r => r.Reviews) // Include relations
+            .Include(op => op.OrderProducts)
+            .FirstOrDefaultAsync(p => p.ProductId == productId);
     }
 
 
@@ -147,6 +146,7 @@ public class ProductService
         {
             throw new InvalidOperationException("Product Is Already Exists");
         }
+
         newProduct.ProductId = Guid.NewGuid();
         newProduct.Slug = SlugGenerator.GenerateSlug(newProduct.Name);
         newProduct.CreatedAt = DateTime.UtcNow;

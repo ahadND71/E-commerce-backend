@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
@@ -52,6 +51,7 @@ public class AddressService
             // Address name already exists for the customer
             throw new Exception("Address name already exists for the customer.");
         }
+
         newAddress.AddressId = Guid.NewGuid();
         _dbContext.Addresses.Add(newAddress);
         await _dbContext.SaveChangesAsync();

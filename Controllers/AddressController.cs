@@ -1,21 +1,21 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using SendGrid.Helpers.Errors.Model;
 using Backend.Dtos;
-using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
-
 
 [ApiController]
 [Route("/api/address")]
 public class AddressController : ControllerBase
 {
     private readonly AddressService _addressService;
+
     public AddressController(AddressService addressService)
     {
         _addressService = addressService;
@@ -38,7 +38,6 @@ public class AddressController : ControllerBase
     }
 
 
-
     [Authorize]
     [HttpGet("{addressId}")]
     public async Task<IActionResult> GetAddress(string addressId)
@@ -47,13 +46,13 @@ public class AddressController : ControllerBase
         {
             throw new ValidationException("Invalid address ID Format");
         }
+
         var address = await _addressService.GetAddressById(addressIdGuid) ?? throw new NotFoundException($"No Address Found With ID : ({addressIdGuid})");
 
-            return ApiResponse.Success<Address>(
-              address,
-              "Address is returned successfully"
-            );
-        
+        return ApiResponse.Success<Address>(
+            address,
+            "Address is returned successfully"
+        );
     }
 
 
@@ -61,7 +60,7 @@ public class AddressController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAddress(Address newAddress)
     {
-        var createdAddress = await _addressService.CreateAddressService(newAddress)?? throw new Exception("Error when creating new address");
+        var createdAddress = await _addressService.CreateAddressService(newAddress) ?? throw new Exception("Error when creating new address");
 
         return ApiResponse.Created<Address>(createdAddress, "Address is created successfully");
     }
@@ -75,7 +74,8 @@ public class AddressController : ControllerBase
         {
             throw new ValidationException("Invalid Address ID Format");
         }
-        var address = await _addressService.UpdateAddressService(addressIdGuid, updateAddress)?? throw new NotFoundException("No Address Founded To Update");
+
+        var address = await _addressService.UpdateAddressService(addressIdGuid, updateAddress) ?? throw new NotFoundException("No Address Founded To Update");
 
         return ApiResponse.Success<Address>(
             address,
@@ -92,11 +92,13 @@ public class AddressController : ControllerBase
         {
             throw new ValidationException("Invalid address ID Format");
         }
+
         var result = await _addressService.DeleteAddressService(addressIdGuid);
         if (!result)
         {
             throw new NotFoundException("The Address is not found to be deleted");
         }
+
         return ApiResponse.Success(" Address is deleted successfully");
     }
 }

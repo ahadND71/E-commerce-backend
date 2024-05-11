@@ -14,7 +14,6 @@ namespace Backend.Helpers
             CreateMap<Order, OrderDto>();
             CreateMap<OrderProduct, OrderProductDto>();
             CreateMap<Address, AddressDto>();
-
         }
     }
 }

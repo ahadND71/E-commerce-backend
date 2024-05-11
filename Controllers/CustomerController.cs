@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 using Backend.Data;
 using Backend.Dtos;
@@ -7,10 +8,8 @@ using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using SendGrid.Helpers.Errors.Model;
-using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
-
 
 [ApiController]
 [Route("/api/customers")]
@@ -18,6 +17,7 @@ public class CustomerController : ControllerBase
 {
     private readonly CustomerService _customerService;
     private readonly AuthService _authService;
+
     public CustomerController(CustomerService customerService, AuthService authService)
     {
         _customerService = customerService;
@@ -34,9 +34,10 @@ public class CustomerController : ControllerBase
         {
             throw new NotFoundException("No Customers To Display");
         }
+
         return ApiResponse.Success(
             customers,
-           "Customers are returned successfully");
+            "Customers are returned successfully");
     }
 
 
@@ -49,11 +50,10 @@ public class CustomerController : ControllerBase
             throw new ValidationException("Invalid customer ID Format");
         }
 
-        var customer = await _customerService.GetCustomerById(customerIdGuid)?? throw new NotFoundException($"No Customer Found With ID : ({customerIdGuid})");
+        var customer = await _customerService.GetCustomerById(customerIdGuid) ?? throw new NotFoundException($"No Customer Found With ID : ({customerIdGuid})");
 
-            return ApiResponse.Success(customer,
-           "Customer is returned successfully");
-        
+        return ApiResponse.Success(customer,
+            "Customer is returned successfully");
     }
 
 
@@ -61,7 +61,7 @@ public class CustomerController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> CreateCustomer(Customer newCustomer)
     {
-        var createdCustomer = await _customerService.CreateCustomerService(newCustomer)?? throw new Exception("Email already exists");
+        var createdCustomer = await _customerService.CreateCustomerService(newCustomer) ?? throw new Exception("Email already exists");
 
         return ApiResponse.Created(createdCustomer, "Customer is created successfully");
     }
@@ -90,10 +90,10 @@ public class CustomerController : ControllerBase
     {
         if (!Guid.TryParse(customerId, out Guid customerIdGuid))
         {
-           throw new ValidationException("Invalid Customer ID Format");
+            throw new ValidationException("Invalid Customer ID Format");
         }
 
-        var customer = await _customerService.UpdateCustomerService(customerIdGuid, updateCustomer)?? throw new NotFoundException("No Customer Founded To Update");
+        var customer = await _customerService.UpdateCustomerService(customerIdGuid, updateCustomer) ?? throw new NotFoundException("No Customer Founded To Update");
 
         return ApiResponse.Success(
             customer,
@@ -106,7 +106,6 @@ public class CustomerController : ControllerBase
     [HttpDelete("{customerId}")]
     public async Task<IActionResult> DeleteCustomer(string customerId)
     {
-
         if (!Guid.TryParse(customerId, out Guid customerIdGuid))
         {
             throw new ValidationException("Invalid Customer ID Format");

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-
 using Backend.Data;
 using Backend.Helpers;
 using Backend.Models;
@@ -61,6 +60,7 @@ public class CategoryService
         {
             throw new InvalidOperationException("Category Is Already Exists");
         }
+
         newCategory.CategoryId = Guid.NewGuid();
         newCategory.Slug = SlugGenerator.GenerateSlug(newCategory.Name);
         newCategory.CreatedAt = DateTime.UtcNow;

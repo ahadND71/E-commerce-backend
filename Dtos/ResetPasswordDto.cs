@@ -11,7 +11,8 @@ namespace Backend.Data
         [Required(ErrorMessage = "Token is required")]
         public Guid Token { get; set; }
 
-        [Required(ErrorMessage = "New password is required")] public string NewPassword { get; set; } = string.Empty;
+        [Required(ErrorMessage = "New password is required")]
+        public string NewPassword { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Confirm new password is required")]
         [Compare("NewPassword", ErrorMessage = "Passwords do not match")]

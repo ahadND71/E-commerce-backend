@@ -1,6 +1,8 @@
 ## Comments
 
-> Keep validation in the service layer, not the controller, if there is error, utilize the throw keyword and throw it from the service to the controller, and using the controller catch we're catching the error, so that we can practice throwing errors
+> Keep validation in the service layer, not the controller, if there is error, utilize the throw keyword and throw it
+> from the service to the controller, and using the controller catch we're catching the error, so that we can practice
+> throwing errors
 
 ### - Explain more
 

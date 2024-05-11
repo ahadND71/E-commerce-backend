@@ -5,6 +5,8 @@ using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using Backend.Dtos;
+using SendGrid.Helpers.Errors.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
 
@@ -27,7 +29,7 @@ public class CategoryController : ControllerBase
     var categories = await _categoryService.GetAllCategoryService(currentPage, pageSize);
     if (categories.TotalCount < 1)
     {
-      return ApiResponse.NotFound("No Categories To Display");
+      throw new NotFoundException("No Categories To Display");
     }
 
     return ApiResponse.Success<IEnumerable<Category>>(
@@ -40,19 +42,12 @@ public class CategoryController : ControllerBase
   [HttpGet("{categoryId:guid}")]
   public async Task<IActionResult> GetCategory(Guid categoryId)
   {
-    var category = await _categoryService.GetCategoryById(categoryId);
-    if (category == null)
-    {
-      return ApiResponse.NotFound(
-               $"No Category Found With ID : ({categoryId})");
-    }
-    else
-    {
+    var category = await _categoryService.GetCategoryById(categoryId) ?? throw new NotFoundException($"No Category Found With ID : ({categoryId})");
+
       return ApiResponse.Success<Category>(
                  category,
                  "Category is returned successfully"
                );
-    }
   }
 
 
@@ -60,15 +55,9 @@ public class CategoryController : ControllerBase
   [HttpPost]
   public async Task<IActionResult> CreateCategory(Category newCategory)
   {
-    var createdCategory = await _categoryService.CreateCategoryService(newCategory);
-    if (createdCategory != null)
-    {
-      return ApiResponse.Created<Category>(createdCategory, "Category is created successfully");
-    }
-    else
-    {
-      return ApiResponse.ServerError("Error when creating new category");
-    }
+    var createdCategory = await _categoryService.CreateCategoryService(newCategory)?? throw new Exception("Error when creating new category");
+    
+    return ApiResponse.Created<Category>(createdCategory, "Category is created successfully");
   }
 
 
@@ -78,15 +67,11 @@ public class CategoryController : ControllerBase
   {
     if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
     {
-      return ApiResponse.BadRequest("Invalid Category ID Format");
+      throw new ValidationException("Invalid Category ID Format");
     }
 
-    var category = await _categoryService.UpdateCategoryService(categoryIdGuid, updateCategory);
-    if (category == null)
-    {
-      return ApiResponse.NotFound("No Category Founded To Update");
+    var category = await _categoryService.UpdateCategoryService(categoryIdGuid, updateCategory) ?? throw new NotFoundException("No Category Founded To Update");
 
-    }
     return ApiResponse.Success<Category>(
               category,
               "Category Is Updated Successfully"
@@ -99,13 +84,13 @@ public class CategoryController : ControllerBase
   {
     if (!Guid.TryParse(categoryId, out Guid categoryIdGuid))
     {
-      return ApiResponse.BadRequest("Invalid category ID Format");
+      throw new ValidationException("Invalid category ID Format");
     }
 
     var result = await _categoryService.DeleteCategoryService(categoryIdGuid);
     if (!result)
     {
-      return ApiResponse.NotFound("The Category is not found to be deleted");
+      throw new NotFoundException("The Category is not found to be deleted");
     }
     return ApiResponse.Success("Category is deleted successfully");
   }

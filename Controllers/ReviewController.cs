@@ -5,6 +5,8 @@ using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using Backend.Dtos;
+using SendGrid.Helpers.Errors.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
 
@@ -27,7 +29,7 @@ public class ReviewController : ControllerBase
         var reviews = await _reviewService.GetAllReviewService(currentPage, pageSize);
         if (reviews.TotalCount < 1)
         {
-            return ApiResponse.NotFound("No Reviews To Display");
+            throw new NotFoundException("No Reviews To Display");
         }
         return ApiResponse.Success<IEnumerable<Review>>(
             reviews.Items,
@@ -41,22 +43,15 @@ public class ReviewController : ControllerBase
     {
         if (!Guid.TryParse(reviewId, out Guid reviewIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid review ID Format");
+            throw new ValidationException("Invalid review ID Format");
         }
 
-        var review = await _reviewService.GetReviewById(reviewIdGuid);
-        if (review == null)
-        {
-            return ApiResponse.NotFound(
-                $"No Review Found With ID : ({reviewIdGuid})");
-        }
-        else
-        {
+        var review = await _reviewService.GetReviewById(reviewIdGuid) ?? throw new NotFoundException($"No Review Found With ID : ({reviewIdGuid})");
+
             return ApiResponse.Success<Review>(
               review,
               "Review is returned successfully"
             );
-        }
     }
 
 
@@ -64,15 +59,9 @@ public class ReviewController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateReview(Review newReview)
     {
-        var createdReview = await _reviewService.CreateReviewService(newReview);
-        if (createdReview != null)
-        {
-            return ApiResponse.Created(createdReview, "Review is created successfully");
-        }
-        else
-        {
-            return ApiResponse.ServerError("Error when creating new review");
-        }
+        var createdReview = await _reviewService.CreateReviewService(newReview) ?? throw new Exception("Error when creating new review");
+
+        return ApiResponse.Created(createdReview, "Review is created successfully");
     }
 
 
@@ -82,14 +71,11 @@ public class ReviewController : ControllerBase
     {
         if (!Guid.TryParse(reviewId, out Guid reviewIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid review ID Format");
+            throw new ValidationException("Invalid review ID Format");
         }
 
-        var review = await _reviewService.UpdateReviewService(reviewIdGuid, updateReview);
-        if (review == null)
-        {
-            return ApiResponse.NotFound("No Review Founded To Update");
-        }
+        var review = await _reviewService.UpdateReviewService(reviewIdGuid, updateReview)?? throw new NotFoundException("No Order Founded To Update");
+
         return ApiResponse.Success(
             review,
             "Review Is Updated Successfully"
@@ -103,13 +89,13 @@ public class ReviewController : ControllerBase
     {
         if (!Guid.TryParse(reviewId, out Guid reviewIdGuid))
         {
-            return BadRequest("Invalid review ID Format");
+            throw new ValidationException("Invalid review ID Format");
         }
 
         var result = await _reviewService.DeleteReviewService(reviewIdGuid);
         if (!result)
         {
-            return ApiResponse.NotFound("The Review is not found to be deleted");
+            throw new NotFoundException("The Review is not found to be deleted");
         }
         return ApiResponse.Success(" Review is deleted successfully");
     }

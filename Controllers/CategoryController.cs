@@ -30,8 +30,8 @@ public class CategoryController : ControllerBase
       return ApiResponse.NotFound("No Categories To Display");
     }
 
-    return ApiResponse.Success<IEnumerable<Category>>(
-              categories.Items,
+    return ApiResponse.Success(
+              categories,
              "Categories are returned successfully");
   }
 

@@ -31,7 +31,7 @@ public class OrderProductController : ControllerBase
     }
 
     return ApiResponse.Success(
-      orderProducts.Items,
+      orderProducts,
       "Orders Details are returned successfully");
   }
 

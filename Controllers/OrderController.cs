@@ -32,8 +32,8 @@ public class OrderController : ControllerBase
       throw new NotFoundException("No Orders To Display");
 
     }
-    return ApiResponse.Success<IEnumerable<Order>>(
-              orders.Items,
+    return ApiResponse.Success(
+              orders,
              "Orders are returned successfully");
   }
 

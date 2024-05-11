@@ -31,8 +31,8 @@ public class AddressController : ControllerBase
             throw new NotFoundException("No Addresses To Display");
         }
 
-        return ApiResponse.Success<IEnumerable<Address>>(
-            addresses.Items,
+        return ApiResponse.Success(
+            addresses,
             "Addresses are returned successfully");
     }
 

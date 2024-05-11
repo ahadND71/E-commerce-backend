@@ -29,8 +29,8 @@ public class ReviewController : ControllerBase
         {
             return ApiResponse.NotFound("No Reviews To Display");
         }
-        return ApiResponse.Success<IEnumerable<Review>>(
-            reviews.Items,
+        return ApiResponse.Success(
+            reviews,
             "Reviews are returned successfully");
     }
 

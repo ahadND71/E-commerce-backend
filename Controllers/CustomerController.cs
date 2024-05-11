@@ -33,7 +33,7 @@ public class CustomerController : ControllerBase
             return ApiResponse.NotFound("No Customers To Display");
         }
         return ApiResponse.Success(
-            customers.Items,
+            customers,
            "Customers are returned successfully");
     }
 

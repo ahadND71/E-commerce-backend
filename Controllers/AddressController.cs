@@ -22,7 +22,7 @@ public class AddressController : ControllerBase
     }
 
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllAddress([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
@@ -32,8 +32,8 @@ public class AddressController : ControllerBase
             throw new NotFoundException("No Addresses To Display");
         }
 
-        return ApiResponse.Success<IEnumerable<Address>>(
-            addresses.Items,
+        return ApiResponse.Success(
+            addresses,
             "Addresses are returned successfully");
     }
 

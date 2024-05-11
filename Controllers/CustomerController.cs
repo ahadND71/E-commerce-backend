@@ -25,8 +25,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    // [Authorize(Roles = "Admin")]
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllCustomers([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
@@ -36,12 +35,12 @@ public class CustomerController : ControllerBase
             throw new NotFoundException("No Customers To Display");
         }
         return ApiResponse.Success(
-            customers.Items,
+            customers,
            "Customers are returned successfully");
     }
 
 
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {
@@ -65,6 +64,12 @@ public class CustomerController : ControllerBase
         var createdCustomer = await _customerService.CreateCustomerService(newCustomer)?? throw new Exception("Email already exists");
 
         return ApiResponse.Created(createdCustomer, "Customer is created successfully");
+    }
+
+    private bool IsAddressNamesUnique(Customer customer)
+    {
+        var addressNames = customer.Addresses.Select(a => a.Name);
+        return addressNames.Distinct().Count() == addressNames.Count();
     }
 
 

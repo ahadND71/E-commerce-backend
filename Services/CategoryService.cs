@@ -10,18 +10,18 @@ namespace Backend.Services;
 
 public class CategoryService
 {
-    private readonly AppDbContext _categoryDbContext;
+    private readonly AppDbContext _dbContext;
 
-    public CategoryService(AppDbContext categoryDbContext)
+    public CategoryService(AppDbContext dbContext)
     {
-        _categoryDbContext = categoryDbContext;
+        _dbContext = dbContext;
     }
 
 
     public async Task<PaginationResult<Category>> GetAllCategoryService(int currentPage, int pageSize)
     {
-        var totalCategoryCount = await _categoryDbContext.Categories.CountAsync();
-        var category = await _categoryDbContext.Categories
+        var totalCategoryCount = await _dbContext.Categories.CountAsync();
+        var category = await _dbContext.Categories
             .Include(c => c.Products)
             .ThenInclude(r => r.Reviews)
             .Include(p => p.Products)
@@ -42,7 +42,7 @@ public class CategoryService
 
     public async Task<Category?> GetCategoryById(Guid categoryId)
     {
-        return await _categoryDbContext.Categories
+        return await _dbContext.Categories
             .Include(c => c.Products)
             .ThenInclude(r => r.Reviews)
             .Include(p => p.Products)
@@ -53,24 +53,32 @@ public class CategoryService
 
     public async Task<Category> CreateCategoryService(Category newCategory)
     {
+        // Check if a category with the same name already exists
+        var existingCategory = await _dbContext.Categories
+            .FirstOrDefaultAsync(c => c.Name == newCategory.Name);
+
+        if (existingCategory != null)
+        {
+            throw new InvalidOperationException("Category Is Already Exists");
+        }
         newCategory.CategoryId = Guid.NewGuid();
         newCategory.Slug = SlugGenerator.GenerateSlug(newCategory.Name);
         newCategory.CreatedAt = DateTime.UtcNow;
-        _categoryDbContext.Categories.Add(newCategory);
-        await _categoryDbContext.SaveChangesAsync();
+        _dbContext.Categories.Add(newCategory);
+        await _dbContext.SaveChangesAsync();
         return newCategory;
     }
 
 
     public async Task<Category?> UpdateCategoryService(Guid categoryId, CategoryDto updateCategory)
     {
-        var existingCategory = await _categoryDbContext.Categories.FindAsync(categoryId);
+        var existingCategory = await _dbContext.Categories.FindAsync(categoryId);
         if (existingCategory != null)
         {
             existingCategory.Name = updateCategory.Name.IsNullOrEmpty() ? existingCategory.Name : updateCategory.Name;
             existingCategory.Slug = SlugGenerator.GenerateSlug(existingCategory.Name);
             existingCategory.Description = updateCategory.Description.IsNullOrEmpty() ? existingCategory.Description : updateCategory.Description;
-            await _categoryDbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         return existingCategory;
@@ -79,11 +87,11 @@ public class CategoryService
 
     public async Task<bool> DeleteCategoryService(Guid categoryId)
     {
-        var categoryToRemove = await _categoryDbContext.Categories.FindAsync(categoryId);
+        var categoryToRemove = await _dbContext.Categories.FindAsync(categoryId);
         if (categoryToRemove != null)
         {
-            _categoryDbContext.Categories.Remove(categoryToRemove);
-            await _categoryDbContext.SaveChangesAsync();
+            _dbContext.Categories.Remove(categoryToRemove);
+            await _dbContext.SaveChangesAsync();
             return true;
         }
 

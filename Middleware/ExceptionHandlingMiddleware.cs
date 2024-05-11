@@ -65,7 +65,12 @@ namespace Backend.Middleware
                     responseCode = StatusCodes.Status403Forbidden;
                     message = forbiddenException.Message;
                     break;
-                    
+                
+                case InvalidOperationException invalidOperationException:
+                    responseCode = StatusCodes.Status400BadRequest;
+                    message = invalidOperationException.Message;
+                    break;
+
                 default:
                     if (exception is ApplicationException)
                     {

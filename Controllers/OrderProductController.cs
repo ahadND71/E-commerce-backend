@@ -22,7 +22,7 @@ public class OrderProductController : ControllerBase
   }
 
 
-  [Authorize]
+  [Authorize(Roles = "Admin")]
   [HttpGet]
   public async Task<IActionResult> GetAllOrderProducts([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
   {
@@ -33,7 +33,7 @@ public class OrderProductController : ControllerBase
     }
 
     return ApiResponse.Success(
-      orderProducts.Items,
+      orderProducts,
       "Orders Details are returned successfully");
   }
 

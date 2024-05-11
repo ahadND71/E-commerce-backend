@@ -6,7 +6,9 @@ using Backend.Models;
 using Backend.Services;
 using Backend.Dtos;
 using SendGrid.Helpers.Errors.Model;
+
 using System.ComponentModel.DataAnnotations;
+
 
 namespace Backend.Controllers;
 
@@ -75,6 +77,11 @@ public class ProductController : ControllerBase
     var products = await _productService.SearchProductsService(pageNumber, pageSize, searchTerm);
 
     int totalProductCount = await _productService.GetProductCountBySearchTerm(searchTerm);
+
+    if (totalProductCount == 0)
+    {
+      throw new NotFoundException("Product Not Found In The Store");
+    }
 
     return ApiResponse.Success
     (

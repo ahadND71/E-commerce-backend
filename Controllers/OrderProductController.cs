@@ -14,7 +14,7 @@ namespace Backend.Controllers;
 [Route("/api/OrderProducts")]
 public class OrderProductController : ControllerBase
 {
-    public OrderProductService _orderProductService;
+    private readonly OrderProductService _orderProductService;
 
     public OrderProductController(OrderProductService orderProductService)
     {

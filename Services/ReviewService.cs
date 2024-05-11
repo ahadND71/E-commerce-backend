@@ -51,8 +51,6 @@ public class ReviewService
 
         if (existingReview != null)
         {
-            // Return null or throw an exception to indicate that the review cannot be added
-            // You can customize this behavior based on your requirements
             throw new InvalidOperationException("A review with the same attributes already exists.");
         }
 

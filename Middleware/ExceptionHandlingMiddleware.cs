@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.HttpResults;
 using SendGrid.Helpers.Errors.Model;
 
 namespace Backend.Middleware
@@ -55,6 +56,16 @@ namespace Backend.Middleware
                     message = validationException.Message;
                     break;
 
+                case UnauthorizedException unauthorizedException:
+                    responseCode = StatusCodes.Status401Unauthorized;
+                    message = unauthorizedException.Message;
+                    break;
+
+                case ForbiddenException forbiddenException:
+                    responseCode = StatusCodes.Status403Forbidden;
+                    message = forbiddenException.Message;
+                    break;
+                
                 case InvalidOperationException invalidOperationException:
                     responseCode = StatusCodes.Status400BadRequest;
                     message = invalidOperationException.Message;

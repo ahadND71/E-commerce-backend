@@ -8,6 +8,7 @@ using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using SendGrid.Helpers.Errors.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
 
@@ -34,7 +35,7 @@ public class AdminController : ControllerBase
         var admins = await _adminService.GetAllAdminsService(currentPage, pageSize);
         if (admins.TotalCount < 1)
         {
-            return ApiResponse.NotFound("No Admins To Display");
+            throw new NotFoundException("No Admins To Display");
 
         }
 
@@ -56,15 +57,11 @@ public class AdminController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {
-        var createdAdmin = await _adminService.CreateAdminService(newAdmin);
-        if (createdAdmin != null)
-        {
-            return ApiResponse.Created(createdAdmin, "Admin is created successfully");
-        }
-        else
-        {
-            return ApiResponse.ServerError("Email already exists");
-        }
+        var createdAdmin = await _adminService.CreateAdminService(newAdmin)?? throw new Exception("Email already exists");
+       
+        return ApiResponse.Created(createdAdmin, "Admin is created successfully");
+        
+     
     }
 
 
@@ -72,11 +69,7 @@ public class AdminController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginAdmin([FromBody] LoginUserDto loginUserDto)
     {
-        var LoggedAdmin = await _adminService.LoginAdminService(loginUserDto);
-        if (LoggedAdmin == null)
-        {
-            return ApiResponse.UnAuthorized("Invalid Credential");
-        }
+        var LoggedAdmin = await _adminService.LoginAdminService(loginUserDto) ?? throw new UnauthorizedException("Invalid Email or Password");
 
         var token = _authService.GenerateJwtToken(LoggedAdmin);
         return ApiResponse.Success(LoggedAdmin, "Admin is loggedIn successfully", null, token);
@@ -89,15 +82,11 @@ public class AdminController : ControllerBase
     {
         if (!Guid.TryParse(adminId, out Guid adminIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid Admin ID Format");
+            throw new ValidationException("Invalid Admin ID Format");
         }
 
-        var admin = await _adminService.UpdateAdminService(adminIdGuid, updateAdmin);
-        if (admin == null)
-        {
-            return ApiResponse.NotFound("No Admin Founded To Update");
+        var admin = await _adminService.UpdateAdminService(adminIdGuid, updateAdmin)?? throw new NotFoundException("No Admin Founded To Update");
 
-        }
         return ApiResponse.Success<Admin>(
             admin,
             "Admin Is Updated Successfully"
@@ -111,14 +100,14 @@ public class AdminController : ControllerBase
     {
         if (!Guid.TryParse(adminId, out Guid adminIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid admin ID Format");
+            throw new ValidationException("Invalid admin ID Format");
         }
 
         var result = await _adminService.DeleteAdminService(adminIdGuid);
         if (!result)
 
         {
-            return ApiResponse.NotFound("The Admin is not found to be deleted");
+            throw new NotFoundException("The Admin is not found to be deleted");
         }
         //new SuccessMessage<Admin>
         return ApiResponse.Success(" Admin is deleted successfully");
@@ -142,7 +131,7 @@ public class AdminController : ControllerBase
         var result = await _adminService.ForgotPasswordService(email);
         if (!result)
         {
-            return ApiResponse.NotFound("No user found with this email");
+            throw new NotFoundException("No user found with this email");
         }
         return ApiResponse.Success("Password reset email sent successfully");
     }
@@ -154,14 +143,14 @@ public class AdminController : ControllerBase
     {
         if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmNewPassword)
         {
-            return ApiResponse.BadRequest("Passwords do not match");
+            throw new ValidationException("Passwords do not match");
         }
 
         var result = await _adminService.ResetPasswordService(resetPasswordDto);
 
         if (!result)
         {
-            return ApiResponse.BadRequest("User with this email not found");
+            throw new NotFoundException("User with this email not found");
         }
         return ApiResponse.Success("Password reset successfully");
     }

@@ -6,6 +6,8 @@ using Backend.Dtos;
 using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
+using SendGrid.Helpers.Errors.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
 
@@ -30,7 +32,7 @@ public class CustomerController : ControllerBase
         var customers = await _customerService.GetAllCustomersService(currentPage, pageSize);
         if (customers.TotalCount < 1)
         {
-            return ApiResponse.NotFound("No Customers To Display");
+            throw new NotFoundException("No Customers To Display");
         }
         return ApiResponse.Success(
             customers,
@@ -44,20 +46,14 @@ public class CustomerController : ControllerBase
     {
         if (!Guid.TryParse(customerId, out Guid customerIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid customer ID Format");
+            throw new ValidationException("Invalid customer ID Format");
         }
 
-        var customer = await _customerService.GetCustomerById(customerIdGuid);
-        if (customer == null)
-        {
-            return ApiResponse.NotFound(
-             $"No Customer Found With ID : ({customerIdGuid})");
-        }
-        else
-        {
+        var customer = await _customerService.GetCustomerById(customerIdGuid)?? throw new NotFoundException($"No Customer Found With ID : ({customerIdGuid})");
+
             return ApiResponse.Success(customer,
            "Customer is returned successfully");
-        }
+        
     }
 
 
@@ -65,15 +61,9 @@ public class CustomerController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> CreateCustomer(Customer newCustomer)
     {
-        var createdCustomer = await _customerService.CreateCustomerService(newCustomer);
-        if (createdCustomer != null)
-        {
-            return ApiResponse.Created(createdCustomer, "Customer is created successfully");
-        }
-        else
-        {
-            return ApiResponse.ServerError("Email already exists");
-        }
+        var createdCustomer = await _customerService.CreateCustomerService(newCustomer)?? throw new Exception("Email already exists");
+
+        return ApiResponse.Created(createdCustomer, "Customer is created successfully");
     }
 
     private bool IsAddressNamesUnique(Customer customer)
@@ -87,11 +77,7 @@ public class CustomerController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginCustomer([FromBody] LoginUserDto loginUserDto)
     {
-        var LoggedCustomer = await _customerService.LoginCustomerService(loginUserDto);
-        if (LoggedCustomer == null)
-        {
-            return ApiResponse.UnAuthorized("Invalid Credential");
-        }
+        var LoggedCustomer = await _customerService.LoginCustomerService(loginUserDto) ?? throw new UnauthorizedException("Invalid Email or Password");
 
         var token = _authService.GenerateJwtToken(LoggedCustomer);
         return ApiResponse.Success(LoggedCustomer, "Customer is loggedIn successfully", null, token);
@@ -104,14 +90,11 @@ public class CustomerController : ControllerBase
     {
         if (!Guid.TryParse(customerId, out Guid customerIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid Customer ID Format");
+           throw new ValidationException("Invalid Customer ID Format");
         }
 
-        var customer = await _customerService.UpdateCustomerService(customerIdGuid, updateCustomer);
-        if (customer == null)
-        {
-            return ApiResponse.NotFound("No Customer Founded To Update");
-        }
+        var customer = await _customerService.UpdateCustomerService(customerIdGuid, updateCustomer)?? throw new NotFoundException("No Customer Founded To Update");
+
         return ApiResponse.Success(
             customer,
             "Customer Is Updated Successfully"
@@ -126,13 +109,13 @@ public class CustomerController : ControllerBase
 
         if (!Guid.TryParse(customerId, out Guid customerIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid Customer ID Format");
+            throw new ValidationException("Invalid Customer ID Format");
         }
 
         var result = await _customerService.DeleteCustomerService(customerIdGuid);
         if (!result)
         {
-            return ApiResponse.NotFound("The Customer is not found to be deleted");
+            throw new NotFoundException("The Customer is not found to be deleted");
         }
 
         return ApiResponse.Success(" Customer is deleted successfully");
@@ -145,7 +128,7 @@ public class CustomerController : ControllerBase
         var result = await _customerService.ForgotPasswordService(email);
         if (!result)
         {
-            return ApiResponse.NotFound("No user found with this email");
+            throw new NotFoundException("No user found with this email");
         }
 
         return ApiResponse.Success("Password reset email sent successfully");
@@ -158,13 +141,13 @@ public class CustomerController : ControllerBase
     {
         if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmNewPassword)
         {
-            return ApiResponse.BadRequest("Passwords do not match");
+            throw new NotFoundException("Passwords do not match");
         }
 
         var result = await _customerService.ResetPasswordService(resetPasswordDto);
         if (!result)
         {
-            return ApiResponse.BadRequest("User with this email not found");
+            throw new NotFoundException("User with this email not found");
         }
 
         return ApiResponse.Success("Password reset successfully");

@@ -7,6 +7,9 @@ using Backend.Services;
 using Backend.Dtos;
 using SendGrid.Helpers.Errors.Model;
 
+using System.ComponentModel.DataAnnotations;
+
+
 namespace Backend.Controllers;
 
 
@@ -55,19 +58,12 @@ public class ProductController : ControllerBase
   [HttpGet("{productId:guid}")]
   public async Task<IActionResult> GetProduct(Guid productId)
   {
-    var product = await _productService.GetProductByIdService(productId);
-    if (product == null)
-    {
-      return ApiResponse.NotFound(
-               $"No Product Found With ID : ({productId})");
-    }
-    else
-    {
-      return ApiResponse.Success(
-        product,
-        "Product is returned successfully"
-      );
-    }
+    var product = await _productService.GetProductByIdService(productId)?? throw new NotFoundException($"No Product Found With ID : ({productId})");
+
+    return ApiResponse.Success(
+      product,
+      "Product is returned successfully"
+    );
   }
 
   [AllowAnonymous]
@@ -105,15 +101,9 @@ public class ProductController : ControllerBase
   [HttpPost]
   public async Task<IActionResult> CreateProduct(Product newProduct)
   {
-    var createdProduct = await _productService.CreateProductService(newProduct);
-    if (createdProduct != null)
-    {
-      return ApiResponse.Created(createdProduct, "Product is created successfully");
-    }
-    else
-    {
-      return ApiResponse.ServerError("Error when creating new product");
-    }
+    var createdProduct = await _productService.CreateProductService(newProduct)?? throw new Exception("Error when creating new product");
+
+    return ApiResponse.Created(createdProduct, "Product is created successfully");
   }
 
 
@@ -123,14 +113,11 @@ public class ProductController : ControllerBase
   {
     if (!Guid.TryParse(productId, out Guid productIdGuid))
     {
-      return ApiResponse.BadRequest("Invalid product ID Format");
+      throw new ValidationException("Invalid product ID Format");
     }
 
-    var product = await _productService.UpdateProductService(productIdGuid, updateProduct);
-    if (product == null)
-    {
-      return ApiResponse.NotFound("No Product Founded To Update");
-    }
+    var product = await _productService.UpdateProductService(productIdGuid, updateProduct) ?? throw new NotFoundException("No Product Founded To Update");
+
     return ApiResponse.Success<Product>(
         product,
         "Product Is Updated Successfully"
@@ -144,13 +131,13 @@ public class ProductController : ControllerBase
   {
     if (!Guid.TryParse(productId, out Guid productIdGuid))
     {
-      return ApiResponse.BadRequest("Invalid product ID Format");
+      throw new ValidationException("Invalid product ID Format");
     }
 
     var result = await _productService.DeleteProductService(productIdGuid);
     if (!result)
     {
-      return ApiResponse.NotFound("The Product is not found to be deleted");
+      throw new NotFoundException("The Product is not found to be deleted");
     }
     return ApiResponse.Success(" Product is deleted successfully");
   }

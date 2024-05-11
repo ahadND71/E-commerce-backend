@@ -6,6 +6,7 @@ using Backend.Models;
 using Backend.Services;
 using SendGrid.Helpers.Errors.Model;
 using Backend.Dtos;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
 
@@ -44,22 +45,15 @@ public class AddressController : ControllerBase
     {
         if (!Guid.TryParse(addressId, out Guid addressIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid address ID Format");
+            throw new ValidationException("Invalid address ID Format");
         }
-        var address = await _addressService.GetAddressById(addressIdGuid);
-        if (address == null)
+        var address = await _addressService.GetAddressById(addressIdGuid) ?? throw new NotFoundException($"No Address Found With ID : ({addressIdGuid})");
 
-        {
-            return ApiResponse.NotFound(
-             $"No Address Found With ID : ({addressIdGuid})");
-        }
-        else
-        {
             return ApiResponse.Success<Address>(
               address,
               "Address is returned successfully"
             );
-        }
+        
     }
 
 
@@ -67,17 +61,9 @@ public class AddressController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAddress(Address newAddress)
     {
-        var createdAddress = await _addressService.CreateAddressService(newAddress);
+        var createdAddress = await _addressService.CreateAddressService(newAddress)?? throw new Exception("Error when creating new address");
 
-        if (createdAddress != null)
-        {
-            return ApiResponse.Created<Address>(createdAddress, "Address is created successfully");
-        }
-        else
-        {
-            return ApiResponse.ServerError("Error when creating new address");
-
-        }
+        return ApiResponse.Created<Address>(createdAddress, "Address is created successfully");
     }
 
 
@@ -87,13 +73,10 @@ public class AddressController : ControllerBase
     {
         if (!Guid.TryParse(addressId, out Guid addressIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid Address ID Format");
+            throw new ValidationException("Invalid Address ID Format");
         }
-        var address = await _addressService.UpdateAddressService(addressIdGuid, updateAddress);
-        if (address == null)
-        {
-            return ApiResponse.NotFound("No Address Founded To Update");
-        }
+        var address = await _addressService.UpdateAddressService(addressIdGuid, updateAddress)?? throw new NotFoundException("No Address Founded To Update");
+
         return ApiResponse.Success<Address>(
             address,
             "Address Is Updated Successfully"
@@ -107,12 +90,12 @@ public class AddressController : ControllerBase
     {
         if (!Guid.TryParse(addressId, out Guid addressIdGuid))
         {
-            return ApiResponse.BadRequest("Invalid address ID Format");
+            throw new ValidationException("Invalid address ID Format");
         }
         var result = await _addressService.DeleteAddressService(addressIdGuid);
         if (!result)
         {
-            return ApiResponse.NotFound("The Address is not found to be deleted");
+            throw new NotFoundException("The Address is not found to be deleted");
         }
         return ApiResponse.Success(" Address is deleted successfully");
     }

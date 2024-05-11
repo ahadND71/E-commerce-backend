@@ -5,6 +5,8 @@ using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using Backend.Dtos;
+using SendGrid.Helpers.Errors.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Controllers;
 
@@ -27,7 +29,7 @@ public class OrderProductController : ControllerBase
     var orderProducts = await _orderProductService.GetAllOrderProductService(currentPage, pageSize);
     if (orderProducts.TotalCount < 1)
     {
-      return ApiResponse.NotFound("No Orders Details To Display");
+      throw new NotFoundException("No Orders Details To Display");
     }
 
     return ApiResponse.Success(
@@ -42,22 +44,16 @@ public class OrderProductController : ControllerBase
   {
     if (!Guid.TryParse(orderProductId, out Guid orderProductGuid))
     {
-      return ApiResponse.BadRequest("Invalid OrderProduct ID Format");
+      throw new ValidationException("Invalid OrderProduct ID Format");
     }
 
-    var orderProduct = await _orderProductService.GetOrderProductByIdService(orderProductGuid);
-    if (orderProduct == null)
-    {
-      return ApiResponse.NotFound(
-        $"No Order Details Found With ID : ({orderProductGuid})");
-    }
-    else
-    {
-      return ApiResponse.Success(
-        orderProduct,
-        "Order Details is returned successfully"
-      );
-    }
+    var orderProduct = await _orderProductService.GetOrderProductByIdService(orderProductGuid)?? throw new NotFoundException($"No Order Details Found With ID : ({orderProductGuid})");
+
+    return ApiResponse.Success(
+      orderProduct,
+      "Order Details is returned successfully"
+    );
+    
   }
 
 
@@ -65,15 +61,10 @@ public class OrderProductController : ControllerBase
   [HttpPost]
   public async Task<IActionResult> CreateOrderProduct(OrderProduct newOrderProduct)
   {
-    var createdOrderProduct = await _orderProductService.CreateOrderProductService(newOrderProduct);
-    if (createdOrderProduct != null)
-    {
-      return ApiResponse.Created(createdOrderProduct, "Order details is created successfully");
-    }
-    else
-    {
-      return ApiResponse.ServerError("Error when creating new order details");
-    }
+    var createdOrderProduct = await _orderProductService.CreateOrderProductService(newOrderProduct)?? throw new Exception("Error when creating new order details");
+   
+    return ApiResponse.Created(createdOrderProduct, "Order details is created successfully");
+    
   }
 
 
@@ -83,14 +74,11 @@ public class OrderProductController : ControllerBase
   {
     if (!Guid.TryParse(orderProductId, out Guid orderProductGuid))
     {
-      return ApiResponse.BadRequest("Invalid Order Product ID Format");
+      throw new ValidationException("Invalid Order Product ID Format");
     }
 
-    var orderProduct = await _orderProductService.UpdateOrderProductService(orderProductGuid, updateOrderProduct);
-    if (orderProduct == null)
-    {
-      return ApiResponse.NotFound("No Order Details Founded To Update");
-    }
+    var orderProduct = await _orderProductService.UpdateOrderProductService(orderProductGuid, updateOrderProduct) ?? throw new NotFoundException("No Order Details Founded To Update");
+    
     return ApiResponse.Success(
       orderProduct,
       "Order Details Is Updated Successfully"
@@ -104,13 +92,13 @@ public class OrderProductController : ControllerBase
   {
     if (!Guid.TryParse(orderProductId, out Guid orderProductGuid))
     {
-      return ApiResponse.BadRequest("Invalid OrderProduct ID Format");
+      throw new ValidationException("Invalid OrderProduct ID Format");
     }
 
     var result = await _orderProductService.DeleteOrderProductService(orderProductGuid);
     if (!result)
     {
-      return ApiResponse.NotFound("The Order Details is not found to be deleted");
+      throw new NotFoundException("The Order Details is not found to be deleted");
     }
     return ApiResponse.Success(" Order Details is deleted successfully");
   }

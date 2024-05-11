@@ -72,11 +72,7 @@ public class CustomerController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginCustomer([FromBody] LoginUserDto loginUserDto)
     {
-        var LoggedCustomer = await _customerService.LoginCustomerService(loginUserDto);
-        if (LoggedCustomer == null)
-        {
-            return ApiResponse.UnAuthorized("Invalid Credential");
-        }
+        var LoggedCustomer = await _customerService.LoginCustomerService(loginUserDto) ?? throw new UnauthorizedException("Invalid Email or Password");
 
         var token = _authService.GenerateJwtToken(LoggedCustomer);
         return ApiResponse.Success(LoggedCustomer, "Customer is loggedIn successfully", null, token);

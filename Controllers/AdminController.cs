@@ -69,11 +69,7 @@ public class AdminController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginAdmin([FromBody] LoginUserDto loginUserDto)
     {
-        var LoggedAdmin = await _adminService.LoginAdminService(loginUserDto);
-        if (LoggedAdmin == null)
-        {
-            return ApiResponse.UnAuthorized("Invalid Credential");
-        }
+        var LoggedAdmin = await _adminService.LoginAdminService(loginUserDto) ?? throw new UnauthorizedException("Invalid Email or Password");
 
         var token = _authService.GenerateJwtToken(LoggedAdmin);
         return ApiResponse.Success(LoggedAdmin, "Admin is loggedIn successfully", null, token);

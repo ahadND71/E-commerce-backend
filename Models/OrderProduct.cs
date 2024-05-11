@@ -11,7 +11,6 @@ public class OrderProduct
 
     public int Quantity { get; set; }
 
-    [Required(ErrorMessage = "The price of unit can not be empty")]
     [Range(1, int.MaxValue, ErrorMessage = "Product Price Must Be Greater Than Zero")]
     public decimal ProductPrice { get; set; }
 

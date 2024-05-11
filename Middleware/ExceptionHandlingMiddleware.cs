@@ -55,6 +55,11 @@ namespace Backend.Middleware
                     message = validationException.Message;
                     break;
 
+                case InvalidOperationException invalidOperationException:
+                    responseCode = StatusCodes.Status400BadRequest;
+                    message = invalidOperationException.Message;
+                    break;
+
                 default:
                     if (exception is ApplicationException)
                     {

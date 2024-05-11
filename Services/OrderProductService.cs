@@ -43,6 +43,16 @@ public class OrderProductService
     public async Task<OrderProduct> CreateOrderProductService(OrderProduct newOrderProduct)
     {
         newOrderProduct.OrderProductId = Guid.NewGuid();
+        var product = _dbContext.Products.FirstOrDefault(p => p.ProductId == newOrderProduct.ProductId);
+        if (product != null)
+        {
+            newOrderProduct.ProductPrice = product.Price * newOrderProduct.Quantity;
+
+            var order = _dbContext.Orders.FirstOrDefault(o => o.OrderId == newOrderProduct.OrderId);
+
+            order.TotalPrice += newOrderProduct.ProductPrice;
+        }
+
         _dbContext.OrderProducts.Add(newOrderProduct);
         await _dbContext.SaveChangesAsync();
         return newOrderProduct;

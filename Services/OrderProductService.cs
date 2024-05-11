@@ -9,18 +9,18 @@ namespace Backend.Services;
 
 public class OrderProductService
 {
-    private readonly AppDbContext _orderProductDbContext;
+    private readonly AppDbContext _dbContext;
 
-    public OrderProductService(AppDbContext orderProductDbContext)
+    public OrderProductService(AppDbContext dbContext)
     {
-        _orderProductDbContext = orderProductDbContext;
+        _dbContext = dbContext;
     }
 
 
     public async Task<PaginationResult<OrderProduct>> GetAllOrderProductService(int currentPage, int pageSize)
     {
-        var totalOrderProductCount = await _orderProductDbContext.OrderProducts.CountAsync();
-        var orderProduct = await _orderProductDbContext.OrderProducts
+        var totalOrderProductCount = await _dbContext.OrderProducts.CountAsync();
+        var orderProduct = await _dbContext.OrderProducts
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -36,27 +36,27 @@ public class OrderProductService
 
     public async Task<OrderProduct?> GetOrderProductByIdService(Guid orderItemId)
     {
-        return await _orderProductDbContext.OrderProducts.FindAsync(orderItemId);
+        return await _dbContext.OrderProducts.FindAsync(orderItemId);
     }
 
 
     public async Task<OrderProduct> CreateOrderProductService(OrderProduct newOrderProduct)
     {
         newOrderProduct.OrderProductId = Guid.NewGuid();
-        _orderProductDbContext.OrderProducts.Add(newOrderProduct);
-        await _orderProductDbContext.SaveChangesAsync();
+        _dbContext.OrderProducts.Add(newOrderProduct);
+        await _dbContext.SaveChangesAsync();
         return newOrderProduct;
     }
 
 
     public async Task<OrderProduct?> UpdateOrderProductService(Guid orderItemId, OrderProductDto updateOrderProduct)
     {
-        var existingOrderProduct = await _orderProductDbContext.OrderProducts.FindAsync(orderItemId);
+        var existingOrderProduct = await _dbContext.OrderProducts.FindAsync(orderItemId);
         if (existingOrderProduct != null)
         {
             existingOrderProduct.Quantity = updateOrderProduct.Quantity ?? existingOrderProduct.Quantity;
             existingOrderProduct.ProductPrice = updateOrderProduct.ProductPrice ?? existingOrderProduct.ProductPrice;
-            await _orderProductDbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         return existingOrderProduct;
@@ -65,11 +65,11 @@ public class OrderProductService
 
     public async Task<bool> DeleteOrderProductService(Guid orderItemId)
     {
-        var orderProductToRemove = await _orderProductDbContext.OrderProducts.FindAsync(orderItemId);
+        var orderProductToRemove = await _dbContext.OrderProducts.FindAsync(orderItemId);
         if (orderProductToRemove != null)
         {
-            _orderProductDbContext.OrderProducts.Remove(orderProductToRemove);
-            await _orderProductDbContext.SaveChangesAsync();
+            _dbContext.OrderProducts.Remove(orderProductToRemove);
+            await _dbContext.SaveChangesAsync();
             return true;
         }
 

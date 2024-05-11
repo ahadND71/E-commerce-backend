@@ -53,6 +53,14 @@ public class CategoryService
 
     public async Task<Category> CreateCategoryService(Category newCategory)
     {
+        // Check if a category with the same name already exists
+        var existingCategory = await _dbContext.Categories
+            .FirstOrDefaultAsync(c => c.Name == newCategory.Name);
+
+        if (existingCategory != null)
+        {
+            throw new InvalidOperationException("Category Is Already Exists");
+        }
         newCategory.CategoryId = Guid.NewGuid();
         newCategory.Slug = SlugGenerator.GenerateSlug(newCategory.Name);
         newCategory.CreatedAt = DateTime.UtcNow;

@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Models;
 
+[Index(nameof(Name), IsUnique = true)]
 public class Category
 {
     public Guid CategoryId { get; set; }

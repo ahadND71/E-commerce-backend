@@ -139,6 +139,14 @@ public class ProductService
     // Creates a new product -- with default values like Guid/slug/date
     public async Task<Product> CreateProductService(Product newProduct)
     {
+        // Check if a category with the same name already exists
+        var existingProduct = await _dbContext.Products
+            .FirstOrDefaultAsync(c => c.Name == newProduct.Name);
+
+        if (existingProduct != null)
+        {
+            throw new InvalidOperationException("Product Is Already Exists");
+        }
         newProduct.ProductId = Guid.NewGuid();
         newProduct.Slug = SlugGenerator.GenerateSlug(newProduct.Name);
         newProduct.CreatedAt = DateTime.UtcNow;

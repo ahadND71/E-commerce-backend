@@ -52,7 +52,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(Admin newAdmin)
     {

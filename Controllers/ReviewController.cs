@@ -20,7 +20,7 @@ public class ReviewController : ControllerBase
     }
 
 
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllReviews([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {

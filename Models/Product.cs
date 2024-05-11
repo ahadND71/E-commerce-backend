@@ -1,6 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Models;
+
+[Index(nameof(Name), IsUnique = true)]
 
 public class Product
 {

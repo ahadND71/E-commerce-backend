@@ -44,6 +44,14 @@ public class AddressService
 
     public async Task<Address> CreateAddressService(Address newAddress)
     {
+        // Check if the address name already exists for the customer
+        var existingAddress = await _dbContext.Addresses.FirstOrDefaultAsync(a => a.CustomerId == newAddress.CustomerId && a.Name == newAddress.Name);
+
+        if (existingAddress != null)
+        {
+            // Address name already exists for the customer
+            throw new Exception("Address name already exists for the customer.");
+        }
         newAddress.AddressId = Guid.NewGuid();
         _dbContext.Addresses.Add(newAddress);
         await _dbContext.SaveChangesAsync();

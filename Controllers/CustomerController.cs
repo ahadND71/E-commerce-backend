@@ -76,6 +76,12 @@ public class CustomerController : ControllerBase
         }
     }
 
+    private bool IsAddressNamesUnique(Customer customer)
+    {
+        var addressNames = customer.Addresses.Select(a => a.Name);
+        return addressNames.Distinct().Count() == addressNames.Count();
+    }
+
 
     [AllowAnonymous]
     [HttpPost("login")]

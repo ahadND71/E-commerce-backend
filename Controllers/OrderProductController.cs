@@ -20,7 +20,7 @@ public class OrderProductController : ControllerBase
   }
 
 
-  [Authorize]
+  [Authorize(Roles = "Admin")]
   [HttpGet]
   public async Task<IActionResult> GetAllOrderProducts([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
   {

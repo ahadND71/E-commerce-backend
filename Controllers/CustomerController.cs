@@ -38,7 +38,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer(string customerId)
     {

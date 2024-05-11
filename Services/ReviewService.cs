@@ -43,6 +43,19 @@ public class ReviewService
 
     public async Task<Review> CreateReviewService(Review newReview)
     {
+        var existingReview = await _dbContext.Reviews
+    .FirstOrDefaultAsync(r =>
+        r.ProductId == newReview.ProductId &&
+        r.CustomerId == newReview.CustomerId &&
+        r.OrderId == newReview.OrderId);
+
+        if (existingReview != null)
+        {
+            // Return null or throw an exception to indicate that the review cannot be added
+            // You can customize this behavior based on your requirements
+            throw new InvalidOperationException("A review with the same attributes already exists.");
+        }
+
         newReview.ReviewId = Guid.NewGuid();
         newReview.ReviewDate = DateTime.UtcNow;
         _dbContext.Reviews.Add(newReview);

@@ -5,8 +5,7 @@ namespace Backend.Helpers
 {
     public static class ApiResponse
     {
-        public static IActionResult Success<T>(T data, string message = "Success", PaginationMeta? meta = null,
-            string? token = null)
+        public static IActionResult Success<T>(T data, string message = "Success", PaginationMeta? meta = null, string? token = null)
         {
             return CreateResponse<T>(HttpStatusCode.OK, true, message, data, token, meta);
         }

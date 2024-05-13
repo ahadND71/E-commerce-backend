@@ -25,6 +25,19 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(
 //Add the authentication
 var configuration = builder.Configuration;
 var key = Encoding.ASCII.GetBytes(configuration["JwtSettings:Key"]);
+
+// Cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin", builder =>
+    {
+        builder.WithOrigins("http://localhost:3000")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -96,6 +109,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// for cors
+app.UseCors("AllowOrigin");
 
 app.UseHttpsRedirection();
 

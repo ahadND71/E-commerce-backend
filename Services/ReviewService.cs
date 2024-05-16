@@ -17,20 +17,13 @@ public class ReviewService
     }
 
 
-    public async Task<PaginationResult<Review>> GetAllReviewService(int currentPage, int pageSize)
+    public async Task<IEnumerable<Review>> GetAllReviewService(int currentPage, int pageSize)
     {
-        var totalReviewCount = await _dbContext.Reviews.CountAsync();
-        var review = await _dbContext.Reviews
+        var reviews = await _dbContext.Reviews
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-        return new PaginationResult<Review>
-        {
-            Items = review,
-            TotalCount = totalReviewCount,
-            CurrentPage = currentPage,
-            PageSize = pageSize,
-        };
+        return reviews;
     }
 
 
@@ -85,5 +78,9 @@ public class ReviewService
         }
 
         return false;
+    }
+    public async Task<int> GetTotalReviewCount()
+    {
+        return await _dbContext.Reviews.CountAsync();
     }
 }

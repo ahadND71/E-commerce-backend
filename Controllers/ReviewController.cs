@@ -27,14 +27,21 @@ public class ReviewController : ControllerBase
     public async Task<IActionResult> GetAllReviews([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         var reviews = await _reviewService.GetAllReviewService(currentPage, pageSize);
-        if (reviews.TotalCount < 1)
+        int totalCount = await _reviewService.GetTotalReviewCount();
+
+        if (totalCount < 1)
         {
             throw new NotFoundException("No Reviews To Display");
         }
 
         return ApiResponse.Success(
             reviews,
-            "Reviews are returned successfully");
+            "Reviews are returned successfully", new PaginationMeta
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            });
     }
 
 

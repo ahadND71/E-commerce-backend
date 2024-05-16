@@ -27,14 +27,21 @@ public class CategoryController : ControllerBase
     public async Task<IActionResult> GetAllCategories([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         var categories = await _categoryService.GetAllCategoryService(currentPage, pageSize);
-        if (categories.TotalCount < 1)
+        int totalCount = await _categoryService.GetTotalCategoryCount();
+
+        if (totalCount < 1)
         {
             throw new NotFoundException("No Categories To Display");
         }
 
         return ApiResponse.Success(
             categories,
-            "Categories are returned successfully");
+            "Categories are returned successfully", new PaginationMeta
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            });
     }
 
 

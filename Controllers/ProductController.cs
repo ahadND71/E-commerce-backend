@@ -36,8 +36,11 @@ public class ProductController : ControllerBase
     )
     {
         var products = await _productService.GetAllProductService(pageNumber, pageSize, searchTerm, sortBy, sortOrder, minPrice, maxPrice);
-        int totalProductCount = await _productService.GetTotalProductCount();
-
+        int totalCount = await _productService.GetTotalProductCount();
+        if (totalCount < 1)
+        {
+            throw new NotFoundException("No Products To Display");
+        }
         return ApiResponse.Success
         (
             products,
@@ -46,7 +49,7 @@ public class ProductController : ControllerBase
             {
                 CurrentPage = pageNumber,
                 PageSize = pageSize,
-                TotalCount = totalProductCount
+                TotalCount = totalCount
             }
         );
     }
@@ -139,5 +142,17 @@ public class ProductController : ControllerBase
         }
 
         return ApiResponse.Success(" Product is deleted successfully");
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{slug}")]
+    public async Task<IActionResult> GetProductBySlug(string slug)
+    {
+        var product = await _productService.GetProductBySlugService(slug) ?? throw new NotFoundException($"No Product Found With Slug: {slug}");
+
+        return ApiResponse.Success(
+            product,
+            "Product is returned successfully"
+        );
     }
 }

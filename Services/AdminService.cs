@@ -26,22 +26,15 @@ public class AdminService
     }
 
 
-    public async Task<PaginationResult<AdminDto>> GetAllAdminsService(int currentPage, int pageSize)
+    public async Task<IEnumerable<AdminDto>> GetAllAdminsService(int currentPage, int pageSize)
     {
-        var totalAdminCount = await _dbContext.Admins.CountAsync();
         var admins = await _dbContext.Admins
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
         var adminDtos = _mapper.Map<List<Admin>, List<AdminDto>>(admins);
-        return new PaginationResult<AdminDto>
-        {
-            Items = adminDtos,
-            TotalCount = totalAdminCount,
-            CurrentPage = currentPage,
-            PageSize = pageSize,
-        };
+        return adminDtos;
     }
 
 
@@ -151,9 +144,13 @@ public class AdminService
         return true;
     }
 
-
     public async Task<bool> IsEmailExists(string email)
     {
         return await _dbContext.Admins.AnyAsync(a => a.Email == email.ToLower()) || await _dbContext.Customers.AnyAsync(c => c.Email == email.ToLower());
+    }
+
+    public async Task<int> GetTotalAdminCount()
+    {
+        return await _dbContext.Admins.CountAsync();
     }
 }

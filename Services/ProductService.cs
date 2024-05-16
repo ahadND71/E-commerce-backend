@@ -209,4 +209,11 @@ public class ProductService
 
         return false;
     }
+    public async Task<Product?> GetProductBySlugService(string slug)
+    {
+        return await _dbContext.Products
+            .Include(r => r.Reviews) // Include relations
+            .Include(op => op.OrderProducts)
+            .FirstOrDefaultAsync(p => p.Slug == slug);
+    }
 }

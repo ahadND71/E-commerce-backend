@@ -27,14 +27,20 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetAllOrders([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         var orders = await _orderService.GetAllOrderService(currentPage, pageSize);
-        if (orders.TotalCount < 1)
+        int totalCount = await _orderService.GetTotalOrderCount();
+        if (totalCount < 1)
         {
             throw new NotFoundException("No Orders To Display");
         }
 
         return ApiResponse.Success(
             orders,
-            "Orders are returned successfully");
+            "Orders are returned successfully", new PaginationMeta
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            });
     }
 
 

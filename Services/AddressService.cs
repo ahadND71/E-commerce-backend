@@ -17,21 +17,14 @@ public class AddressService
     }
 
 
-    public async Task<PaginationResult<Address>> GetAllAddressService(int currentPage, int pageSize)
+    public async Task<IEnumerable<Address>> GetAllAddressService(int currentPage, int pageSize)
     {
-        var totalAddressCount = await _dbContext.Addresses.CountAsync();
-        var address = await _dbContext.Addresses
+        var addresses = await _dbContext.Addresses
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-        return new PaginationResult<Address>
-        {
-            Items = address,
-            TotalCount = totalAddressCount,
-            CurrentPage = currentPage,
-            PageSize = pageSize,
-        };
+        return addresses;
     }
 
 
@@ -90,5 +83,10 @@ public class AddressService
         }
 
         return false;
+    }
+
+    public async Task<int> GetTotalAddressCount()
+    {
+        return await _dbContext.Addresses.CountAsync();
     }
 }

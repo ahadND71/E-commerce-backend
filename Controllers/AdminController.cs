@@ -33,12 +33,19 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> GetAllAdmins([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         var admins = await _adminService.GetAllAdminsService(currentPage, pageSize);
-        if (admins.TotalCount < 1)
+        int totalCount = await _adminService.GetTotalAdminCount();
+
+        if (totalCount < 1)
         {
             throw new NotFoundException("No Admins To Display");
         }
 
-        return ApiResponse.Success(admins, "Admins are returned successfully");
+        return ApiResponse.Success(admins, "Admins are returned successfully", new PaginationMeta
+        {
+            CurrentPage = currentPage,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        });
     }
 
 

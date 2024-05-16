@@ -30,14 +30,21 @@ public class CustomerController : ControllerBase
     public async Task<IActionResult> GetAllCustomers([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         var customers = await _customerService.GetAllCustomersService(currentPage, pageSize);
-        if (customers.TotalCount < 1)
+        int totalCount = await _customerService.GetTotalCustomerCount();
+
+        if (totalCount < 1)
         {
             throw new NotFoundException("No Customers To Display");
         }
 
         return ApiResponse.Success(
             customers,
-            "Customers are returned successfully");
+            "Customers are returned successfully", new PaginationMeta
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            });
     }
 
 

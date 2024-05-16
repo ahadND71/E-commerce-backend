@@ -27,14 +27,22 @@ public class AddressController : ControllerBase
     public async Task<IActionResult> GetAllAddress([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
     {
         var addresses = await _addressService.GetAllAddressService(currentPage, pageSize);
-        if (addresses.TotalCount < 1)
+        int totalCount = await _addressService.GetTotalAddressCount();
+
+        if (totalCount < 1)
         {
             throw new NotFoundException("No Addresses To Display");
         }
 
         return ApiResponse.Success(
             addresses,
-            "Addresses are returned successfully");
+            "Addresses are returned successfully", new PaginationMeta
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            });
+
     }
 
 

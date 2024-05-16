@@ -16,20 +16,13 @@ public class OrderProductService
     }
 
 
-    public async Task<PaginationResult<OrderProduct>> GetAllOrderProductService(int currentPage, int pageSize)
+    public async Task<IEnumerable<OrderProduct>> GetAllOrderProductService(int currentPage, int pageSize)
     {
-        var totalOrderProductCount = await _dbContext.OrderProducts.CountAsync();
         var orderProduct = await _dbContext.OrderProducts
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-        return new PaginationResult<OrderProduct>
-        {
-            Items = orderProduct,
-            TotalCount = totalOrderProductCount,
-            CurrentPage = currentPage,
-            PageSize = pageSize,
-        };
+        return orderProduct;
     }
 
 
@@ -95,5 +88,9 @@ public class OrderProductService
             order.TotalPrice = sumProductPrices;
             await _dbContext.SaveChangesAsync();
         }
+    }
+    public async Task<int> GetTotalOrderProductCount()
+    {
+        return await _dbContext.OrderProducts.CountAsync();
     }
 }

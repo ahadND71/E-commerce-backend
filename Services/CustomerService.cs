@@ -26,9 +26,8 @@ public class CustomerService
     }
 
 
-    public async Task<PaginationResult<CustomerDto>> GetAllCustomersService(int currentPage, int pageSize)
+    public async Task<IEnumerable<CustomerDto>> GetAllCustomersService(int currentPage, int pageSize)
     {
-        var totalCustomerCount = await _dbContext.Customers.CountAsync();
         var customers = await _dbContext.Customers
             .Include(a => a.Addresses)
             .Include(o => o.Orders)
@@ -40,13 +39,7 @@ public class CustomerService
 
         var customerDtos = _mapper.Map<List<Customer>, List<CustomerDto>>(customers);
 
-        return new PaginationResult<CustomerDto>
-        {
-            Items = customerDtos,
-            TotalCount = totalCustomerCount,
-            CurrentPage = currentPage,
-            PageSize = pageSize,
-        };
+        return customerDtos;
     }
 
 
@@ -163,9 +156,13 @@ public class CustomerService
         return true;
     }
 
-
     public async Task<bool> IsEmailExists(string email)
     {
         return await _dbContext.Admins.AnyAsync(a => a.Email == email.ToLower()) || await _dbContext.Customers.AnyAsync(c => c.Email == email.ToLower());
+    }
+
+    public async Task<int> GetTotalCustomerCount()
+    {
+        return await _dbContext.Customers.CountAsync();
     }
 }

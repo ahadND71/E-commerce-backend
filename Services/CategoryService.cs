@@ -17,10 +17,9 @@ public class CategoryService
     }
 
 
-    public async Task<PaginationResult<Category>> GetAllCategoryService(int currentPage, int pageSize)
+    public async Task<IEnumerable<Category>> GetAllCategoryService(int currentPage, int pageSize)
     {
-        var totalCategoryCount = await _dbContext.Categories.CountAsync();
-        var category = await _dbContext.Categories
+        var categories = await _dbContext.Categories
             .Include(c => c.Products)
             .ThenInclude(r => r.Reviews)
             .Include(p => p.Products)
@@ -29,13 +28,7 @@ public class CategoryService
             .Take(pageSize)
             .ToListAsync();
 
-        return new PaginationResult<Category>
-        {
-            Items = category,
-            TotalCount = totalCategoryCount,
-            CurrentPage = currentPage,
-            PageSize = pageSize,
-        };
+        return categories;
     }
 
 
@@ -96,5 +89,9 @@ public class CategoryService
         }
 
         return false;
+    }
+    public async Task<int> GetTotalCategoryCount()
+    {
+        return await _dbContext.Categories.CountAsync();
     }
 }

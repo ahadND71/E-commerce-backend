@@ -46,7 +46,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin", builder =>
     {
-        builder.WithOrigins("http://localhost:3001")
+        builder.WithOrigins("https://alahad-e-commerce-frontend-8-git-0cb9ea-ahads-projects-495ff076.vercel.app")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();

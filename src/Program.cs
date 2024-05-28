@@ -15,12 +15,14 @@ using Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 DotNetEnv.Env.Load();
+Console.WriteLine($"hhhhhhhh{Environment.GetEnvironmentVariable("Jwt__Key")}");
+
 // Get JWT settings from environment variables
 var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key") ?? throw new
 InvalidOperationException("JWT Key is missing in environment variables.");
-var jwtIssuer = Environment.GetEnvironmentVariable("Jvt__Issuer") ?? throw new
+var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer") ?? throw new
 InvalidOperationException("WT Issuer is missing in environment variables.");
-var jwtAudience = Environment.GetEnvironmentVariable("Jwt_Audience") ?? throw
+var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience") ?? throw
 new InvalidOperationException("WT Issuer is missing in environment variables.");
 
 // Get the database connection string from environment variables

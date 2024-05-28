@@ -14,25 +14,28 @@ using Backend.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
+// Load environment variables from .env file
+
 DotNetEnv.Env.Load();
-Console.WriteLine($"hhhhhhhh{Environment.GetEnvironmentVariable("Jwt__Key")}");
 
 // Get JWT settings from environment variables
-var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key") ?? throw new
-InvalidOperationException("JWT Key is missing in environment variables.");
-var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer") ?? throw new
-InvalidOperationException("WT Issuer is missing in environment variables.");
-var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience") ?? throw
-new InvalidOperationException("WT Issuer is missing in environment variables.");
+
+var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key") ?? throw new InvalidOperationException("JWT Key is missing in environment variables.");
+
+var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer") ?? throw new InvalidOperationException("JWT Issuer is missing in environment variables.");
+
+var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience") ?? throw new InvalidOperationException("JWT Audience is missing in environment variables.");
+
+
 
 // Get the database connection string from environment variables
-var defaultConnection = Environment.GetEnvironmentVariable
-("LegendsConnection") ?? throw new InvalidOperationException("Default Connection is missing in environment variables.");
+
+var defaultConnection = Environment.GetEnvironmentVariable("LegendsConnection") ?? throw new InvalidOperationException("Default Connection is missing in environment variables.");
 
 //add email sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(defaultConnection));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(defaultConnection).EnableSensitiveDataLogging());
 
 //Add the authentication
 var configuration = builder.Configuration;
@@ -49,6 +52,8 @@ builder.Services.AddCors(options =>
             .AllowCredentials();
     });
 });
+
+
 
 
 builder.Services.AddAuthentication(options =>
@@ -92,6 +97,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 var app = builder.Build();
+
+
+// TODO seeding DbInitializer 
+// adding data to the database if it doesn't exist, so we can all test the APIs
+// still testing this
 
 using (var scope = app.Services.CreateScope())
 {

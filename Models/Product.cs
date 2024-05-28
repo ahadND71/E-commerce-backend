@@ -20,10 +20,6 @@ public class Product
     [Range(1, int.MaxValue, ErrorMessage = "Price must be at least 1")]
     public decimal Price { get; set; }
 
-    [Required(ErrorMessage = "SKU is required")]
-    [MaxLength(100)]
-    public string SKU { get; set; } = string.Empty;
-
     [Required(ErrorMessage = "Stock quantity is required")]
     [Range(0, int.MaxValue, ErrorMessage = "Stock Quantity Must Be Positive Number")]
     public int StockQuantity { get; set; }
@@ -37,9 +33,8 @@ public class Product
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     //? Relations
-
     public Guid? CategoryId { get; set; }
-    public Guid? AdminId { get; set; }
+    // public Guid? AdminId { get; set; }
 
     public ICollection<Review> Reviews { get; } = new List<Review>();
     public ICollection<OrderProduct> OrderProducts { get; } = new List<OrderProduct>();

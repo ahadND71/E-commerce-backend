@@ -14,17 +14,27 @@ using Backend.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
+DotNetEnv.Env.Load();
+// Get JWT settings from environment variables
+var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key") ?? throw new
+InvalidOperationException("JWT Key is missing in environment variables.");
+var jwtIssuer = Environment.GetEnvironmentVariable("Jvt__Issuer") ?? throw new
+InvalidOperationException("WT Issuer is missing in environment variables.");
+var jwtAudience = Environment.GetEnvironmentVariable("Jwt_Audience") ?? throw
+new InvalidOperationException("WT Issuer is missing in environment variables.");
+
+// Get the database connection string from environment variables
+var defaultConnection = Environment.GetEnvironmentVariable
+("LegendsConnection") ?? throw new InvalidOperationException("Default Connection is missing in environment variables.");
 
 //add email sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(
-    builder.Configuration.GetConnectionString("LegendsConnection")
-).EnableSensitiveDataLogging());
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(defaultConnection));
 
 //Add the authentication
 var configuration = builder.Configuration;
-var key = Encoding.ASCII.GetBytes(configuration["JwtSettings:Key"]);
+var key = Encoding.ASCII.GetBytes(jwtKey);
 
 // Cors
 builder.Services.AddCors(options =>
@@ -37,6 +47,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials();
     });
 });
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -79,11 +90,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 var app = builder.Build();
-
-
-// TODO seeding DbInitializer 
-// adding data to the database if it doesn't exist, so we can all test the APIs
-// still testing this
 
 using (var scope = app.Services.CreateScope())
 {

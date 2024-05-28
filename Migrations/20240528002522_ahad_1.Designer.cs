@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240503220753_enas_database_mig1")]
-    partial class enas_database_mig1
+    [Migration("20240528002522_ahad_1")]
+    partial class ahad_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace Backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Address", b =>
+            modelBuilder.Entity("Backend.Models.Address", b =>
                 {
                     b.Property<Guid>("AddressId")
                         .ValueGeneratedOnAdd()
@@ -76,7 +76,7 @@ namespace Backend.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("Admin", b =>
+            modelBuilder.Entity("Backend.Models.Admin", b =>
                 {
                     b.Property<Guid>("AdminId")
                         .ValueGeneratedOnAdd()
@@ -104,26 +104,32 @@ namespace Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("Mobile")
-                        .HasColumnType("integer");
+                    b.Property<string>("Mobile")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)");
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ResetToken")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ResetTokenExpiration")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("AdminId");
 
                     b.ToTable("Admins");
                 });
 
-            modelBuilder.Entity("Category", b =>
+            modelBuilder.Entity("Backend.Models.Category", b =>
                 {
                     b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AdminId")
+                    b.Property<Guid?>("AdminId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -145,10 +151,13 @@ namespace Backend.Migrations
 
                     b.HasKey("CategoryId");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Customer", b =>
+            modelBuilder.Entity("Backend.Models.Customer", b =>
                 {
                     b.Property<Guid>("CustomerId")
                         .ValueGeneratedOnAdd()
@@ -179,17 +188,26 @@ namespace Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Mobile")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)");
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ResetToken")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ResetTokenExpiration")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("CustomerId");
 
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("Order", b =>
+            modelBuilder.Entity("Backend.Models.Order", b =>
                 {
                     b.Property<Guid>("OrderId")
                         .ValueGeneratedOnAdd()
@@ -208,8 +226,8 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TotalAmount")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -221,9 +239,9 @@ namespace Backend.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("OrderProduct", b =>
+            modelBuilder.Entity("Backend.Models.OrderProduct", b =>
                 {
-                    b.Property<Guid>("OrderItemId")
+                    b.Property<Guid>("OrderProductId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -233,14 +251,13 @@ namespace Backend.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("ProductPrice")
+                    b.Property<decimal>("ProductPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Quantity")
-                        .IsRequired()
-                        .HasColumnType("integer");
-
-                    b.HasKey("OrderItemId");
+                    b.HasKey("OrderProductId");
 
                     b.HasIndex("OrderId");
 
@@ -249,13 +266,10 @@ namespace Backend.Migrations
                     b.ToTable("OrderProducts");
                 });
 
-            modelBuilder.Entity("Product", b =>
+            modelBuilder.Entity("Backend.Models.Product", b =>
                 {
                     b.Property<Guid>("ProductId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("AdminId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("CategoryId")
@@ -282,11 +296,6 @@ namespace Backend.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
-                    b.Property<string>("SKU")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasColumnType("text");
@@ -301,10 +310,13 @@ namespace Backend.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Review", b =>
+            modelBuilder.Entity("Backend.Models.Review", b =>
                 {
                     b.Property<Guid>("ReviewId")
                         .ValueGeneratedOnAdd()
@@ -320,7 +332,7 @@ namespace Backend.Migrations
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("OrderId")
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ProductId")
@@ -345,67 +357,67 @@ namespace Backend.Migrations
                     b.ToTable("Reviews");
                 });
 
-            modelBuilder.Entity("Address", b =>
+            modelBuilder.Entity("Backend.Models.Address", b =>
                 {
-                    b.HasOne("Customer", null)
+                    b.HasOne("Backend.Models.Customer", null)
                         .WithMany("Addresses")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Order", b =>
+            modelBuilder.Entity("Backend.Models.Order", b =>
                 {
-                    b.HasOne("Customer", null)
+                    b.HasOne("Backend.Models.Customer", null)
                         .WithMany("Orders")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("OrderProduct", b =>
+            modelBuilder.Entity("Backend.Models.OrderProduct", b =>
                 {
-                    b.HasOne("Order", null)
+                    b.HasOne("Backend.Models.Order", null)
                         .WithMany("OrderProducts")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Product", null)
+                    b.HasOne("Backend.Models.Product", null)
                         .WithMany("OrderProducts")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Product", b =>
+            modelBuilder.Entity("Backend.Models.Product", b =>
                 {
-                    b.HasOne("Category", null)
+                    b.HasOne("Backend.Models.Category", null)
                         .WithMany("Products")
                         .HasForeignKey("CategoryId");
                 });
 
-            modelBuilder.Entity("Review", b =>
+            modelBuilder.Entity("Backend.Models.Review", b =>
                 {
-                    b.HasOne("Customer", null)
+                    b.HasOne("Backend.Models.Customer", null)
                         .WithMany("Reviews")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Product", null)
+                    b.HasOne("Backend.Models.Product", null)
                         .WithMany("Reviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Category", b =>
+            modelBuilder.Entity("Backend.Models.Category", b =>
                 {
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("Customer", b =>
+            modelBuilder.Entity("Backend.Models.Customer", b =>
                 {
                     b.Navigation("Addresses");
 
@@ -414,12 +426,12 @@ namespace Backend.Migrations
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("Order", b =>
+            modelBuilder.Entity("Backend.Models.Order", b =>
                 {
                     b.Navigation("OrderProducts");
                 });
 
-            modelBuilder.Entity("Product", b =>
+            modelBuilder.Entity("Backend.Models.Product", b =>
                 {
                     b.Navigation("OrderProducts");
 

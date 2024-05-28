@@ -27,7 +27,7 @@ public class ProductController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllProducts(
         int pageNumber = 1,
-        int pageSize = 10,
+        int pageSize = 100,
         string? searchTerm = null,
         string? sortBy = null,
         string? sortOrder = null,
@@ -71,7 +71,7 @@ public class ProductController : ControllerBase
     [HttpGet("search")]
     public async Task<IActionResult> SearchProducts(
         int pageNumber = 1,
-        int pageSize = 10,
+        int pageSize = 100,
         string? searchTerm = null
     )
     {
@@ -98,7 +98,8 @@ public class ProductController : ControllerBase
     }
 
 
-    [Authorize(Roles = "Admin")]
+
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> CreateProduct(Product newProduct)
     {
@@ -108,7 +109,9 @@ public class ProductController : ControllerBase
     }
 
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
+
     [HttpPut("{productId}")]
     public async Task<IActionResult> UpdateProduct(string productId, ProductDto updateProduct)
     {
@@ -126,7 +129,9 @@ public class ProductController : ControllerBase
     }
 
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
+
     [HttpDelete("{productId}")]
     public async Task<IActionResult> DeleteProduct(string productId)
     {
@@ -155,4 +160,40 @@ public class ProductController : ControllerBase
             "Product is returned successfully"
         );
     }
+
+    [AllowAnonymous]
+    [HttpGet("category/{categoryId}")]
+    public async Task<IActionResult> GetProductsByCategory(Guid categoryId)
+    {
+        try
+        {
+            var products = await _productService.GetProductsByCategory(categoryId, 1, 100); // Adjust pagination parameters as needed
+            if (products == null || !products.Any())
+            {
+                return NotFound("No products found for the given category.");
+            }
+
+            return Ok(products);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpGet("new-arrivals")]
+    public async Task<IActionResult> GetNewArrivals(int pageNumber = 1, int pageSize = 10)
+    {
+        var products = await _productService.GetNewArrivals(pageNumber, pageSize);
+        if (!products.Any())
+        {
+            return NotFound("No new arrivals found.");
+        }
+        return Ok(products);
+    }
+
 }
+
+
+

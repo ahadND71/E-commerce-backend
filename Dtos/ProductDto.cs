@@ -11,7 +11,6 @@ public class ProductDto
     [Range(1, int.MaxValue, ErrorMessage = "Price must be at least 1")]
     public decimal? Price { get; set; }
 
-    [MaxLength(100)] public string? SKU { get; set; }
 
     [Range(0, int.MaxValue, ErrorMessage = "Stock Quantity Must Be Positive Number")]
     public int? StockQuantity { get; set; }

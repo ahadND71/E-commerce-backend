@@ -269,9 +269,6 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AdminId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid");
 
@@ -295,11 +292,6 @@ namespace Backend.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
-
-                    b.Property<string>("SKU")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Slug")
                         .IsRequired()

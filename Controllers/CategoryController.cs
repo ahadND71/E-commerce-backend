@@ -24,7 +24,7 @@ public class CategoryController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetAllCategories([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 3)
+    public async Task<IActionResult> GetAllCategories([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 100)
     {
         var categories = await _categoryService.GetAllCategoryService(currentPage, pageSize);
         int totalCount = await _categoryService.GetTotalCategoryCount();
@@ -58,7 +58,7 @@ public class CategoryController : ControllerBase
     }
 
 
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> CreateCategory(Category newCategory)
     {

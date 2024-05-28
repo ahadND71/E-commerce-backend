@@ -4,3 +4,4 @@ bin
 obj
 *.http
 .mono
+.env

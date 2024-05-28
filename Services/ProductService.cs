@@ -82,7 +82,6 @@ public class ProductService
             "createdat" or "date" => p => p.CreatedAt,
             "updatedat" or "latest" => p => p.UpdatedAt,
             "stock" or "stockquantity" => p => p.StockQuantity,
-            "sku" => p => p.SKU,
             "category" => p => p.CategoryId,
             _ => p => p.Name, // Default sort field
         };
@@ -186,7 +185,6 @@ public class ProductService
             existingProduct.Slug = SlugGenerator.GenerateSlug(existingProduct.Name);
             existingProduct.Description = updateProduct.Description.IsNullOrEmpty() ? existingProduct.Description : updateProduct.Description;
             existingProduct.Price = updateProduct.Price ?? existingProduct.Price;
-            existingProduct.SKU = updateProduct.SKU.IsNullOrEmpty() ? existingProduct.SKU : updateProduct.SKU;
             existingProduct.ImgUrl = updateProduct.ImgUrl.IsNullOrEmpty() ? existingProduct.ImgUrl : updateProduct.ImgUrl;
             existingProduct.UpdatedAt = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();
@@ -216,4 +214,33 @@ public class ProductService
             .Include(op => op.OrderProducts)
             .FirstOrDefaultAsync(p => p.Slug == slug);
     }
+
+    public async Task<IEnumerable<Product>> GetProductsByCategory(Guid categoryId, int pageNumber, int pageSize)
+    {
+        var query = _dbContext.Products
+            .Where(p => p.CategoryId == categoryId)
+            .Include(r => r.Reviews)
+            .Include(op => op.OrderProducts)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize);
+
+        return await query.ToListAsync();
+    }
+
+    public async Task<IEnumerable<Product>> GetNewArrivals(int pageNumber, int pageSize)
+    {
+        var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
+        var query = _dbContext.Products
+            .Where(p => p.CreatedAt >= threeMonthsAgo)
+            .Include(r => r.Reviews) // Include relations
+            .Include(op => op.OrderProducts)
+            .OrderByDescending(p => p.CreatedAt) // Sort by newest first
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize);
+
+        return await query.ToListAsync();
+    }
+
+
+
 }
